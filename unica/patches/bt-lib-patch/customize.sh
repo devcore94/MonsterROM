@@ -26,18 +26,5 @@ fi
 # Disable VaultKeeper support
 # Before: [tbnz w8, #0, #0xXXXXXX]
 # After: [b #0xXXXXXX]
-if xxd -p -c 0 "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" | grep -q "2897773948050037"; then
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-        "2897773948050037" "289777392a000014"
-elif xxd -p -c 0 "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" | grep -q "2897663948050037"; then
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-        "2897663948050037" "289766392a000014"
-elif xxd -p -c 0 "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" | grep -q "88b65a3948050037"; then
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-        "88b65a3948050037" "88b65a392a000014"
-elif xxd -p -c 0 "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" | grep -q "8876523948050037"; then
-    HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
-        "8876523948050037" "887652392a000014"
-else
-    ABORT "No known patch available for the supplied libbluetooth_jni.so"
-fi
+HEX_PATCH "$WORK_DIR/system/system/lib64/libbluetooth_jni.so" \
+"00122a0140395f01086b00020054" "00122a0140395f01086bde030014"
