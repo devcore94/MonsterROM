@@ -1,4 +1,4 @@
-# QPR2 dimension rounding for Samsung SDK 37
+# QPR2 dimension rounding for Samsung One UI 9
 
 The reviewed Samsung `TypedValue.floatToComplex` throws an
 `IllegalArgumentException` for the positive floats immediately below 1, 256 and

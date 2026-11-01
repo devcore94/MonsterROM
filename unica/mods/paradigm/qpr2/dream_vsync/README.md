@@ -1,6 +1,6 @@
 # Next-vsync Colors dream, preserving Samsung's signer
 
-The SDK37 root customization implements the QPR2 scheduling change through
+The One UI 9 root customization implements the QPR2 scheduling change through
 `framework.jar`, not by rebuilding/re-signing `BasicDreams.apk`. SDK36 is unchanged.
 
 Only a 25-ms `Choreographer.postFrameCallbackDelayed` request from the exact

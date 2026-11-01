@@ -55,7 +55,7 @@ class Compat32HostOptionTests(unittest.TestCase):
             target.mkdir(parents=True)
             (source / "existing.dat").write_bytes(b"must not overwrite original")
             original = target / "existing.dat"
-            original.write_bytes(b"original SDK37 data")
+            original.write_bytes(b"original One UI 9 data")
             original.chmod(0o640)
             os.utime(original, ns=(1000000000, 2000000000))
             before = original.stat()
@@ -71,7 +71,7 @@ class Compat32HostOptionTests(unittest.TestCase):
                                     capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertNotIn("warning", result.stderr.lower())
-            self.assertEqual(original.read_bytes(), b"original SDK37 data")
+            self.assertEqual(original.read_bytes(), b"original One UI 9 data")
             self.assertEqual(stat.S_IMODE(original.stat().st_mode), stat.S_IMODE(before.st_mode))
             self.assertEqual(original.stat().st_mtime_ns, before.st_mtime_ns)
             self.assertEqual((target / "added.dat").read_bytes(), b"ARM32 addition")

@@ -1,6 +1,6 @@
-# Standalone Contacts signing in an SDK 37 system image
+# Standalone Contacts signing in a One UI 9 system image
 
-The SDK 37 0002 patch narrows the existing custom-platform alias: the exact
+The One UI 9 0002 patch narrows the existing custom-platform alias: the exact
 package com.samsung.android.app.contacts keeps its cryptographically verified
 UN1CA signing details and is not promoted to the Samsung platform identity.
 Other packages retain the previous alias behavior. Certificate collection,

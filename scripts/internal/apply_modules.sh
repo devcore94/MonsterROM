@@ -133,8 +133,12 @@ elif [ ! -d "$1" ]; then
     exit 1
 fi
 
+# Direct git apply calls in modules also need the repository root: from a
+# subdirectory Git can report success after silently skipping patch paths.
+MODULES_DIR="$(cd "$1" && pwd -P)" || exit 1
+cd "$SRC_DIR" || exit 1
 while IFS= read -r f; do
     APPLY_MODULE "$f"
-done < <(find "$1" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
+done < <(find "$MODULES_DIR" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
 
 exit 0

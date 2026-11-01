@@ -24,10 +24,10 @@ PREFIX = ROOT / "out/tools/host-perl" / SETUP.CACHE_NAME
 BODIES = {
     "unica/mods/settings/customize.sh": ["8b93cd3b1b13b7fc297114ced9308be35c54d7f48542048bf62bb708ecf65acc"],
     "unica/mods/setupwizard/customize.sh": ["210255434003e14d74c1d9f9f7a3dad2d644925e89bb71bf794c6e2d80f8cf37"],
-    "unica/patches/camera/customize.sh": ["7f20f00ad0dd8c60c2616633083e01d822fa6bfb2af23968d1b82fde95900cf4", "ba95716a8647ef1590f0d17e6d8cb5b146520b4e4d7f823f04f5d5527b5f027e"],
+    "unica/patches/camera/customize.sh": ["a7bb27c5ba8440740138718730211bba8cce2fe12773c4940af803622704ec5f", "ba95716a8647ef1590f0d17e6d8cb5b146520b4e4d7f823f04f5d5527b5f027e"],
     "unica/patches/rro/customize.sh": ["2146265e50dc6ebfe8ce59a93d12990747b6ed0114abc0da415e7ddfb8faa6c2"],
-    "unica/patches/spen/customize.sh": ["0736042241b3e3ee38dc524c124a7aba8c4e04bb71f58b879ca1e7bfc3ab129c"],
-    "unica/patches/bluetooth/customize.sh": ["a4e9422e1f7efd89e257f7c8df82d823b99b273c8826713363efb5e9500ca02c"],
+    "unica/patches/spen/customize.sh": ["aed2a9fcd83bf09c67b8aa4ecdb5242bf6eba72186e43d009af91d55bfbc379f"],
+    "unica/patches/bluetooth/customize.sh": ["34c59cc661b46f509d70a40a98e0d8c09470f43be1a69ff5512030757f735f4f"],
 }
 
 

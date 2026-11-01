@@ -7,7 +7,7 @@ fi
 
 _LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
 
-# Reviewed SDK-37 SDHMS classes; keep the original methods and only replace
+# Reviewed One UI 9 SDHMS classes; keep the original methods and only replace
 # the same policy inputs. Do not guess another class by its obfuscated name.
 DVFS_FEATURE_SMALI="smali/r1/c.smali"
 DVFS_PROPERTIES_SMALI="smali/z1/e.smali"
@@ -108,9 +108,9 @@ fi
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     APPLY_PATCH "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" \
-        "$MODPATH/sdk37/SamsungDeviceHealthManagerService.apk/0001-Restore-DEX-thermal-complex-dispatch.patch" || return 1
+        "$MODPATH/SamsungDeviceHealthManagerService.apk/0001-Restore-DEX-thermal-complex-dispatch.patch" || return 1
     APPLY_PATCH "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" \
-        "$MODPATH/sdk37/SamsungDeviceHealthManagerService.apk/0002-Add-display-aware-DEX-thermal-handler.patch" || return 1
+        "$MODPATH/SamsungDeviceHealthManagerService.apk/0002-Add-display-aware-DEX-thermal-handler.patch" || return 1
     SET_PROP "system" "ro.unica.version" "$(GET_PROP "system" "ro.unica.version")-sdhms-camera-r1"
 fi
 

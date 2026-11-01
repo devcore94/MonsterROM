@@ -1,4 +1,4 @@
-# QPR2 sparse collection APIs for Samsung SDK 37
+# QPR2 sparse collection APIs for Samsung One UI 9
 
 This ordinary Paradigm patch adds the five `compute` APIs from the local
 `android17QPR2gsi` CRB project, build `CP41.260831.007.A3`:

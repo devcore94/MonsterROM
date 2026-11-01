@@ -1,5 +1,5 @@
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    # Keep the SDK37 native runtime; remove Knox entry points in its own Java
+    # Keep the One UI 9 native runtime; remove Knox entry points in its own Java
     # code. Run directly under the original module runner's fail-fast shell.
     SET_PROP_IF_DIFF "vendor" "ro.security.fips.ux" "Disabled"
     DELETE_FROM_WORK_DIR "system" "system/app/BlockchainBasicKit"
@@ -29,21 +29,21 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     DELETE_FROM_WORK_DIR "system" "system/priv-app/KnoxZtFramework"
 
     # SQLiteSdpHelper/SDP flags are gone; the donor has unsupported SDP stubs.
-    LOG "- Knox SDP is already removed in the SDK 37 framework"
+    LOG "- Knox SDP is already removed in the One UI 9 framework"
     APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/sdk37/ddar/framework.jar/0001-Nuke-Knox-DualDAR-SDK37.patch"
+        "$MODPATH/ddar/framework.jar/0001-Nuke-Knox-DualDAR.patch"
     APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/sdk37/ddar/framework.jar/0002-Nuke-MDF-SDK37.patch"
+        "$MODPATH/ddar/framework.jar/0002-Nuke-MDF.patch"
     APPLY_PATCH "system" "system/framework/services.jar" \
-        "$MODPATH/sdk37/ddar/services.jar/0001-Nuke-Knox-DualDAR-SDK37.patch"
+        "$MODPATH/ddar/services.jar/0001-Nuke-Knox-DualDAR.patch"
     APPLY_PATCH "system" "system/priv-app/KnoxCore/KnoxCore.apk" \
-        "$MODPATH/sdk37/ddar/KnoxCore.apk/0001-Nuke-Knox-DualDAR-SDK37.patch"
+        "$MODPATH/ddar/KnoxCore.apk/0001-Nuke-Knox-DualDAR.patch"
     while read -r PARTITION ARCHIVE SMALI_DIR; do
         APK_NAME="${ARCHIVE##*/}"
         APPLY_PATCH "$PARTITION" "$ARCHIVE" \
-            "$MODPATH/sdk37/ddar/$APK_NAME/0001-Nuke-Knox-DualDAR-SDK37.patch"
+            "$MODPATH/ddar/$APK_NAME/0001-Nuke-Knox-DualDAR.patch"
         APPLY_PATCH "$PARTITION" "$ARCHIVE" \
-            "$MODPATH/sdk37/hdm/$APK_NAME/0001-Nuke-Knox-HDM-SDK37.patch"
+            "$MODPATH/hdm/$APK_NAME/0001-Nuke-Knox-HDM.patch"
         SMALI_PATCH "$PARTITION" "$ARCHIVE" \
             "$SMALI_DIR/com/samsung/android/knox/integrity/EnhancedAttestationPolicy.smali" "return" \
             'isBldpEventSupported()Z' 'false'
@@ -66,15 +66,15 @@ EOF
     (
         if ! [[ "$SOURCE_PRODUCT_SHIPPING_API_LEVEL" =~ ^[0-9]+$ ]] || \
                 ! [[ "$TARGET_PRODUCT_SHIPPING_API_LEVEL" =~ ^[0-9]+$ ]]; then
-            ABORT "SDK37 HDM patch requires numeric source/target shipping API levels"
+            ABORT "One UI 9 HDM patch requires numeric source/target shipping API levels"
             return 1
         fi
-        HDM_TEMPLATE="$MODPATH/sdk37/hdm/services.jar/0001-Nuke-Knox-HDM-SDK37.patch"
+        HDM_TEMPLATE="$MODPATH/hdm/services.jar/0001-Nuke-Knox-HDM.patch"
         if [ "$(grep -Fxc -- "-    const-string v0, \"$SOURCE_PRODUCT_SHIPPING_API_LEVEL\"" "$HDM_TEMPLATE")" != 1 ]; then
-            ABORT "SDK37 HDM patch does not match the source shipping API"
+            ABORT "One UI 9 HDM patch does not match the source shipping API"
             return 1
         fi
-        HDM_PATCH="$(mktemp "$APKTOOL_DIR/.deknox-hdm-sdk37.XXXXXX.patch")"
+        HDM_PATCH="$(mktemp "$APKTOOL_DIR/.deknox-hdm.XXXXXX.patch")"
         trap 'rm -f "$HDM_PATCH"' EXIT
         sed "s/^-    const-string v0, \"$SOURCE_PRODUCT_SHIPPING_API_LEVEL\"\$/-    const-string v0, \"$TARGET_PRODUCT_SHIPPING_API_LEVEL\"/" \
             "$HDM_TEMPLATE" > "$HDM_PATCH"
@@ -87,21 +87,21 @@ EOF
         "smali_classes5/com/samsung/android/knox/integrity/EnhancedAttestationPolicy.smali" "return" \
         'isMposSupported()Z' 'false'
     APPLY_PATCH "system" "system/framework/services.jar" \
-        "$MODPATH/sdk37/mpos/services.jar/0001-Nuke-MPOS-SDK37.patch"
+        "$MODPATH/mpos/services.jar/0001-Nuke-MPOS.patch"
     APPLY_PATCH "system" "system/framework/services.jar" \
-        "$MODPATH/sdk37/knoxguard/services.jar/0001-Disable-KnoxGuard-SDK37.patch"
+        "$MODPATH/knoxguard/services.jar/0001-Disable-KnoxGuard.patch"
     APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/sdk37/kmxai/framework.jar/0001-Nuke-Knox-Matrix-AI-Privacy-SDK37.patch"
+        "$MODPATH/kmxai/framework.jar/0001-Nuke-Knox-Matrix-AI-Privacy.patch"
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_BLOCKCHAIN_SERVICE" --delete
     SMALI_PATCH "system" "system/framework/framework.jar" \
         "smali_classes6/com/samsung/android/ProductPackagesRune.smali" "replaceall" \
         "SERVICE_SAMSUNG_BLOCKCHAIN:Z = true" "SERVICE_SAMSUNG_BLOCKCHAIN:Z = false"
     if [[ "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" == "none" ]] && [[ "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" == "none" ]]; then
         APPLY_PATCH "system" "system/framework/services.jar" \
-            "$MODPATH/sdk37/ese+blockchain/services.jar/0001-Nuke-BlockchainTZService-SDK37.patch"
+            "$MODPATH/ese+blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
     else
         APPLY_PATCH "system" "system/framework/services.jar" \
-            "$MODPATH/sdk37/blockchain/services.jar/0001-Nuke-BlockchainTZService-SDK37.patch"
+            "$MODPATH/blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
     fi
     return 0
 fi

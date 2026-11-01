@@ -27,7 +27,7 @@ my($target,$stock)=@ARGV; my $original=raw($target); my $jar="/system/framework/
 my @old=records($original); my @new=grep {$_->[0] eq $jar} records(raw($stock));
 need(same([sort map {$_->[1]} @new],[1,3]),"Expected exactly boot and dex2oat UWB records"); need(!scalar(grep {$_->[0] eq $jar} @old),"Unexpected existing UWB classpath");
 my $changed=$original.join("",map {$_->[2]} @new); records($changed); need(substr($changed,0,length($original)) eq $original,"Changed existing classpath records");
-put($target,$changed); print "Preserved SDK37 bootclasspath; added only stock UWB extension records\n";
+put($target,$changed); print "Preserved One UI 9 bootclasspath; added only stock UWB extension records\n";
 PERL
 }
 SOURCE_FIRMWARE_PATH="$(cut -d "/" -f 1 -s <<< "$SOURCE_FIRMWARE")_$(cut -d "/" -f 2 -s <<< "$SOURCE_FIRMWARE")"

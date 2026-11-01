@@ -12,8 +12,8 @@ declarations remain.
 
 Explicit opt-ins: UN1CA_QPR2_CAMERA_PATH=true and
 UN1CA_QPR2_CAMERA_METADATA=true. The matching native schema must already be
-present. Paradigm's SDK-37 test profile sets both opt-ins together. SDK-36
-builds remain unchanged; to omit this experiment from an SDK-37 build, export
+present. Paradigm's One UI 9 test profile sets both opt-ins together. SDK-36
+builds remain unchanged; to omit this experiment from a One UI 9 build, export
 both UN1CA_QPR2_CAMERA_PATH=false and UN1CA_QPR2_CAMERA_METADATA=false.
 
 This modifies the boot classpath. The staged JAR is ROM-only, not a standalone

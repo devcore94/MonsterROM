@@ -66,7 +66,7 @@ fi
 
 PARADIGM_VERIFY_RUNTIME()
 (
-    # Check the retained SDK37 providers after VNDK's native-only ARM32 graft.
+    # Check the retained One UI 9 providers after VNDK's native-only ARM32 graft.
     # Read actual payloads, independently of cache receipts, without rebuilding.
     QPR2_SOURCE_RUNTIME="$FW_DIR/${SOURCE_FIRMWARE%%/*}_$(cut -d / -f 2 <<< "$SOURCE_FIRMWARE")/system/system/apex/com.android.runtime.apex"
     QPR2_RUNTIME="$WORK_DIR/system/system/apex/com.android.runtime.apex"
@@ -115,16 +115,16 @@ find({no_chdir=>1,wanted=>sub {
     else { need(S_ISDIR($s[2]),"Unsupported runtime node: $n") }
 }},$source);
 need($files>=10,'Incomplete original runtime cohort');
-print "Verified $files original SDK37 runtime providers after native ARM32 graft\n";
+print "Verified $files original One UI 9 runtime providers after native ARM32 graft\n";
 PERL
 )
 
-# Keep the newer SDK-37 applications and native feature cohorts. Do not
+# Keep the newer One UI 9 applications and native feature cohorts. Do not
 # downgrade them indiscriminately to the SDK-36/S25 payloads below.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     LOG_STEP_IN "- Selecting target-compatible Samsung brand sounds"
     if ! $TARGET_AUDIO_SUPPORT_ACH_RINGTONE; then
-        # SDK37 supplies ACH-only tones. Use the original coherent ordinary
+        # One UI 9 supplies ACH-only tones. Use the original coherent ordinary
         # SoundTheme pack on non-ACH targets, not renamed haptic-channel files.
         DELETE_FROM_WORK_DIR "system" "system/media/audio/notifications"
         DELETE_FROM_WORK_DIR "system" "system/media/audio/ringtones"
@@ -133,7 +133,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         ADD_TO_WORK_DIR "a56xnaxx" "system" "system/media/audio/ringtones" 0 0 755 "u:object_r:system_file:s0"
         PARADIGM_AUDIO_PREFIX=""
     else
-        # The genuine SDK37 ACH pack already supersedes the 2025 ACH payload.
+        # The genuine One UI 9 ACH pack already supersedes the 2025 ACH payload.
         PARADIGM_AUDIO_PREFIX="ACH_"
     fi
     SET_PROP "vendor" "ro.config.ringtone" "${PARADIGM_AUDIO_PREFIX}Galaxy_Bells.ogg"
@@ -143,7 +143,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     SET_PROP "vendor" "ro.config.ringtone_2" "${PARADIGM_AUDIO_PREFIX}Atomic_Bell.ogg"
     SET_PROP "vendor" "ro.config.notification_sound_2" "${PARADIGM_AUDIO_PREFIX}Three_Star.ogg"
     unset PARADIGM_AUDIO_PREFIX
-    # Keep the newer SDK37 Horizon music/preview and the original brand-sound
+    # Keep the newer One UI 9 Horizon music/preview and the original brand-sound
     # reader behavior, which is still gated on the target's first shipping API.
     APPLY_PATCH "system" "system/priv-app/SecSoundPicker/SecSoundPicker.apk" \
         "$MODPATH/brandsound/SecSoundPicker.apk/0001-Enable-SUPPORT_SAMSUNG_BRAND_SOUND_ONEUI_7.patch"
@@ -280,7 +280,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     if [ "${UN1CA_QPR2_RUNTIME_COHORT:-off}" = "trial-r15" ]; then
         [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && \
             [ "$(GET_PROP "$WORK_DIR/vendor/default.prop" "ro.zygote")" = "zygote64" ] || {
-            ABORT "QPR2 runtime was exercised for the SDK-37 zygote64 cohort"
+            ABORT "QPR2 runtime was exercised for the One UI 9 zygote64 cohort"
             return 1
         }
         PARADIGM_VERIFY_RUNTIME || {
@@ -360,7 +360,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     # QPR2 camera_extensions
     MODPATH="$PARADIGM_MODPATH/qpr2/camera_extensions"
     LOG_STEP_IN "- Adding QPR2 camera_extensions"
-    # Exact SDK-37 backports. The SDK-36 source remains unchanged.
+    # Exact One UI 9 backports. The SDK-36 source remains unchanged.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         APPLY_PATCH "system" "system/app/CameraExtensionsProxy/CameraExtensionsProxy.apk" \
             "$MODPATH/patches/CameraExtensionsProxy.apk/0001-Handle-unavailable-QPR2-subject-segmentation-contract.patch"
@@ -631,7 +631,7 @@ PERL
     # QPR2 dream_vsync
     MODPATH="$PARADIGM_MODPATH/qpr2/dream_vsync"
     LOG_STEP_IN "- Adding QPR2 dream_vsync"
-    # Original SDK-36 builds remain unchanged. Exact SDK-37 contracts only.
+    # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         # Keep the original signed APK. Scope the scheduling change to its
         # exact callback/package instead of rebuilding it with another signer.
@@ -679,7 +679,7 @@ PERL
     # QPR2 recording
     MODPATH="$PARADIGM_MODPATH/qpr2/recording"
     LOG_STEP_IN "- Adding QPR2 recording"
-    # Exact SDK-37 backports. The SDK-36 source remains unchanged.
+    # Exact One UI 9 backports. The SDK-36 source remains unchanged.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         # Review every input and dry-run the complete group before exposing its
         # setting or changing a recorder. Do not depend on the caller's errexit.
@@ -705,7 +705,7 @@ PERL
     # QPR2 storage_paths
     MODPATH="$PARADIGM_MODPATH/qpr2/storage_paths"
     LOG_STEP_IN "- Adding QPR2 storage_paths"
-    # Original SDK-36 builds remain unchanged. Exact SDK-37 contracts only.
+    # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         APPLY_PATCH "system" "system/priv-app/ExternalStorageProvider/ExternalStorageProvider.apk" \
             "$MODPATH/patches/ExternalStorageProvider.apk/0001-Protect-QPR2-private-storage-paths.patch"
@@ -718,7 +718,7 @@ PERL
     # QPR2 usb_consent
     MODPATH="$PARADIGM_MODPATH/qpr2/usb_consent"
     LOG_STEP_IN "- Adding QPR2 usb_consent"
-    # Original SDK-36 builds remain unchanged. Exact SDK-37 contracts only.
+    # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
             "$MODPATH/patches/SystemUI.apk/0001-Describe-QPR2-composite-USB-device-interfaces.patch"
@@ -731,7 +731,7 @@ PERL
     # QPR2 usb_permissions
     MODPATH="$PARADIGM_MODPATH/qpr2/usb_permissions"
     LOG_STEP_IN "- Adding QPR2 usb_permissions"
-    # Original SDK-36 builds remain unchanged. Exact SDK-37 contracts only.
+    # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
         # Bind the full reviewed classes, including Samsung authentication, then
@@ -754,7 +754,7 @@ PERL
     # QPR2 webcam
     MODPATH="$PARADIGM_MODPATH/qpr2/webcam"
     LOG_STEP_IN "- Adding QPR2 webcam"
-    # Original SDK-36 builds remain unchanged. Exact SDK-37 contracts only.
+    # Original SDK-36 builds remain unchanged. Exact One UI 9 contracts only.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         APPLY_PATCH "system" "system/priv-app/DeviceAsWebcam/DeviceAsWebcam.apk" \
             "$MODPATH/patches/DeviceAsWebcam.apk/0001-Port-QPR2-responsive-camera-zoom-controls.patch"
@@ -799,7 +799,7 @@ PERL
     # Experimental native provider, never enabled implicitly by the APK backports.
     if [ "${UN1CA_QPR2_CAMERA_METADATA:-false}" = "true" ]; then
         [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] || {
-            ABORT "QPR2 camera metadata needs the reviewed Samsung SDK-37 cohort"
+            ABORT "QPR2 camera metadata needs the reviewed Samsung One UI 9 cohort"
             return 1
         }
         [ "$(sha256sum "$WORK_DIR/system/system/lib64/libc++.so" | cut -d ' ' -f 1)" = \
@@ -834,7 +834,7 @@ PERL
     # Framework/boot-classpath change: explicit isolated-build opt-in only.
     if [ "${UN1CA_QPR2_CAMERA_PATH:-false}" = "true" ]; then
         [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "${UN1CA_QPR2_CAMERA_METADATA:-false}" = "true" ] || {
-            ABORT "QPR2 Path conversion needs SDK 37 and the explicit QPR2 metadata-schema opt-in"
+            ABORT "QPR2 Path conversion needs One UI 9 and the explicit QPR2 metadata-schema opt-in"
             return 1
         }
         QPR2_PATH_SOURCE_FW="$(cut -d '/' -f 1,2 <<< "$SOURCE_FIRMWARE" | tr '/' '_')"
@@ -862,7 +862,7 @@ PERL
     # Standalone preview only. Never advertise a working live subject extension.
     if [ "${UN1CA_QPR2_SUBJECT_CPU_PREVIEW:-false}" = "true" ]; then
         [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] || {
-            ABORT "Subject CPU preview was reviewed only for the Samsung SDK-37 cohort"
+            ABORT "Subject CPU preview was reviewed only for the Samsung One UI 9 cohort"
             return 1
         }
         QPR2_SOURCE_FW="$(cut -d '/' -f 1,2 <<< "$SOURCE_FIRMWARE" | tr '/' '_')"
@@ -1092,10 +1092,10 @@ PERL
     # QPR2 cpu_leaves
     MODPATH="$PARADIGM_MODPATH/qpr2/cpu_leaves"
     LOG_STEP_IN "- Adding QPR2 cpu_leaves"
-    # Selected by the reviewed SDK-37 profile; all retained-provider checks remain.
+    # Selected by the reviewed One UI 9 profile; all retained-provider checks remain.
     if [ "${UN1CA_QPR2_CPU_LEAVES:-false}" = "true" ]; then
         [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] || {
-            ABORT "QPR2 CPU leaves were reviewed only for the Samsung SDK-37 cohort"
+            ABORT "QPR2 CPU leaves were reviewed only for the Samsung One UI 9 cohort"
             return 1
         }
         [ -n "${UN1CA_QPR2_GSI_DIR:-}" ] && [ -d "$UN1CA_QPR2_GSI_DIR/system/system/lib64" ] || {
@@ -1139,7 +1139,7 @@ PERL
     unset PARADIGM_MODPATH
 
     # Preserve the original Galaxy Store update route without replacing the
-    # newer SDK37 app with an older listing or changing its Samsung signer.
+    # newer One UI 9 app with an older listing or changing its Samsung signer.
     LOG "- Checking latest compatible Game Booster app"
     if PARADIGM_GAME_URL="$(GET_GALAXY_STORE_DOWNLOAD_URL "com.samsung.android.game.gametools")"; then
         (
@@ -1196,12 +1196,15 @@ JAVA
     else
         PARADIGM_GAME_SOURCE="$FW_DIR/${SOURCE_FIRMWARE%%/*}_$(cut -d / -f 2 <<< "$SOURCE_FIRMWARE")/system/system/priv-app/GameTools_Dream/GameTools_Dream.apk"
         cmp -s "$PARADIGM_GAME_SOURCE" "$WORK_DIR/system/system/priv-app/GameTools_Dream/GameTools_Dream.apk" || {
-            ABORT "No SDK37 Game Booster listing and the original Samsung app is not retained"
+            ABORT "No One UI 9 Game Booster listing and the original Samsung app is not retained"
             return 1
         }
-        LOGW "No compatible SDK37 Galaxy Store listing; keeping the newer Samsung donor Game Booster (not an update)"
+        LOGW "No compatible One UI 9 Galaxy Store listing; keeping the newer Samsung donor Game Booster (not an update)"
     fi
     unset PARADIGM_GAME_URL PARADIGM_GAME_SOURCE
+
+    source "$MODPATH/semanticsearch/customize.sh" || return 1
+    source "$MODPATH/mca/customize.sh" || return 1
     return 0
 fi
 

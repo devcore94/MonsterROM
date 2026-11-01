@@ -5,7 +5,7 @@ initializer. Refresh at the beginning of the provider query, using a dead local
 `v0` for the Context. Keep the original register frame and URI parameters.
 
 Do **not** inject `p0.getContext()` before every MatrixCursor allocation. In the
-SDK37 query's default-package branch, `p0` already holds integer `5`. ART rejects
+One UI 9 query's default-package branch, `p0` already holds integer `5`. ART rejects
 the entire provider class before it can be instantiated. This was observed on
 the rooted t2s device as `VerifyError ... [0x1B6] ... v10 (PositiveByteConstant)`;
 `v10` is the physical alias of `p0` in this `.locals 10` method.

@@ -1,7 +1,7 @@
 # QPR2 backports in Paradigm
 
 The existing SDK-36 Paradigm features remain in their original folders. The
-SDK-37 branch applies the separate ordinary `.patch` files in this folder to the
+One UI 9 branch applies the separate ordinary `.patch` files in this folder to the
 reviewed SM-S942B_INS donor (CP2A.260605.016). It does not replace newer Samsung
 Galaxy features with the older S25 APKs, weights or native libraries.
 
@@ -14,11 +14,11 @@ feature-function wrapper that suppresses Bash errexit inside builder commands.
 There is no patch adapter in `scripts/`. The builder compiles all affected
 APKs/JARs and uses its existing platform key.
 
-The isolated SDK-37 build includes the native camera metadata schema, matching
+The isolated One UI 9 build includes the native camera metadata schema, matching
 framework Path conversion, and a separate, real CPU human-segmentation preview.
 They are **not** a working live Camera2 subject-segmentation SessionProcessor.
 The JNI/CPU model and app-local webcam libraries retain their payload checksums.
-The reviewed SDK-37 profile includes complete original-signed QPR2 sdkext and
+The reviewed One UI 9 profile includes complete original-signed QPR2 sdkext and
 tzdata modules, plus libsonic, libspeexresampler and libETC1 for arm64. Their
 finite source set is in `prebuilts/qpr2`. Payload/container signing identities,
 retained-runtime contracts and source/current hashes are checked before copying.

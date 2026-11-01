@@ -1,20 +1,16 @@
-From 4f905ad4d81da06588b66e26012db12b3662da60 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Wed, 29 Oct 2025 22:50:07 +0100
-Subject: [PATCH] Nuke Knox DualDAR
+From: UN1CA <unica@localhost>
+Subject: [PATCH] Nuke-Knox-DualDAR (One UI 9)
 
 ---
- .../provisioning/DualDarStartedService.smali  | 115 ------------------
- 1 file changed, 115 deletions(-)
-
 diff --git a/smali/com/samsung/android/knox/containercore/provisioning/DualDarStartedService.smali b/smali/com/samsung/android/knox/containercore/provisioning/DualDarStartedService.smali
-index 8447461..596eccc 100644
 --- a/smali/com/samsung/android/knox/containercore/provisioning/DualDarStartedService.smali
 +++ b/smali/com/samsung/android/knox/containercore/provisioning/DualDarStartedService.smali
-@@ -1763,121 +1763,6 @@
- .method private validatePrerequisiteForDualDar(Landroid/content/Context;Ljava/lang/String;Landroid/os/Bundle;ZZ)I
-     .locals 0
+@@ -1731,122 +1731,9 @@
+ .end method
  
+ .method private validatePrerequisiteForDualDar(Landroid/content/Context;Ljava/lang/String;Landroid/os/Bundle;ZZ)I
+-    .locals 0
+-
 -    const-string p0, "KNOXCORE::DualDarStartedService"
 -
 -    const/4 p2, 0x0
@@ -110,11 +106,9 @@ index 8447461..596eccc 100644
 -    :goto_1
 -    new-instance p3, Ljava/lang/StringBuilder;
 -
--    invoke-direct {p3}, Ljava/lang/StringBuilder;-><init>()V
--
 -    const-string p4, "Exception in validatePrequisiteForDualDAR "
 -
--    invoke-virtual {p3, p4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-    invoke-direct {p3, p4}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
 -
 -    invoke-virtual {p1}, Ljava/lang/Exception;->getMessage()Ljava/lang/String;
 -
@@ -130,9 +124,12 @@ index 8447461..596eccc 100644
 -
 -    invoke-static {p0, p1, p2}, Lcom/samsung/android/knox/containercore/dualdar/DDLog;->e(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)I
 -
-     const/4 p0, 0x5
- 
-     return p0
--- 
-2.51.1
-
+-    const/4 p0, 0x5
+-
+-    return p0
++    .locals 1
++
++    const/4 v0, 0x5
++
++    return v0
+ .end method

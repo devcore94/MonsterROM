@@ -1,10 +1,3 @@
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    APPLY_PATCH "system" "system/app/DAAgent/DAAgent.apk" \
-        "$MODPATH/sdk37/DAAgent.apk/0001-Allow-all-apps-in-Dual-Messenger.patch"
-else
-    APPLY_SMALI_PATCHES "$MODPATH/sdk36/smali" "system/app/DAAgent/DAAgent.apk"
-fi
-
 # The app process can be restarted after BOOT_COMPLETED or a package broadcast.
 # Refresh at query entry, while p0 still denotes the provider and all locals
 # are dead. Later cursor sites reuse p0 (one branch stores integer 5 in it), so

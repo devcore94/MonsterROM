@@ -58,7 +58,7 @@ GET_SYSTEM_EXT()
 CIL_NAME="$(head -n 1 "$WORK_DIR/vendor/etc/selinux/plat_sepolicy_vers.txt")"
 PATCHED=false
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$CIL_NAME" = "30.0" ]; then
-    # SDK37 no longer ships API30 mappings. Keep the target declarations and
+    # One UI 9 no longer ships API30 mappings. Keep the target declarations and
     # compat files, then apply the reviewed public type-split patch.
     for SELINUX_PARTITION in system system_ext; do
         if [ "$SELINUX_PARTITION" = system ]; then
@@ -79,9 +79,9 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$CIL_NAME" = "30.0" ]; then
                 ABORT "Missing original target API30 mapping: $SELINUX_PARTITION/$SELINUX_FILE"
         done
     done
-    SELINUX_MAPPING_PATCH="$MODPATH/sdk37/system/0001-Backport-public-type-splits-to-API30.patch"
+    SELINUX_MAPPING_PATCH="$MODPATH/system/0001-Backport-public-type-splits-to-API30.patch"
     if [ "$TARGET_CODENAME" = "r9s" ]; then
-        SELINUX_MAPPING_PATCH="$MODPATH/sdk37/r9s/system/0001-Backport-public-type-splits-to-API30.patch"
+        SELINUX_MAPPING_PATCH="$MODPATH/r9s/system/0001-Backport-public-type-splits-to-API30.patch"
     fi
     EVAL "LC_ALL=C git apply --check --unsafe-paths --directory=\"$WORK_DIR/system/system/etc/selinux\" \"$SELINUX_MAPPING_PATCH\""
     EVAL "LC_ALL=C git apply --unsafe-paths --directory=\"$WORK_DIR/system/system/etc/selinux\" \"$SELINUX_MAPPING_PATCH\""
@@ -137,17 +137,17 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$CIL_NAME" = "30.0" ] && \
         [ "$TARGET_PLATFORM" = "exynos2100" ]; then
     # Keep the donor assertions and exact reviewed vendor repairs. No policy
     # assertion, neverallow or runtime enforcement is relaxed by this route.
-    SELINUX_VENDOR_PATCHES=("$MODPATH/sdk37/vendor/"*.patch)
+    SELINUX_VENDOR_PATCHES=("$MODPATH/vendor/"*.patch)
     if [ "$TARGET_CODENAME" = "r9s" ]; then
-        SELINUX_VENDOR_PATCHES=("$MODPATH/sdk37/r9s/vendor/0001-"*.patch
-            "$MODPATH/sdk37/r9s/vendor/0002-"*.patch
-            "$MODPATH/sdk37/vendor/0003-"*.patch
-            "$MODPATH/sdk37/r9s/vendor/0004-"*.patch
-            "$MODPATH/sdk37/r9s/vendor/0005-"*.patch)
+        SELINUX_VENDOR_PATCHES=("$MODPATH/r9s/vendor/0001-"*.patch
+            "$MODPATH/r9s/vendor/0002-"*.patch
+            "$MODPATH/vendor/0003-"*.patch
+            "$MODPATH/r9s/vendor/0004-"*.patch
+            "$MODPATH/r9s/vendor/0005-"*.patch)
     fi
-    for SELINUX_PATCH in "$MODPATH/sdk37/system/0002-"*.patch \
-            "$MODPATH/sdk37/system/0003-"*.patch "${SELINUX_VENDOR_PATCHES[@]}"; do
-        [ -f "$SELINUX_PATCH" ] || ABORT "Missing reviewed SDK37 strict-policy patch"
+    for SELINUX_PATCH in "$MODPATH/system/0002-"*.patch \
+            "$MODPATH/system/0003-"*.patch "${SELINUX_VENDOR_PATCHES[@]}"; do
+        [ -f "$SELINUX_PATCH" ] || ABORT "Missing reviewed One UI 9 strict-policy patch"
         case "$SELINUX_PATCH" in
             */system/*) SELINUX_DEST="$WORK_DIR/system/system/etc/selinux" ;;
             */vendor/*) SELINUX_DEST="$WORK_DIR/vendor/etc/selinux" ;;

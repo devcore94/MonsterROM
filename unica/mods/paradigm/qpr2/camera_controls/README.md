@@ -7,7 +7,7 @@ not add a 24 MP sensor mode or alter capture processing.
 
 The source RRO is compiled and signed with the selected normal UN1CA platform
 key during the ROM build and added to product/overlay. The original Camera APK
-and its native libraries stay intact. Actual SDK37 idmap2 accepted the mapping
+and its native libraries stay intact. Actual One UI 9 idmap2 accepted the mapping
 under enforced public/product policy; Android UI inflation and hardware camera
 sessions remain untested. A standalone overlay APK is a ROM companion, not an
 ordinary Camera update that activates simply by tapping Install.
@@ -29,7 +29,7 @@ subshell so that success or a failed link cannot replace the parent EXIT trap.
 
 The 27 October 2026 host regression reproduced the original private-resource
 failure, passed compile/link/sign/stage and repeat metadata stability, checked all
-17 Camera resource/attribute IDs in binary XML, and passed genuine SDK37 idmap2
+17 Camera resource/attribute IDs in binary XML, and passed genuine One UI 9 idmap2
 creation/lookup with public/product policy and overlayable enforcement enabled.
 Missing inputs and either incorrect namespace reject without installing an
 overlay; SDK36 stays unchanged. The full t2s source/APK build also passed. These

@@ -6,7 +6,7 @@ point runs this finite preflight before either component is copied, then the
 separate art_runtime and conscrypt_trust hooks use normal ADD/DELETE helpers.
 There is no adapter or additional patch logic in scripts/.
 
-This profile was exercised offline with the current Samsung SDK-37 zygote64
+This profile was exercised offline with the current Samsung One UI 9 zygote64
 cohort. It retains the Samsung Bionic/compat32 runtime, libc++, vendor libraries,
 SELinux policy, Floppy/r54 and existing APK signing key. Both old/new container
 names and exact hashes are checked; unrelated local containers are rejected.

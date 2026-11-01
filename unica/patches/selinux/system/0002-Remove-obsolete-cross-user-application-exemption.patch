@@ -1,0 +1,15 @@
+Subject: [PATCH] Remove the retired API30 cross-user application exemption
+
+One UI 9 forbids forks into mlsvendorcompat. Keep the current platform
+assertion and the attribute declaration, but do not populate the obsolete
+exception. Applications keep their ordinary per-user data policy.
+
+diff --git a/mapping/30.0.compat.cil b/mapping/30.0.compat.cil
+--- a/mapping/30.0.compat.cil
++++ b/mapping/30.0.compat.cil
+@@ -9,3 +9,4 @@
+ ;; mlsvendorcompat can be completely from the system policy.
+-(typeattributeset mlsvendorcompat (and appdomain vendordomain))
++; One UI 9 no longer permits this cross-user application-data exemption.
++; Keep the attribute declared by the platform empty; its neverallow remains active.
+ (allow mlsvendorcompat app_data_file (dir (ioctl read write create getattr setattr lock rename open watch watch_reads add_name remove_name reparent search rmdir)))

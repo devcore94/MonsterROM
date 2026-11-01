@@ -1,0 +1,29 @@
+Subject: [PATCH] Register the One UI 9 Settings biometric safety source
+
+Use the selected Permission APEX's own AndroidBiometrics declaration, including
+all-profile titles, refresh permission and maximum severity 200. Preserve every
+existing Samsung source and certificate allowlist. Apply this through a separate
+product RRO so the original Samsung overlay and signed APEX remain untouched.
+
+diff --git a/res/raw/unica_safety_center_config.xml b/res/raw/unica_safety_center_config.xml
+--- a/res/raw/unica_safety_center_config.xml
++++ b/res/raw/unica_safety_center_config.xml
+@@ -28,6 +28,7 @@
+         </safety-sources-group>
+         <safety-sources-group id="AndroidLockScreenSources" title="@com.google.android.safetycenter.resources:string/google_lock_screen_sources_title" summary="@com.google.android.safetycenter.resources:string/google_lock_screen_sources_summary">
+             <dynamic-safety-source id="AndroidLockScreen" packageName="com.android.settings" profile="primary_profile_only" title="@com.google.android.safetycenter.resources:string/google_lock_screen_title" summary="@com.google.android.safetycenter.resources:string/google_lock_screen_summary" searchTerms="@com.google.android.safetycenter.resources:string/google_lock_screen_search_terms" initialDisplayState="disabled" notificationsAllowed="true" maxSeverityLevel="300"/>
++            <dynamic-safety-source id="AndroidBiometrics" packageName="com.android.settings" profile="all_profiles" title="@com.google.android.safetycenter.resources:string/google_biometrics_title" titleForWork="@com.google.android.safetycenter.resources:string/google_biometrics_title_for_work" titleForPrivateProfile="@com.google.android.safetycenter.resources:string/google_biometrics_title_for_private_profile" summary="@com.google.android.safetycenter.resources:string/google_biometrics_summary" searchTerms="@com.google.android.safetycenter.resources:string/google_biometrics_search_terms" initialDisplayState="@com.google.android.safetycenter.resources:string/google_biometrics_initial_display_state" refreshOnPageOpenAllowed="true" maxSeverityLevel="200" />
+             <dynamic-safety-source id="GoogleAutoLock" packageName="com.google.android.gms" profile="primary_profile_only" initialDisplayState="hidden" maxSeverityLevel="0" packageCertificateHashes="1975b2f17177bc89a5dff31f9e64a6cae281a53dc1d1d59b1d147fe1c82afa00,f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83,d22cc500299fb22873a01a010de1c82fbe4d061119b94814dd301dab50cb7678,7ce83c1b71f3d572fed04c8d40c5cb10ff75e6d87d9df6fbd53f0468c2905053,5f2391277b1dbd489000467e4c2fa6af802430080457dce2f618992e9dfb5402,8fd4a0e7b8eb7c726d2dac79445b2c7931f62b7eb692f5044bdcfdfaad070a36"/>
+         </safety-sources-group>
+         <safety-sources-group id="GoogleAccountsSources" title="@com.google.android.safetycenter.resources:string/google_accounts_sources_title" summary="@com.google.android.safetycenter.resources:string/google_accounts_sources_summary">
+diff --git a/res/raw-v37/unica_safety_center_config.xml b/res/raw-v37/unica_safety_center_config.xml
+--- a/res/raw-v37/unica_safety_center_config.xml
++++ b/res/raw-v37/unica_safety_center_config.xml
+@@ -28,6 +28,7 @@
+         </safety-sources-group>
+         <safety-sources-group id="AndroidLockScreenSources" title="@com.google.android.safetycenter.resources:string/google_lock_screen_sources_title" summary="@com.google.android.safetycenter.resources:string/google_lock_screen_sources_summary">
+             <dynamic-safety-source id="AndroidLockScreen" packageName="com.android.settings" profile="primary_profile_only" title="@com.google.android.safetycenter.resources:string/google_lock_screen_title" summary="@com.google.android.safetycenter.resources:string/google_lock_screen_summary" searchTerms="@com.google.android.safetycenter.resources:string/google_lock_screen_search_terms" initialDisplayState="disabled" notificationsAllowed="true" maxSeverityLevel="300"/>
++            <dynamic-safety-source id="AndroidBiometrics" packageName="com.android.settings" profile="all_profiles" title="@com.google.android.safetycenter.resources:string/google_biometrics_title" titleForWork="@com.google.android.safetycenter.resources:string/google_biometrics_title_for_work" titleForPrivateProfile="@com.google.android.safetycenter.resources:string/google_biometrics_title_for_private_profile" summary="@com.google.android.safetycenter.resources:string/google_biometrics_summary" searchTerms="@com.google.android.safetycenter.resources:string/google_biometrics_search_terms" initialDisplayState="@com.google.android.safetycenter.resources:string/google_biometrics_initial_display_state" refreshOnPageOpenAllowed="true" maxSeverityLevel="200" />
+             <dynamic-safety-source id="GoogleAutoLock" packageName="com.google.android.gms" profile="primary_profile_only" initialDisplayState="hidden" maxSeverityLevel="0" packageCertificateHashes="1975b2f17177bc89a5dff31f9e64a6cae281a53dc1d1d59b1d147fe1c82afa00,f0fd6c5b410f25cb25c3b53346c8972fae30f8ee7411df910480ad6b2d60db83,d22cc500299fb22873a01a010de1c82fbe4d061119b94814dd301dab50cb7678,7ce83c1b71f3d572fed04c8d40c5cb10ff75e6d87d9df6fbd53f0468c2905053,5f2391277b1dbd489000467e4c2fa6af802430080457dce2f618992e9dfb5402,8fd4a0e7b8eb7c726d2dac79445b2c7931f62b7eb692f5044bdcfdfaad070a36"/>
+         </safety-sources-group>
+         <safety-sources-group id="GoogleAccountsSources" title="@com.google.android.safetycenter.resources:string/google_accounts_sources_title" summary="@com.google.android.safetycenter.resources:string/google_accounts_sources_summary">

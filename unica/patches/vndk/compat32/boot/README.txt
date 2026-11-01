@@ -1,4 +1,4 @@
-SDK37 native-only ARM32 boot compatibility
+One UI 9 native-only ARM32 boot compatibility
 
 The API30-policy-r1 boot reached SELinux policy loading successfully, then
 init rebooted because /system/bin/boringssl_self_test32 was absent. Both

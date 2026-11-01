@@ -2,17 +2,17 @@
 
 ## What is changed
 
-For the reviewed SM-S942B SDK37 source with the SDK35 S21 or SDK36 S21 FE vendor cohort:
+For the reviewed SM-S942B One UI 9 source with the SDK35 S21 or SDK36 S21 FE vendor cohort:
 
-- Apply the existing SDK37 **SBM-enable** and **XLNA-disable** smali patches.
+- Apply the existing One UI 9 **SBM-enable** and **XLNA-disable** smali patches.
   A2DP sink and HEAD SAR remain unchanged. Unported transitions still fail.
-- Keep **every byte of SDK37 `libbluetooth_jni.so`**. Do not patch its
+- Keep **every byte of One UI 9 `libbluetooth_jni.so`**. Do not patch its
   VaultKeeper branches, storage encryption, retries, key generation or error
   handling, and do not transplant an older Bluetooth runtime.
 - Replace the APEX-local `libvkmanager.so` **symlink**, not the system library,
   with the genuine target's small HIDL client. Include its genuine HIDL 2.0
-  interface library and **the donor's SDK37** `libhidlbase.so` locally. All
-  remaining platform libraries stay SDK37. No namespace allowlist is widened.
+  interface library and **the donor's One UI 9** `libhidlbase.so` locally. All
+  remaining platform libraries stay One UI 9. No namespace allowlist is widened.
 
 The root `customize.sh` requires the target VINTF declaration to be HIDL 2.0 /
 `ISehVaultKeeper/default`. An AIDL target keeps its original backend. Unrecognized
@@ -29,7 +29,7 @@ pair with the same four reviewed opaque APIs and HIDL 2.0 transport:
 | r9s SDK36 | `63610e52c7f110c68eff36c3fa1d870968ee5822ca78d94f91989bd579c2a778` | `d13537814b4d0a8ff4088bcd518031932981b968aea4e6f7d3540178e38551bd` |
 
 Unknown bytes or mixed known pairs still fail before payload writes. Selecting
-r9s does not relax the source JNI/AIDL-manager/SDK37-hidlbase pins, dependency,
+r9s does not relax the source JNI/AIDL-manager/current-hidlbase pins, dependency,
 symbol-version or namespace checks. The chosen pair is named in the contract
 receipt. The r9s manager still allocates/frees its own 32-byte object, forwards
 the same read/write API and retains real service/data/status/error handling.
@@ -58,7 +58,7 @@ and retains the target library's returned status, data and data length.
 
 ## ABI boundary and evidence
 
-The SDK37 JNI imports exactly four `VaultKeeperManager` methods, also exported by
+The One UI 9 JNI imports exactly four `VaultKeeperManager` methods, also exported by
 the target client:
 
 ```
@@ -73,7 +73,7 @@ different **48-byte** representation. They must **not** share an object. The
 reviewed JNI obtains its opaque pointer from `getInstance`, stores/loads that
 pointer, passes it to the above out-of-line methods and frees it through the
 same library. It does not call a constructor/destructor, allocate the object or
-access either layout's fields. Native-call mapping identifies these SDK37 call
+access either layout's fields. Native-call mapping identifies these One UI 9 call
 sites (ELF virtual addresses):
 
 | API | Call sites |
@@ -112,7 +112,7 @@ not invented REA results. REA Android inspection was unavailable because
 `REA_JADX_MCP_JAR` was unset; APK/smali inspection uses Apktool/Dexlib instead.
 
 `native-contract.json` records a **14-provider ARM64 dependency closure**, with
-zero unresolved strong/versioned imports, using SDK37 platform providers (and
+zero unresolved strong/versioned imports, using One UI 9 platform providers (and
 its bootstrap bionic mirrors), not target platform replacements.
 
 ## Build safety

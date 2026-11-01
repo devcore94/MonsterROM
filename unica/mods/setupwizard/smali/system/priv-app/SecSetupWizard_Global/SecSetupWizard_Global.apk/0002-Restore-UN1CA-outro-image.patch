@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: UN1CA <noreply@unica.local>
+Subject: [PATCH] Restore UN1CA artwork on setup completion
+
+---
+ res/layout/outro_activity.xml         | 1 +
+ res/layout-sw600dp/outro_activity.xml | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/res/layout/outro_activity.xml b/res/layout/outro_activity.xml
+--- a/res/layout/outro_activity.xml
++++ b/res/layout/outro_activity.xml
+@@ -7,6 +7,7 @@
+         <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/outro_title_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/ssw_outro_title_margin_top" android:text="@string/outro_title" android:layout_marginHorizontal="@dimen/ssw_outro_title_margin_start_end" style="@style/ssw_outro_title_text_style" />
+         <TextView android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/outro_smart_switch_desc" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginHorizontal="@dimen/ssw_outro_title_margin_start_end" style="@style/ssw_sw_update_outro_ss_restore_desc_style" />
+         <LinearLayout android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_marginTop="@dimen/ssw_outro_galaxy_story_margin_top" android:layout_marginBottom="@dimen/ssw_outro_galaxy_story_margin_bottom" android:layout_weight="1.0">
++            <ImageView android:layout_gravity="center_horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:adjustViewBounds="true" android:src="@drawable/suw_img_tips" android:contentDescription="@null" android:importantForAccessibility="no" />
+             <ScrollView android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:importantForAccessibility="no">
+                 <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                     <LinearLayout android:layout_gravity="center_horizontal" android:orientation="vertical" android:id="@id/set_my_galaxy_story" android:background="?android:selectableItemBackground" android:visibility="gone" android:layout_width="@dimen/ssw_outro_galaxy_story_width" android:layout_height="wrap_content">
+diff --git a/res/layout-sw600dp/outro_activity.xml b/res/layout-sw600dp/outro_activity.xml
+--- a/res/layout-sw600dp/outro_activity.xml
++++ b/res/layout-sw600dp/outro_activity.xml
+@@ -9,6 +9,7 @@
+             <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/outro_title_text" android:layout_width="@dimen/ssw_outro_page_title_width" android:layout_height="wrap_content" android:text="@string/outro_title" style="@style/ssw_outro_title_text_style" />
+             <TextView android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/outro_smart_switch_desc" android:visibility="gone" android:layout_width="@dimen/ssw_outro_page_title_width" android:layout_height="wrap_content" style="@style/ssw_sw_update_outro_ss_restore_desc_style" />
+             <LinearLayout android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_marginTop="@dimen/ssw_outro_galaxy_story_margin_top" android:layout_marginBottom="@dimen/ssw_outro_galaxy_story_margin_bottom" android:layout_weight="1.0">
++                <ImageView android:layout_gravity="center_horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:adjustViewBounds="true" android:src="@drawable/suw_img_tips" android:contentDescription="@null" android:importantForAccessibility="no" />
+                 <ScrollView android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:importantForAccessibility="no">
+                     <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+                         <LinearLayout android:layout_gravity="center_horizontal" android:orientation="vertical" android:id="@id/set_my_galaxy_story" android:background="?android:selectableItemBackground" android:visibility="gone" android:layout_width="@dimen/ssw_outro_galaxy_story_width" android:layout_height="wrap_content">

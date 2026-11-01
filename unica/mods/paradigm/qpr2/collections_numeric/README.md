@@ -1,6 +1,6 @@
 # QPR2 long-key and double sparse compute support
 
-This ordinary Samsung SDK-37 Paradigm patch adds two more internal QPR2 APIs
+This ordinary Samsung One UI 9 Paradigm patch adds two more internal QPR2 APIs
 from the local CRB `android17QPR2gsi` framework, build `CP41.260831.007.A3`:
 
 - `LongSparseLongArray.compute(long, LongBinaryOperator)`

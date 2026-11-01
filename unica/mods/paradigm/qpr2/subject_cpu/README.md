@@ -1,6 +1,6 @@
 # Real humanseg CPU preview — explicit experiment, not a live extension
 
-Enable UN1CA_QPR2_SUBJECT_CPU_PREVIEW=true only for the pinned SDK-37 cohort.
+Enable UN1CA_QPR2_SUBJECT_CPU_PREVIEW=true only for the pinned One UI 9 cohort.
 The loose CameraExtensionsProxy test APK includes this preview. The normal
 live extension dispatch stays unchanged and reports subject segmentation
 unavailable when no real SessionProcessor is present.

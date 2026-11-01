@@ -60,7 +60,7 @@ def main():
     manifests = [
         ("unica/mods/paradigm/qpr2/subject_cpu/payload.sha256", "."),
         ("unica/mods/paradigm/qpr2/webcam_native/libraries.sha256", "files/arm64-v8a"),
-        ("unica/mods/prophide/sdk37/SHA256SUMS", "."),
+        ("unica/mods/prophide/SHA256SUMS", "."),
     ]
     for name, subdir in manifests:
         manifest = root / name

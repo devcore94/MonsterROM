@@ -9,6 +9,9 @@ from pathlib import Path
 import re
 import subprocess
 
+# git apply silently filters paths when invoked from a repository subdirectory.
+# Run the absolute-path preflight outside the checkout so every hunk is checked.
+
 
 PAYLOADS = {
     "files/arm64-v8a/libunica_subject_cpu.so": "lib/arm64-v8a/libunica_subject_cpu.so",
@@ -94,7 +97,7 @@ def verify_sources(module_dir, apk, decoded_dir, check_patch=False):
             raise ValueError("Missing subject-preview decoded APK")
         result = subprocess.run(
             ["git", "apply", "--check", "--unsafe-paths", f"--directory={decoded_dir}", str(module_dir / PATCH)],
-            capture_output=True, text=True, check=False,
+            cwd="/", capture_output=True, text=True, check=False,
         )
         if result.returncode:
             raise ValueError(f"Subject-preview patch preflight failed:\n{result.stderr}")

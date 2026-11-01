@@ -14,27 +14,17 @@ EVAL "cd \"$SRC_DIR\"; zip -q \"$WORK_DIR/system/system/etc/security/otacerts.zi
 
 DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "$MODPATH/sdk37/SecSettings.apk/0001-Launch-UN1CA-Updates-from-suggestions.patch"
+APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+    "$MODPATH/suggestions/SecSettings.apk/0001-Launch-UN1CA-Updates-from-suggestions.patch"
 
-    # Android 17 removed SoftwareUpdateUtils.isOTAUpgradeAllowed. Hide the
-    # stock FOTA entry points without hiding GPSU/Mainline or our updater.
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/privacy/SecurityDashboardUtils.smali" "return" \
-        'isSecurityUpdateSupported(Landroid/content/Context;)Z' 'false'
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/homepage/TopLevelSoftwareUpdatePreferenceController.smali" "return" \
-        'getAvailabilityStatus()I' '3'
-else
-    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "$MODPATH/suggestions/SecSettings.apk/0001-Launch-UN1CA-Updates-from-suggestions.patch"
-
-    # Disable stock OTA references
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/softwareupdate/SoftwareUpdateUtils.smali" "return" \
-        'isOTAUpgradeAllowed(Landroid/content/Context;)Z' 'false'
-fi
+# Android 17 removed SoftwareUpdateUtils.isOTAUpgradeAllowed. Hide the stock
+# FOTA entry points without hiding GPSU/Mainline or our updater.
+SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+    "smali_classes3/com/samsung/android/settings/privacy/SecurityDashboardUtils.smali" "return" \
+    'isSecurityUpdateSupported(Landroid/content/Context;)Z' 'false'
+SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+    "smali_classes3/com/samsung/android/settings/homepage/TopLevelSoftwareUpdatePreferenceController.smali" "return" \
+    'getAvailabilityStatus()I' '3'
 
 # ChoiDujour's Settings payload uses the same bounded literal injector as the
 # Settings module (including its first-line homepage insertion directive).

@@ -6,7 +6,7 @@ trigger, restore one control, and reset this controller's mappings for the
 current user. USB and Bluetooth controllers use the same Android input route.
 
 The reference is the local CP41.260831.007.A3 QPR2 Settings
-`com/android/settings/input/gamecontroller` implementation. Samsung SDK 37
+`com/android/settings/input/gamecontroller` implementation. Samsung One UI 9
 already implements the matching InputManager APIs, permission-enforced Binder
 methods, persistent per-user InputDeviceRemapper, native remapping entry points
 and InputReader/EventHub support. This patch exposes those real APIs in Samsung's

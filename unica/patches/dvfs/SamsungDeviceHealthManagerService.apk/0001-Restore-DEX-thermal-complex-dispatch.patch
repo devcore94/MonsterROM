@@ -1,0 +1,84 @@
+Subject: [PATCH] Restore DEX thermal complex dispatch on One UI 9
+
+Retain all six current donor types/ordinals and all target thresholds.
+Restore DEX as ordinal six and dispatch to a real display-aware thermal
+handler using the existing One UI 9 OverheatAppKillType.DEX controller.
+Do not skip unsupported XML, swallow Enum errors or disable thermal policy.
+
+--- a/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType.smali
++++ b/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType.smali
+@@ -28,6 +28,8 @@
+ 
+ .field public static final enum i:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
++.field public static final enum UNICA_DEX:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++
+ .field private static final synthetic j:[Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
+ 
+@@ -104,6 +106,16 @@
+ 
+     sput-object v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->i:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
++    new-instance v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++
++    const-string v1, "DEX"
++
++    const/4 v2, 0x6
++
++    invoke-direct {v0, v1, v2}, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;-><init>(Ljava/lang/String;I)V
++
++    sput-object v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->UNICA_DEX:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++
+     invoke-static {}, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->a()[Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
+     move-result-object v0
+@@ -127,7 +139,7 @@
+ .end method
+ 
+ .method private static synthetic a()[Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+-    .locals 6
++    .locals 7
+ 
+     sget-object v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->c:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
+@@ -141,7 +153,9 @@
+ 
+     sget-object v5, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->i:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
+-    filled-new-array/range {v0 .. v5}, [Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++    sget-object v6, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->UNICA_DEX:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++
++    filled-new-array/range {v0 .. v6}, [Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
+ 
+     move-result-object v0
+ 
+--- a/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/k.smali
++++ b/smali/com/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/k.smali
+@@ -41,8 +41,25 @@
+ 
+ # virtual methods
+ .method public a(Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;Lh5/g;)Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/i;
+-    .locals 1
++    .locals 4
++
++    sget-object v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;->UNICA_DEX:Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/OverheatComplexType;
++
++    if-ne p1, v0, :original_types
++
++    new-instance v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/LegacyDexOverheat;
++
++    iget-object v1, p0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/k;->a:Landroid/content/Context;
++
++    iget-object v2, p0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/k;->b:Landroid/os/Handler;
++
++    iget-object v3, p0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/k;->d:Lcom/sec/android/sdhms/thermal/overheatcontrol/e;
++
++    invoke-direct {v0, v1, v2, p2, v3}, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/LegacyDexOverheat;-><init>(Landroid/content/Context;Landroid/os/Handler;Lh5/g;Lcom/sec/android/sdhms/thermal/overheatcontrol/e;)V
++
++    return-object v0
+ 
++    :original_types
+     sget-object v0, Lcom/sec/android/sdhms/thermal/overheatcontrol/overheatcomplex/j;->a:[I
+ 
+     invoke-virtual {p1}, Ljava/lang/Enum;->ordinal()I

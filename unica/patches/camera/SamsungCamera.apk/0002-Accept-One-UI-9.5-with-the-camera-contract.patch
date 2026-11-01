@@ -1,0 +1,27 @@
+Subject: [PATCH] Accept One UI 9.5 with the One UI 9 camera contract
+
+The current One UI 9 Camera enum only knows V9_0. Accept the reviewed 90500
+ROM profile using that camera capability level. Preserve the original
+lookup and rejection behavior for every other version; do not alter props.
+
+diff --git a/smali_classes2/e5/m.smali b/smali_classes2/e5/m.smali
+--- a/smali_classes2/e5/m.smali
++++ b/smali_classes2/e5/m.smali
+@@ -527,6 +527,17 @@
+ .method public static a(I)Le5/m;
+     .locals 5
+ 
++    # The QPR2 ROM keeps Samsung's reviewed One UI 9 camera contract.
++    # Accept its One UI 9.5 version without inventing a new Samsung API enum.
++    const v0, 0x16184
++
++    if-ne p0, v0, :unica_exact_oneui_version
++
++    sget-object v0, Le5/m;->V9_0:Le5/m;
++
++    return-object v0
++
++    :unica_exact_oneui_version
+     invoke-static {}, Le5/m;->values()[Le5/m;
+ 
+     move-result-object v0

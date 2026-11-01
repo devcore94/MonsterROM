@@ -35,7 +35,7 @@ int __unica_zygote_cap_get_bound(int capability) {
     int saved_errno = errno;
     int result = cap_get_bound(capability);
     int query_errno = errno;
-    /* SDK37's pinned Rust Capability enum stops at CHECKPOINT_RESTORE (40).
+    /* One UI 9's pinned Rust Capability enum stops at CHECKPOINT_RESTORE (40).
      * Out-of-contract and negative inputs retain the real native result.
      */
     if (result == -1 && query_errno == EINVAL && capability >= 0 && capability <= 40) {

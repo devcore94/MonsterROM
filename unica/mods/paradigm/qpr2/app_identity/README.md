@@ -1,4 +1,4 @@
-# QPR2 app identity helpers for Samsung SDK 37
+# QPR2 app identity helpers for Samsung One UI 9
 
 This ordinary Paradigm patch adds three methods directly from the local CRB
 `android17QPR2gsi` framework, build `CP41.260831.007.A3`:

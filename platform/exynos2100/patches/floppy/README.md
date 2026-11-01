@@ -5,7 +5,7 @@ of the reported One UI 9.5 APEX bootloop. A measured kernel/module mismatch
 does not establish that it initiated that boot failure. The APEX investigation
 and its separate comparison image leave the installed kernel unchanged.
 
-The SDK-37 ROM stages the pinned Floppy source base `113ce9d986f7` with Mali
+The One UI 9 ROM stages the pinned Floppy source base `113ce9d986f7` with Mali
 `r54p3-01eac0` (UK 11.46), its own vendor-boot modules and its vendor-partition
 modules together. The reviewed uname-only variant below is built from that
 same base, not a different kernel/driver release. The build verifier checks the
@@ -153,10 +153,10 @@ vermagic/import CRCs, test-key AVB and the normal staging/fstab path on all four
 targets. These are host-build/static-package results, not a phone boot test.
 
 
-## SDK-37 full BPF mode (26 October follow-up)
+## One UI 9 full BPF mode (26 October follow-up)
 
-The source patch `uname/0003-Select-full-BPF-uname-mode-for-SDK37.patch`
-selects the requested full mode 2 as the SDK-37 kernel's compiled default. This removes
+The source patch `uname/0003-Select-full-BPF-uname-mode.patch`
+selects the requested full mode 2 as the One UI 9 kernel's compiled default. This removes
 dependence on forwarding the image-header argument; the existing explicit boot
 option and its precedence remain. Root/caller restrictions, the real 5.4.304
 release, r54 selection, verifier and loader failure handling are unchanged.
@@ -192,7 +192,7 @@ The module now carries the previously private inputs as ordinary patches:
 - `source/0001-Retain-the-UN1CA-source-overlay.patch` is byte-identical to the
   saved retained overlay (SHA-256
   `fce2b6505a9c7ccc93be69d805b14f4a7f14327747029dc49e8ace5ce181fbe9`).
-- `source/0002-Pin-the-retained-SDK37-configuration.patch` supplies the original
+- `source/0002-Pin-the-retained-configuration.patch` supplies the original
   14-option `unica.config` fragment, correcting its SELinux choice to the
   **always-permissive** choice actually present in the retained resolved config,
   then adds the two existing `uname/uname.config` choices. The original fragment

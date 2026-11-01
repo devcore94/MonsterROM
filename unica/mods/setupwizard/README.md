@@ -1,9 +1,10 @@
 # Setup Wizard resource and SDK contracts
 
-`customize.sh` selects the SDK36/SDK37 smali patch and navigation gates. Do not
-apply a legacy patch merely because it parses: SDK37 uses `e7/f`, the `e(String)`
-skip gate, and `l7/a`'s UI methods/IDs. The SDK37 donor is Android 17 / SDK37,
-but this shipped app itself has `minSdk=33`, `targetSdk=36`. Keep those values.
+The module uses the original automatic `smali` patch layout for the One UI 9
+firmware. The navigation gates use `e7/f` and `e(String)`; the disclaimer uses
+`l7/a`'s UI methods/IDs. The donor is Android 17 (API 37), but this shipped app
+itself has `minSdk=33`, `targetSdk=36`. Keep those values. The legacy API 36
+variant is not included in this module.
 
 ## Resource patching
 
@@ -22,6 +23,10 @@ The module-root `customize.sh` handles only Setup Wizard resources:
 - Preserve all unrelated XML bytes and copy the module's WebP images verbatim.
   Validate the complete planned XML changes and required resources before
   writing; replace each changed file atomically while preserving its mode.
+- Restore the original UN1CA tips artwork on the setup completion page. The
+  One UI 9 donor no longer references it, so the outro layouts explicitly add
+  the image without replacing Samsung's existing background or controls.
+  Its actual appearance and sizing still require a device test.
 
 The resource operation is idempotent. The entire smali module is intentionally
 still a one-shot patch operation, not an invitation to reapply patched smali.
@@ -36,7 +41,7 @@ Proof and commands are retained at
 `out/oneui9-remaining-fixes-20261026/setupwizard/REPORT.md`. A fresh immutable
 SM-S942B_INS decode, real selected script/helper/patch replays for official and
 unofficial builds, full Apktool/AAPT2 builds with an isolated framework cache,
-and final rebuilt-APK decode were used. No existing SDK37 smali runtime defect
+and final rebuilt-APK decode were used. No existing One UI 9 smali runtime defect
 was confirmed; do not misreport the XML-input failures as an observed crash on
 the pristine donor. On the normal donor, code/resource-table/manifest bytes are
 unchanged by the safer resource handling.
@@ -46,5 +51,5 @@ register frames, both step-selection gates, native scroll layout and callback
 result/finish contracts, all 32 payload locales (including Android's `in`/`id`
 alias), and the exported Settings navigation target. No app/device execution
 was performed; rendering, process death, Back/rotation and actual navigation
-behavior still require an authorized Android test environment. SDK36 dispatch
-is tested, but a complete SDK36 firmware replay was unavailable.
+behavior still require an authorized Android test environment. These historical
+results predate moving the patch to the original module layout.

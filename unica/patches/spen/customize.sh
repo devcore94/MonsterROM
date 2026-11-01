@@ -1,4 +1,4 @@
-SPEN_SDK37()
+SPEN_NATIVE()
 {
     "${BASH_SOURCE[0]%/*}/../../../scripts/run_xml_perl.sh" - "$@" <<'PERL'
 use strict;
@@ -92,12 +92,12 @@ sub append_xml {
 sub methods { my($text)=@_; my %m; while($text =~ /^(\.method [^\n]+\n.*?^\.end method)/msg) {my $raw=$1; my($first)=split /\n/,$raw; my($name)=$first =~ /(\S+)$/; need(!exists $m{$name},"Duplicate method $name"); $m{$name}=$raw} return \%m }
 sub once { my($text,$old,$new)=@_; my $count=()=$text =~ /\Q$old\E/g; need($count==1,"Expected one exact anchor, found $count: $old"); $text =~ s/\Q$old\E/$new/; return $text }
 my $action=shift(@ARGV)//''; my %args; while(@ARGV) {my $key=shift @ARGV; need($key =~ /^--/ && @ARGV,'Expected named S Pen arguments'); $args{$key}=shift @ARGV}
-my $here="$ENV{SRC_DIR}/unica/patches/spen/sdk37";
+my $here="$ENV{SRC_DIR}/unica/patches/spen";
 if($action eq 'native') {
     my($platform,$donor,$output)=@args{qw(--platform --donor --output)}; need(defined($output)&&defined($donor)&&defined($platform),'Missing SMPS paths');
     $platform=abs_path($platform); $donor=abs_path($donor); my $output_abs=abs_path(dirname($output)).'/'.basename($output); need(index($output_abs,"$platform/system/")!=0 && index($output_abs,"$donor/")!=0 && $output_abs ne $donor,'Output must not be inside input trees');
     my $lib="$platform/system/system/lib64"; my %cohort=('libaudioclient.so'=>'7ce4927daf08ff26b34b9d55d49425052dac06bbdd753e7cad2c2b464235008c','libmedia.so'=>'6f765d9dcb46dd6f4ab5623089284bdd72ae55bef316bf24f488609be0453b43','libutils.so'=>'e1eb96ad194e2b2191c3a2a11d7f2d876fd57b30583d9fdaee1da001ba5b5e23','libc++.so'=>'cb118e98c74d3454858921123b9b51ba13df9cad7dfa141dd892c453661a4d78');
-    my %providers; for my $name(keys %cohort) {need(sha("$lib/$name") eq $cohort{$name},"Unmeasured SDK37 C++ cohort: $name"); $providers{$name}=elf_abi(raw("$lib/$name"))}
+    my %providers; for my $name(keys %cohort) {need(sha("$lib/$name") eq $cohort{$name},"Unmeasured One UI 9 C++ cohort: $name"); $providers{$name}=elf_abi(raw("$lib/$name"))}
     my $provider='libsmpsft.smps.samsung.so'; my $adapter='libspen_audiotrack37.so'; my $input_sha='89fc59766d247464eb174b6889b7e266b2dcb48d4336fc24ae0c93e857fc09c3'; my $raw=raw("$donor/system/lib64/$provider"); need(sha256_hex($raw) eq $input_sha,'Unmeasured Samsung SMPS provider'); my $original=elf_abi($raw);
     my $old='_ZN7android10AudioTrack3setE19audio_stream_type_tj14audio_format_t20audio_channel_mask_tm20audio_output_flags_tRKNS_2wpINS0_19IAudioTrackCallbackEEEiRKNS_2spINS_7IMemoryEEEb15audio_session_tNS0_13transfer_typeEPK20audio_offload_info_tRKNS_7content22AttributionSourceStateEPK18audio_attributes_tbfi'; my $new=$old.'RKNSt3__112basic_stringIcNSR_11char_traitsIcEENSR_9allocatorIcEEEE';
     need(exists($original->{imports}{$old}) && exists($providers{'libaudioclient.so'}{exports}{$new}),'AudioTrack::set ABI differs from measured profile');
@@ -114,7 +114,7 @@ if($action eq 'native') {
         } need(@matches==1,"Expected exactly one native registration: $name"); $registrations{$name}=$matches[0];
     }
     my $hwr=elf_abi(raw("$lib/libSDKRecognitionText.spensdk.samsung.so")); my $prefix='Java_com_samsung_android_sdk_handwriting_text_impl_TextRecognizerLib_'; my @hwr=map {$prefix.$_} qw(VIHW_1Init VIHW_1Release VIHW_1Recognize VIHW_1SetAsyncMode VIHW_1SetListener VIHW_1AddStroke__J_3F_3FI VIHW_1SetLanguage__JLjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2);
-    need(!scalar(grep {!$hwr->{exports}{$_}} @hwr),'SDK37 handwriting provider lacks measured SmartEye JNI'); need(scalar(grep {$_ eq 'libSDKRecognitionText.spensdk.samsung.so'} split /\n/,raw("$platform/system/system/etc/public.libraries-spensdk.samsung.txt")),'Handwriting engine is not public');
+    need(!scalar(grep {!$hwr->{exports}{$_}} @hwr),'One UI 9 handwriting provider lacks measured SmartEye JNI'); need(scalar(grep {$_ eq 'libSDKRecognitionText.spensdk.samsung.so'} split /\n/,raw("$platform/system/system/etc/public.libraries-spensdk.samsung.txt")),'Handwriting engine is not public');
     my $dir="$output/system/lib64"; make_path($dir); need(!-e "$dir/$provider" && !-e "$dir/$adapter",'Refusing existing native outputs');
     my @patches=([0x6cb4,0x5280aa00,0x5280af00,'AudioTrack allocation: 0x550 -> 0x578'],[0x700c,0xb9422106,0xb9423906,'initCheck/mStatus: 0x220 -> 0x238']); my $patched=$raw;
     for my $p(@patches) {my $o=va_offset($original,$p->[0],4); need(u32($patched,$o)==$p->[1],'Unexpected SMPS opcode'); substr($patched,$o,4)=pack('V',$p->[2])}
@@ -124,15 +124,17 @@ if($action eq 'native') {
     need(same([sort keys %{$bridge->{exports}}],[$old]) && same([sort keys %{$bridge->{imports}}],[$new]) && same($bridge->{needed},['libaudioclient.so']),'Unexpected adapter ABI/dependency'); need(!scalar(grep {!$available{$_} && !$bridge->{exports}{$_} && !$bionic{$_}} keys %{$final->{imports}}),'Unresolved C++ symbol after adaptation');
     my $text=$original->{by}{'.text'}; need(section($final,'.text') eq substr($patched,$text->[4],$text->[5]),'ELF editing changed native implementation');
     need(section($final,$_) eq section($original,$_),"ELF editing changed $_") for qw(.rodata .data .data.rel.ro .rela.dyn .relr.dyn .rela.plt); hardened($final); hardened($bridge);
-    save("$output/native-report.json",{profile=>'p3s / SM-S942B_INS SDK37 arm64 / b0sxxx SMPS SDK36',cohort_sha256=>\%cohort,provider_input_sha256=>$input_sha,patches=>[map {{address=>sprintf('0x%x',$_->[0]),before=>sprintf('0x%x',$_->[1]),after=>sprintf('0x%x',$_->[2]),purpose=>$_->[3]}} @patches],native_registrations=>\%registrations,jni_exports=>[sort grep {/^Java_/} keys %{$final->{exports}}],handwriting_jni_exports=>[sort @hwr],adapter_export=>$old,adapter_import=>$new,provider_output_sha256=>sha256_hex($final->{data}),adapter_output_sha256=>sha256_hex($bridge->{data}),scope=>'Static ABI/linkage validation; no Android audio or pen hardware executed'}); exit 0;
+    save("$output/native-report.json",{profile=>'p3s / SM-S942B_INS One UI 9 arm64 / b0sxxx SMPS SDK36',cohort_sha256=>\%cohort,provider_input_sha256=>$input_sha,patches=>[map {{address=>sprintf('0x%x',$_->[0]),before=>sprintf('0x%x',$_->[1]),after=>sprintf('0x%x',$_->[2]),purpose=>$_->[3]}} @patches],native_registrations=>\%registrations,jni_exports=>[sort grep {/^Java_/} keys %{$final->{exports}}],handwriting_jni_exports=>[sort @hwr],adapter_export=>$old,adapter_import=>$new,provider_output_sha256=>sha256_hex($final->{data}),adapter_output_sha256=>sha256_hex($bridge->{data}),scope=>'Static ABI/linkage validation; no Android audio or pen hardware executed'}); exit 0;
 }
 if($action eq 'clients') {
     my($source,$original,$platform,$decoded,$scratch,$jar,$report)=@args{qw(--source --original --platform --decoded --scratch --jar --report)};
     need(defined($report)&&defined($jar)&&defined($scratch)&&defined($decoded)&&defined($platform)&&defined($original)&&defined($source),'Missing SmartEye client paths');
-    my $source_sha='d4c1207119473dd37f1c8750484367a0ebf0ff6a8921db1c24a75bb8e432ce79'; my $original_sha='952c0629fe00aa161026ea3221aeb1fa1ef0cc15efd8f2ae72e0afc17ae3ad52';
+    # Stock SM-S942B_INS BZJA APK; all 91 SDK classes and five isolated R8 helpers
+    # match the previously measured client contract. Keep the APK pin fail-closed.
+    my $source_sha='22e02765030fe995712f4edb7a5e93d5895677e199f011507184263412cc467c'; my $original_sha='952c0629fe00aa161026ea3221aeb1fa1ef0cc15efd8f2ae72e0afc17ae3ad52';
     my $stride_sha='e49b999011f24279afb42d7c5fc115a69c193f634d1e9ec967bee49ce388990c'; my $hwr_sha='16e8e712dd7686b7457f8a0de98d84e27a956cdd30760a7e417f727af060b305';
-    need(sha($source) eq $source_sha,'Unmeasured SDK37 SmartCapture clients'); need(sha($original) eq $original_sha,'Unmeasured SmartEye application facade');
-    need(sha("$platform/system/system/lib64/libStride.camera.samsung.so") eq $stride_sha,'Unmeasured SDK37 Stride provider'); need(sha("$platform/system/system/lib64/libSDKRecognitionText.spensdk.samsung.so") eq $hwr_sha,'Unmeasured SDK37 handwriting provider');
+    need(sha($source) eq $source_sha,'Unmeasured One UI 9 SmartCapture clients'); need(sha($original) eq $original_sha,'Unmeasured SmartEye application facade');
+    need(sha("$platform/system/system/lib64/libStride.camera.samsung.so") eq $stride_sha,'Unmeasured One UI 9 Stride provider'); need(sha("$platform/system/system/lib64/libSDKRecognitionText.spensdk.samsung.so") eq $hwr_sha,'Unmeasured One UI 9 handwriting provider');
     for my $row(['libStride.camera.samsung.so','camera'],['libSDKRecognitionText.spensdk.samsung.so','spensdk']) {need(scalar(grep {$_ eq $row->[0]} split /\n/,raw("$platform/system/system/etc/public.libraries-$row->[1].samsung.txt")),"Native provider is not public: $row->[0]")}
     need(!-e $scratch && !-l $scratch && -d $decoded,'Client scratch must be new; SmartEye must be normally decoded'); make_path($scratch);
     my @prefixes=('Lcom/samsung/android/sdk/handwriting/','Lcom/samsung/android/ocr/');
@@ -153,7 +155,7 @@ if($action eq 'clients') {
         my @actual=sort map {descriptor(raw($_))} grep {/\.smali$/} walk($dest); need(same(\@actual,[sort keys %selected]),'Incomplete selective disassembly'); return \%selected;
     };
     my $source_dir="$scratch/source"; my $old_dir="$scratch/original"; my $cohort=$extract->($source,$source_dir,sub {$is_sdk->($_[0])||exists $helpers{$_[0]}}); my %sdk=map {$_=>1} grep {$is_sdk->($_)} keys %$cohort;
-    need(grep(index($_,$prefixes[0])==0,keys %sdk)==47 && grep(index($_,$prefixes[1])==0,keys %sdk)==44,'Incomplete SDK37 client cohorts'); need(!scalar(grep {!$cohort->{$_}} keys %helpers),'Missing R8 outline/predicate dependencies');
+    need(grep(index($_,$prefixes[0])==0,keys %sdk)==47 && grep(index($_,$prefixes[1])==0,keys %sdk)==44,'Incomplete One UI 9 client cohorts'); need(!scalar(grep {!$cohort->{$_}} keys %helpers),'Missing R8 outline/predicate dependencies');
     my %facade=map {my $text=raw($_); descriptor($text)=>$text} grep {/\.smali$/} walk("$here/smarteye"); my $originals=$extract->($original,$old_dir,sub {$is_sdk->($_[0])||exists $facade{$_[0]}}); my %existing;
     for my $dir(grep {-d $_} bsd_glob("$decoded/smali*")) {for my $path(grep {/\.smali$/} walk($dir)) {my $name=descriptor(raw($path)); need(!exists $existing{$name},"Duplicate decoded class $name"); $existing{$name}=$path}}
     my @expected=sort grep {$is_sdk->($_)||exists $facade{$_}} keys %existing; need(same(\@expected,[sort keys %$originals]),'Unexpected existing SmartEye client classes');
@@ -189,17 +191,17 @@ if($action eq 'clients') {
 die "Expected native or clients S Pen action\n";
 PERL
 }
-SPEN_ENABLE_SDK37()
+SPEN_ENABLE_NATIVE()
 (
     "${BASH_SOURCE[0]%/*}/../../../scripts/run_xml_perl.sh" --check || exit 1
-    [ "$TARGET_CODENAME" = "p3s" ] || { ABORT "SDK37 S Pen native profile only measured for p3s"; return 1; }
+    [ "$TARGET_CODENAME" = "p3s" ] || { ABORT "One UI 9 S Pen native profile only measured for p3s"; return 1; }
     if grep -q '^ro.system.product.cpu.abilist32=.' "$WORK_DIR/system/system/build.prop"; then
-        ABORT "SDK37 p3s S Pen requires the source arm64-only platform"
+        ABORT "One UI 9 p3s S Pen requires the source arm64-only platform"
         return 1
     fi
-    SPEN_BUILD_DIR="$(mktemp -d "$WORK_DIR/configs/spen-sdk37.XXXXXX")" || return 1
+    SPEN_BUILD_DIR="$(mktemp -d "$WORK_DIR/configs/spen.XXXXXX")" || return 1
     trap 'rm -rf "$SPEN_BUILD_DIR"' EXIT
-    SPEN_SDK37 native --platform "$WORK_DIR" --donor "$SRC_DIR/prebuilts/samsung/b0sxxx" \
+    SPEN_NATIVE native --platform "$WORK_DIR" --donor "$SRC_DIR/prebuilts/samsung/b0sxxx" \
         --output "$SPEN_BUILD_DIR" || return 1
     ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/framework/SmpsManager.jar" 0 0 644 "u:object_r:system_file:s0" || return 1
     ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/etc/permissions/smps_library.xml" 0 0 644 "u:object_r:system_file:s0" || return 1
@@ -207,7 +209,7 @@ SPEN_ENABLE_SDK37()
     for SPEN_FILE in libsmpsft.smps.samsung.so libspen_audiotrack37.so; do
         ADD_TO_WORK_DIR "$SPEN_BUILD_DIR" "system" "system/lib64/$SPEN_FILE" 0 0 644 "u:object_r:system_lib_file:s0" || return 1
     done
-    cp "$SPEN_BUILD_DIR/native-report.json" "$WORK_DIR/configs/spen-sdk37-native.json" || return 1
+    cp "$SPEN_BUILD_DIR/native-report.json" "$WORK_DIR/configs/spen-native.json" || return 1
     for SPEN_FILE in \
         "system/app/AirGlance/AirGlance.apk" "system/app/LiveDrawing/LiveDrawing.apk" \
         "system/etc/default-permissions/default-permissions-com.samsung.android.service.aircommand.xml" \
@@ -221,12 +223,12 @@ SPEN_ENABLE_SDK37()
     done
     ADD_TO_WORK_DIR "b0qxxx" "system" "system/media/audio/pensounds" 0 0 755 "u:object_r:system_file:s0" || return 1
     DECODE_APK "system" "system/priv-app/SmartEye/SmartEye.apk" || return 1
-    SPEN_SDK37 clients \
+    SPEN_NATIVE clients \
         --source "$FW_DIR/$SOURCE_FIRMWARE_PATH/system/system/app/SmartCapture/SmartCapture.apk" \
         --original "$SRC_DIR/prebuilts/samsung/b0qxxx/system/priv-app/SmartEye/SmartEye.apk" \
         --platform "$WORK_DIR" --decoded "$APKTOOL_DIR/system/priv-app/SmartEye/SmartEye.apk" \
         --scratch "$SPEN_BUILD_DIR/clients" --jar "$TOOLS_DIR/bin/apktool.jar" \
-        --report "$WORK_DIR/configs/spen-sdk37-clients.json" || return 1
+        --report "$WORK_DIR/configs/spen-clients.json" || return 1
     ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/etc/permissions/com.sec.feature.spen_usp_level75.xml" \
         0 0 644 "u:object_r:system_file:s0" || return 1
     for SPEN_FEATURE in SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_GARAGE_SPEC; do
@@ -234,7 +236,7 @@ SPEN_ENABLE_SDK37()
         [ -n "$SPEN_VALUE" ] || { ABORT "Missing target S Pen feature: $SPEN_FEATURE"; return 1; }
         SET_FLOATING_FEATURE_CONFIG "$SPEN_FEATURE" "$SPEN_VALUE" || return 1
     done
-    LOG "- Enabled p3s S Pen using SDK37 input JNI and adapted Samsung SMPS"
+    LOG "- Enabled p3s S Pen using One UI 9 input JNI and adapted Samsung SMPS"
 )
 
 SOURCE_FIRMWARE_PATH="$(cut -d "/" -f 1 -s <<< "$SOURCE_FIRMWARE")_$(cut -d "/" -f 2 -s <<< "$SOURCE_FIRMWARE")"
@@ -246,7 +248,7 @@ TARGET_HAS_SPEN="$(test -n "$(find "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/
 if ! $SOURCE_HAS_SPEN; then
     if $TARGET_HAS_SPEN; then
         if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-            SPEN_ENABLE_SDK37 || return 1
+            SPEN_ENABLE_NATIVE || return 1
             unset SOURCE_FIRMWARE_PATH TARGET_FIRMWARE_PATH SOURCE_HAS_SPEN TARGET_HAS_SPEN
             return 0
         fi

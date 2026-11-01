@@ -3,7 +3,7 @@
 Connects a new Audio output menu action to the native player's actual
 MediaSession and MediaRouter2.showSystemOutputSwitcher(MediaSession.Token).
 The token overload is present in both the reviewed QPR2 framework and Samsung's
-SDK37 framework. It prevents selection of an unrelated inferred media session.
+One UI 9 framework. It prevents selection of an unrelated inferred media session.
 The QPR2 media dialog's MediaSessionRepository and output switcher are the local
 reference; the public routing API is the bridge for this Samsung Activity.
 

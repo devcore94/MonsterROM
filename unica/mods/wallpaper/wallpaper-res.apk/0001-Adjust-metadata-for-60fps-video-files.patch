@@ -19,7 +19,7 @@ index 1ca08c3..7b39641 100644
 -          "thumbnail_lock_frame_no" : 700,
 -          "thumbnail_frame_no" : 700,
 -          "transition_frame_info": "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
-+          "thumbnail_system_frame_no" : 1021,
++          "thumbnail_system_frame_no" : 1019,
 +          "thumbnail_lock_frame_no" : 350,
 +          "thumbnail_frame_no" : 350,
 +          "transition_frame_info": "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"
@@ -39,7 +39,7 @@ index 1ca08c3..7b39641 100644
 -          "thumbnail_lock_frame_no" : 700,
 -          "thumbnail_frame_no" : 700,
 -          "transition_frame_info": "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
-+          "thumbnail_system_frame_no" : 1021,
++          "thumbnail_system_frame_no" : 1019,
 +          "thumbnail_lock_frame_no" : 350,
 +          "thumbnail_frame_no" : 350,
 +          "transition_frame_info": "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"
@@ -59,7 +59,7 @@ index 1ca08c3..7b39641 100644
 -          "thumbnail_lock_frame_no" : 700,
 -          "thumbnail_frame_no" : 700,
 -          "transition_frame_info": "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
-+          "thumbnail_system_frame_no" : 1021,
++          "thumbnail_system_frame_no" : 1019,
 +          "thumbnail_lock_frame_no" : 350,
 +          "thumbnail_frame_no" : 350,
 +          "transition_frame_info": "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"
@@ -79,7 +79,7 @@ index 1ca08c3..7b39641 100644
 -          "thumbnail_lock_frame_no" : 700,
 -          "thumbnail_frame_no" : 700,
 -          "transition_frame_info": "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
-+          "thumbnail_system_frame_no" : 1021,
++          "thumbnail_system_frame_no" : 1019,
 +          "thumbnail_lock_frame_no" : 350,
 +          "thumbnail_frame_no" : 350,
 +          "transition_frame_info": "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"
@@ -99,7 +99,7 @@ index 1ca08c3..7b39641 100644
 -          "thumbnail_lock_frame_no" : 700,
 -          "thumbnail_frame_no" : 700,
 -          "transition_frame_info": "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
-+          "thumbnail_system_frame_no" : 1021,
++          "thumbnail_system_frame_no" : 1019,
 +          "thumbnail_lock_frame_no" : 350,
 +          "thumbnail_frame_no" : 350,
 +          "transition_frame_info": "AOD AOD 0 150 1200 0.17 0.17 0.1 1\nAOD LOCK 0 350 1000 0.33 0 0.1 1\nAOD HOME 0 1020 2500 0.33 0 0.1 1\nLOCK HOME 350 1020 1500 0.17 0.17 0.1 1\nLOCK TOUCH 350 875 1500 0.17 0.17 0.1 1"

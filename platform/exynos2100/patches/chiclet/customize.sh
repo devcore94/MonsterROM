@@ -1,7 +1,7 @@
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    # The following Floppy module supplies the reviewed SDK37 kernel cohort.
+    # The following Floppy module supplies the reviewed One UI 9 kernel cohort.
     # Do not download/stage an unrelated latest release first.
-    LOG "- Using the pinned SDK37 Floppy kernel instead of downloading Chiclet"
+    LOG "- Using the pinned One UI 9 Floppy kernel instead of downloading Chiclet"
     return 0
 fi
 

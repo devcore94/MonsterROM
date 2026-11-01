@@ -1,6 +1,6 @@
 # Prophide
 
-**SDK37 implemented and host-verified; physical boot is not yet qualified.**
+**One UI 9 implemented and host-verified; physical boot is not yet qualified.**
 SDK36 keeps its original implementation. Unsupported source SDKs, native
 providers, targets and firmware fail explicitly instead of silently skipping.
 
@@ -9,7 +9,7 @@ vendor-security-patch properties. It does **not** lock the bootloader, restore
 verified boot, change hardware attestation or guarantee an integrity verdict.
 Already-copied/cached values in running consumers are not invalidated.
 
-## SDK37 handoff
+## One UI 9 handoff
 
 1. At `service.bootanim.exit=1`, platform init asynchronously starts
    `/system/bin/prophide_stage` as **system UID**, in its own core domain, with
@@ -46,7 +46,7 @@ as read, not replaced with an installer-time stock digest.
 
 - No source neverallow is removed/weakened, no domain becomes permissive, and
   the helper gets no protected-property setter or property-area write grant.
-  Init already has the required authority. SDK37 installs **no `rezetprop` or
+  Init already has the required authority. One UI 9 installs **no `rezetprop` or
   `init_exec`-labelled helper**.
 - All four target vbmeta nodes use `vbmeta_block_device`. The helper has only
   read/getattr on that block type, not open/write/ioctl or generic block access.
@@ -61,7 +61,7 @@ as read, not replaced with an installer-time stock digest.
   conflicting declarations before installation. Reapplication is byte-idempotent.
   Original build scripts/signing remain in use; no test fixture is installed.
 - Reviewed targets: `o1s`, `t2s`, `p3s`, `r9s`, with their pinned AUT/THL firmware
-  and current SM-S942B_INS SDK37 source/security patch `2026-10-05`.
+  and current SM-S942B_INS One UI 9 source/security patch `2026-10-05`.
 
 ## Native identity / reproduction
 
@@ -73,7 +73,7 @@ The 1,509-byte adapter occupies existing RX padding at ELF VA `0xb57100`.
 That segment now ends at `0xb576f0`, before the next segment at `0xb58000`.
 No added segment, W+X mapping, relocation or init dependency.
 
-`sdk37/init_adapter.c` and `init_adapter.ld` reproduce the payload with Clang
+`init_adapter.c` and `init_adapter.ld` reproduce the payload with Clang
 21.1.8: `--target=aarch64-linux-android37 -O2 -ffreestanding -fPIC -fno-builtin
 -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables
 -mbranch-protection=standard`. Link with LLD using that script and
@@ -82,8 +82,8 @@ No added segment, W+X mapping, relocation or init dependency.
 values, then extract `.prophide` as binary. Payload SHA-256:
 `bf4f7d93e7edcf7ecc9b51fb7a2a498945571c6313c0c5a521a95947a04e31cd`.
 
-`sdk37/prophide_stage.c` is the shipped PIE helper's source. It links only actual
-SDK37 libc/crypto providers, with full RELRO, immediate binding, NX stack, stack
+`prophide_stage.c` is the shipped PIE helper's source. It links only actual
+One UI 9 libc/crypto providers, with full RELRO, immediate binding, NX stack, stack
 protection and BTI/PAC. Its local build used Clang 21.1.8 with AArch64 LP64 Linux
 headers for standard ABI declarations (`__errno_location=__errno`); no GNU libc
 code is linked. The stat layout is compile-time asserted. Exact build commands
@@ -102,7 +102,7 @@ clang --target=aarch64-linux-android37 --sysroot=/usr/aarch64-linux-gnu \
   -Wl,-e,_start,--gc-sections,--no-undefined,-z,relro,-z,now,-z,noexecstack,-z,max-page-size=16384,--build-id=sha1 \
   -Wl,--dynamic-linker=/system/bin/bootstrap/linker64 \
   -Wl,-rpath,/system/lib64/bootstrap:/system/lib64 \
-  unica/mods/prophide/sdk37/prophide_stage.c \
+  unica/mods/prophide/prophide_stage.c \
   -L"$LIB/bootstrap" -L"$LIB" -lc -lcrypto -o /tmp/opencode/prophide_stage
 ```
 

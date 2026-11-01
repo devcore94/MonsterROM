@@ -1,41 +1,26 @@
-From 4c5ff4b3bafd71aa727a3c8ea829b54ed92c324c Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Mon, 8 Sep 2025 23:54:15 +0200
+From eadabdba873af090c1725cba0c26380d773bb325 Mon Sep 17 00:00:00 2001
+From: ditternation <ditternation@outlook.com>
+Date: Wed, 30 Sep 2026 14:59:58 +0200
 Subject: [PATCH] Disable virtual vibration support
 
 ---
- .../providers/settings/DatabaseHelper$1.smali        | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ smali/com/android/providers/settings/DatabaseHelper$1.smali | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/smali/com/android/providers/settings/DatabaseHelper$1.smali b/smali/com/android/providers/settings/DatabaseHelper$1.smali
-index b49c032..ec792a3 100644
+index 8c12fd0..0603efe 100644
 --- a/smali/com/android/providers/settings/DatabaseHelper$1.smali
 +++ b/smali/com/android/providers/settings/DatabaseHelper$1.smali
-@@ -437,23 +437,13 @@
- 
-     invoke-static {v0, v2, v8, v1}, Landroid/provider/Settings$System;->putIntForUser(Landroid/content/ContentResolver;Ljava/lang/String;II)Z
- 
--    iget-object v1, p0, Lcom/android/providers/settings/DatabaseHelper$1;->this$0:Lcom/android/providers/settings/DatabaseHelper;
--
--    invoke-static {v1}, Lcom/android/providers/settings/DatabaseHelper;->-$$Nest$fgetmUserHandle(Lcom/android/providers/settings/DatabaseHelper;)I
--
--    move-result v1
--
--    const-string v2, "sync_vibration_with_notification"
--
--    invoke-static {v0, v2, v8, v1}, Landroid/provider/Settings$System;->putIntForUser(Landroid/content/ContentResolver;Ljava/lang/String;II)Z
--
-     iget-object p0, p0, Lcom/android/providers/settings/DatabaseHelper$1;->this$0:Lcom/android/providers/settings/DatabaseHelper;
- 
-     invoke-static {p0}, Lcom/android/providers/settings/DatabaseHelper;->-$$Nest$fgetmUserHandle(Lcom/android/providers/settings/DatabaseHelper;)I
+@@ -490,9 +490,5 @@
  
      move-result p0
  
 -    const-string v1, "vibration_sound_enabled"
-+    const-string v1, "sync_vibration_with_notification"
- 
-     invoke-static {v0, v1, v8, p0}, Landroid/provider/Settings$System;->putIntForUser(Landroid/content/ContentResolver;Ljava/lang/String;II)Z
- 
+-
+-    invoke-static {v0, v1, v8, p0}, Landroid/provider/Settings$System;->putIntForUser(Landroid/content/ContentResolver;Ljava/lang/String;II)Z
+-
+     return-void
+ .end method
 -- 
-2.51.0
+2.53.0
 

@@ -1,0 +1,21 @@
+Subject: [PATCH] Exclude the new Prophide helper from legacy charger-property reads
+
+The API30 compatibility grant enumerates old excluded domains. A new domain
+would otherwise inherit charger_status_prop reads forbidden by One UI 9. Keep
+every existing reader unchanged and subtract ONLY prophide_stage. Do not
+change the donor neverallow or the legacy type mapping.
+
+diff --git a/plat_pub_versioned.cil b/plat_pub_versioned.cil
+--- a/plat_pub_versioned.cil
++++ b/plat_pub_versioned.cil
+@@ -6411,7 +6411,9 @@
+ (allow domain exported_radio_prop_30_0 (file (read getattr map open)))
+ (allow domain exported_secure_prop_30_0 (file (read getattr map open)))
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_41 exported_system_prop_30_0 (file (read open)))
++(typeattribute unica_prophide_api30_property_reader)
++(typeattributeset unica_prophide_api30_property_reader (and unica_api30_public_grant_41 (not (prophide_stage))))
++(allow unica_prophide_api30_property_reader exported_system_prop_30_0 (file (read open)))
+ (allow unica_api30_public_grant_42 unica_api30_public_grant_43 (file (read open)))
+ (allow domain exported_system_prop_30_0 (file (getattr map)))
+ (allow domain exported_vold_prop_30_0 (file (read getattr map open)))

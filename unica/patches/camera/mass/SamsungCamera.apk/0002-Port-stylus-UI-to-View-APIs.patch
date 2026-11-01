@@ -1,0 +1,113 @@
+Subject: [PATCH] Preserve mass Camera stylus UI using real One UI 9 View APIs
+
+One UI 9 removed InputManager.getInstance and View.isHoveringUIEnabled. Its
+global setPointerIconType replacements are no-ops, so use the anchor View's
+real stylus pointer implementation. Preserve the original hover capability
+predicate (S Pen hardware OR desktop mode), not the user's pen-hover setting.
+
+--- a/smali/androidx/appcompat/widget/TooltipCompatHandler.smali
++++ b/smali/androidx/appcompat/widget/TooltipCompatHandler.smali
+@@ -406,6 +406,26 @@
+     return-void
+ .end method
+ 
++.method private setPenPointerIcon(I)V
++    .locals 3
++
++    iget-object v0, p0, Landroidx/appcompat/widget/TooltipCompatHandler;->mAnchor:Landroid/view/View;
++
++    invoke-virtual {v0}, Landroid/view/View;->getContext()Landroid/content/Context;
++
++    move-result-object v1
++
++    invoke-static {v1, p1}, Landroid/view/PointerIcon;->getSystemIcon(Landroid/content/Context;I)Landroid/view/PointerIcon;
++
++    move-result-object p1
++
++    const/4 v2, 0x2
++
++    invoke-virtual {v0, v2, p1}, Landroid/view/View;->semSetPointerIcon(ILandroid/view/PointerIcon;)V
++
++    return-void
++.end method
++
+ .method private showPenPointEffect(Landroid/view/MotionEvent;Z)V
+     .locals 2
+ 
+@@ -425,7 +445,7 @@
+ 
+     move-result p1
+ 
+-    invoke-static {p1}, Landroidx/reflect/hardware/input/SeslInputManagerReflector;->setPointerIconType(I)V
++    invoke-direct {p0, p1}, Landroidx/appcompat/widget/TooltipCompatHandler;->setPenPointerIcon(I)V
+ 
+     const/4 p1, 0x1
+ 
+@@ -442,7 +462,7 @@
+ 
+     move-result p1
+ 
+-    invoke-static {p1}, Landroidx/reflect/hardware/input/SeslInputManagerReflector;->setPointerIconType(I)V
++    invoke-direct {p0, p1}, Landroidx/appcompat/widget/TooltipCompatHandler;->setPenPointerIcon(I)V
+ 
+     iput-boolean v0, p0, Landroidx/appcompat/widget/TooltipCompatHandler;->mIsSPenPointChanged:Z
+ 
+--- a/smali_classes2/androidx/reflect/view/SeslViewReflector.smali
++++ b/smali_classes2/androidx/reflect/view/SeslViewReflector.smali
+@@ -201,40 +201,33 @@
+ .method public static isHoveringUIEnabled(Landroid/view/View;)Z
+-    .locals 4
++    .locals 2
+ 
+-    sget-object v0, Landroidx/reflect/view/SeslViewReflector;->mClass:Ljava/lang/Class;
++    if-eqz p0, :hover_disabled
+ 
+-    const/4 v1, 0x0
++    invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
+ 
+-    new-array v2, v1, [Ljava/lang/Class;
++    move-result-object v0
+ 
+-    const-string v3, "isHoveringUIEnabled"
++    const-string v1, "SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_SPEN_VERSION"
+ 
+-    invoke-static {v0, v3, v2}, Landroidx/reflect/SeslBaseReflector;->getDeclaredMethod(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
++    invoke-virtual {v0, v1}, Lcom/samsung/android/feature/SemFloatingFeature;->getInt(Ljava/lang/String;)I
+ 
+-    move-result-object v0
++    move-result v0
+ 
+-    if-eqz v0, :cond_0
+-
+-    new-array v2, v1, [Ljava/lang/Object;
+-
+-    invoke-static {p0, v0, v2}, Landroidx/reflect/SeslBaseReflector;->invoke(Ljava/lang/Object;Ljava/lang/reflect/Method;[Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    move-result-object p0
+-
+-    instance-of v0, p0, Ljava/lang/Boolean;
+-
+-    if-eqz v0, :cond_0
+-
+-    check-cast p0, Ljava/lang/Boolean;
++    if-gtz v0, :hover_enabled
+ 
+-    invoke-virtual {p0}, Ljava/lang/Boolean;->booleanValue()Z
++    invoke-virtual {p0}, Landroid/view/View;->semIsDesktopMode()Z
+ 
+     move-result p0
+ 
+     return p0
+ 
+-    :cond_0
+-    return v1
++    :hover_enabled
++    const/4 v0, 0x1
++    return v0
++
++    :hover_disabled
++    const/4 v0, 0x0
++    return v0
+ .end method
+ 
+ .method public static isInScrollingContainer(Landroid/view/View;)Z

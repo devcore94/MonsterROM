@@ -3,7 +3,7 @@
 
 # UN1CA configuration file for Exynos devices (essi)
 
-# Galaxy S26 (Exynos), One UI 9.0 / SDK 37 Samsung framework cohort.
+# Galaxy S26 (Exynos), One UI 9.0 / One UI 9 Samsung framework cohort.
 # QPR2 functionality is backported by mods/paradigm; this is not a 37.2 GSI.
 # samloader accepts the public model TAC; keep a unique device ID out of Git.
 # An authorized local identifier can be supplied without editing this file.

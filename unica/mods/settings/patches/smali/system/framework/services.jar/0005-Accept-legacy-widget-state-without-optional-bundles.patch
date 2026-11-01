@@ -1,0 +1,23 @@
+Subject: [PATCH] Accept legacy widget state without optional Samsung bundles
+
+One UI 9 tries the required Base64 accessor even when older widget state has no
+semColorfulInfo/semMonotoneInfo attributes. Check presence before decoding.
+Keep absent bundles untouched and retain strict parsing, corruption logging
+and Parcel cleanup for present data. No persisted widget data is removed.
+
+diff --git a/smali/com/android/server/appwidget/AppWidgetXmlUtil.smali b/smali/com/android/server/appwidget/AppWidgetXmlUtil.smali
+--- a/smali/com/android/server/appwidget/AppWidgetXmlUtil.smali
++++ b/smali/com/android/server/appwidget/AppWidgetXmlUtil.smali
+@@ -261,6 +261,12 @@
+     const/4 v1, 0x0
+ 
+     :try_start_0
++    invoke-interface {p0, v1, p1}, Lcom/android/modules/utils/TypedXmlPullParser;->getAttributeValue(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
++
++    move-result-object v2
++
++    if-eqz v2, :cond_3
++
+     invoke-interface {p0, v1, p1}, Lcom/android/modules/utils/TypedXmlPullParser;->getAttributeBytesBase64(Ljava/lang/String;Ljava/lang/String;)[B
+ 
+     move-result-object p0

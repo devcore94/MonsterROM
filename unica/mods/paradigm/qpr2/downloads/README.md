@@ -1,6 +1,6 @@
 # Downloads Unicode predicates — prepared, not safely deployable
 
-The SDK37 root deliberately keeps the original Samsung-signed DownloadsProvider.
+The One UI 9 root deliberately keeps the original Samsung-signed DownloadsProvider.
 Neither ordinary patch here nor the identification patch is applied by that root.
 Adding a patch file is **not** deployment or feature parity.
 

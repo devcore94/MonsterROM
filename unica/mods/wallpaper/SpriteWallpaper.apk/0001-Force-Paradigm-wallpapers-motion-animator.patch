@@ -4,14 +4,14 @@ Date: Fri, 30 May 2025 00:25:17 +0200
 Subject: [PATCH] Force Paradigm wallpapers motion animator
 
 ---
- smali/C1/b.smali | 14 +-------------
+ .../wallpaper/live/infinity/c.smali           | 14 +-------------
  1 file changed, 1 insertion(+), 13 deletions(-)
 
-diff --git a/smali/C1/b.smali b/smali/C1/b.smali
-index 021dd68..d4832a7 100644
---- a/smali/C1/b.smali
-+++ b/smali/C1/b.smali
-@@ -27,22 +27,10 @@
+diff --git a/smali/com/samsung/android/wallpaper/live/infinity/c.smali b/smali/com/samsung/android/wallpaper/live/infinity/c.smali
+index 00cf4b7..dd20a5f 100644
+--- a/smali/com/samsung/android/wallpaper/live/infinity/c.smali
++++ b/smali/com/samsung/android/wallpaper/live/infinity/c.smali
+@@ -43,22 +43,10 @@
  
  # direct methods
  .method static constructor <clinit>()V
@@ -32,9 +32,8 @@ index 021dd68..d4832a7 100644
      const-string v0, "AOD AOD 0 300 1200 0.17 0.17 0.1 1\nAOD LOCK 0 700 1000 0.33 0 0.1 1\nAOD HOME 0 2040 2500 0.33 0 0.1 1\nLOCK HOME 700 2040 1500 0.17 0.17 0.1 1\nLOCK TOUCH 700 1750 1500 0.17 0.17 0.1 1"
  
 -    :goto_0
-     sput-object v0, LC1/b;->i:Ljava/lang/String;
+     sput-object v0, Lcom/samsung/android/wallpaper/live/infinity/c;->q:Ljava/lang/String;
  
      return-void
 -- 
 2.51.1
-

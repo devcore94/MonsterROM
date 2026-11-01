@@ -98,7 +98,7 @@ class OpticalNativeCohortTests(unittest.TestCase):
                 output = folder / "not-created"
                 result = run_gate(script, platform, output=output)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn("Unmeasured SDK37/r9s optical native cohort: " + relative, result.stderr)
+                self.assertIn("Unmeasured One UI 9/r9s optical native cohort: " + relative, result.stderr)
                 self.assertFalse(output.exists())
 
     def test_missing_and_symlink_native_inputs_reject(self):
@@ -116,7 +116,7 @@ class OpticalNativeCohortTests(unittest.TestCase):
                         path.symlink_to(target)
                     result = run_gate(script, platform, output=folder / "not-created")
                     self.assertNotEqual(result.returncode, 0)
-                    self.assertIn("Missing/unsafe SDK37/r9s optical native input", result.stderr)
+                    self.assertIn("Missing/unsafe One UI 9/r9s optical native input", result.stderr)
                     self.assertFalse((folder / "not-created").exists())
 
     def test_existing_native_output_is_never_overwritten(self):
@@ -141,7 +141,7 @@ class OpticalNativeCohortTests(unittest.TestCase):
                     (platform / RUNTIME).write_bytes(b"unreviewed runtime")
                     rejected = run_gate(script, platform, checked=checked, root_gate=True)
                     self.assertNotEqual(rejected.returncode, 0)
-                    self.assertIn("Unmeasured SDK37/r9s optical native cohort", rejected.stderr)
+                    self.assertIn("Unmeasured One UI 9/r9s optical native cohort", rejected.stderr)
                     self.assertNotIn("UNEXPECTED MUTATION", rejected.stderr)
 
     def test_unsupported_optical_transition_still_rejects_before_mutation(self):
@@ -150,7 +150,7 @@ class OpticalNativeCohortTests(unittest.TestCase):
                 script, platform = fixture(Path(tmp), root_gate=True)
                 result = run_gate(script, platform, checked=True, root_gate=True, **options)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn("Unreviewed SDK37 fingerprint sensor-type transition", result.stderr)
+                self.assertIn("Unreviewed One UI 9 fingerprint sensor-type transition", result.stderr)
                 self.assertNotIn("UNEXPECTED MUTATION", result.stderr)
 
     def test_sdk36_and_unaffected_t2s_paths_do_not_read_optical_inputs(self):

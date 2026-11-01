@@ -1,102 +1,94 @@
-From d9d9c35f4a4879b97d74f8d43fdce1e933928fb4 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Thu, 30 Oct 2025 11:11:07 +0100
-Subject: [PATCH] Nuke Knox HDM
+From: UN1CA <unica@localhost>
+Subject: [PATCH] Nuke-Knox-HDM (One UI 9)
 
-UN1CA: this patch is not complete! Please check unica/mods/deknox/customize.sh for more info.
 ---
- .../samsung/android/knox/hdm/HdmManager.smali | 484 ++----------------
- 1 file changed, 54 insertions(+), 430 deletions(-)
-
 diff --git a/smali/com/samsung/android/knox/hdm/HdmManager.smali b/smali/com/samsung/android/knox/hdm/HdmManager.smali
-index a1c954c..b2ee2f3 100644
 --- a/smali/com/samsung/android/knox/hdm/HdmManager.smali
 +++ b/smali/com/samsung/android/knox/hdm/HdmManager.smali
-@@ -63,7 +63,7 @@
+@@ -35,761 +35,139 @@
  .end method
  
  .method public static getHdmVersion()Ljava/lang/String;
--    .locals 5
-+    .locals 2
+-    .locals 4
++    .locals 1
  
-     sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
+-    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
++    const/4 v0, 0x0
  
-@@ -71,60 +71,7 @@
- 
-     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
--    const-string v0, "ro.vendor.hdm.hdm_supported_subsystem"
+-    const-string v1, "getHdmVersion() on HdmManager.java"
+-
+-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const-string v0, "ro.vendor.hdm.version.tlc"
 -
 -    const-string v1, "none"
 -
 -    invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 -
--    move-result-object v2
+-    move-result-object v0
 -
--    invoke-virtual {v1, v2}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+-    invoke-virtual {v1, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 -
 -    move-result v2
 -
--    const-string v3, " - "
--
--    const-string v4, "HDM_VERSION"
--
 -    if-nez v2, :cond_0
 -
--    new-instance v2, Ljava/lang/StringBuilder;
--
--    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
--
--    invoke-virtual {v2, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
--
--    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
--
--    invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
--
--    move-result-object v0
--
--    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
--
--    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
--
--    move-result-object v0
--
--    return-object v0
+-    goto :goto_0
 -
 -    :cond_0
--    new-instance v0, Ljava/lang/StringBuilder;
+-    const-string v0, "2.0"
 -
--    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+-    :goto_0
+-    const-string v2, "ro.vendor.hdm.hdm_supported_subsystem"
 -
--    invoke-virtual {v0, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-    invoke-static {v2, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 -
--    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-    move-result-object v3
 -
--    const-string v1, "HDM_POLICY_TYPE"
+-    invoke-virtual {v1, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 -
--    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-    move-result v3
 -
--    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-    if-nez v3, :cond_1
+-
+-    new-instance v3, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    const-string v0, " - "
+-
+-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-static {v2, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 -
 -    move-result-object v0
-+    const/4 v0, 0x0
- 
+-
+-    invoke-virtual {v3, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    :cond_1
      return-object v0
  .end method
-@@ -132,43 +79,18 @@
+ 
  
  # virtual methods
  .method public generateNonce()Ljava/lang/String;
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "generateNonce() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -120,31 +112,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call generateNonce() using HDM Service on HdmManager.java"
-+    const-string v0, "generateNonce() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -176,43 +98,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
  .end method
  
  .method public getHdmId(Ljava/lang/String;)Ljava/lang/String;
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "getHdmId() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -168,31 +159,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call getHdmId() using HDM Service on HdmManager.java"
-+    const-string p1, "getHdmId() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -220,43 +117,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
  .end method
  
  .method public getHdmIdB64()Ljava/lang/String;
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "getHdmIdB64() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -216,32 +206,31 @@ index a1c954c..b2ee2f3 100644
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call getHdmIdB64() using HDM Service on HdmManager.java"
-+    const-string v0, "getHdmIdB64() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -264,43 +136,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
  .end method
  
- .method public getHdmPolicy(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ .method public getHdmPolicy(Ljava/lang/String;)Ljava/lang/String;
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
--    const-string v1, "getHdmPolicy() on HdmManager.java"
++    const/4 v0, 0x0
+ 
+-    const-string v1, "getHdmPolicy() on HdmManager.java new"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 -
@@ -259,36 +248,103 @@ index a1c954c..b2ee2f3 100644
 -
 -    iget-object p0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mContextInfo:Lcom/samsung/android/knox/ContextInfo;
 -
+-    const-string v1, ""
+-
+-    invoke-interface {v0, p0, p1, v1}, Lcom/samsung/android/knox/hdm/IHdmManager;->getHdmPolicy(Lcom/samsung/android/knox/ContextInfo;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    return-object p0
+-
+-    :cond_0
+-    const-string p0, "Fail to call getHdmPolicy() using HDM Service on HdmManager.java"
+-
+-    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
+ .end method
+ 
+ .method public getHdmPolicy(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+-    .locals 3
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
+ 
+-    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
++    const/4 v0, 0x0
+ 
+-    const-string v1, "getHdmPolicy() on HdmManager.java"
+-
+-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 v1, 0x0
+-
+-    if-eqz p2, :cond_2
+-
+-    invoke-virtual {p2}, Ljava/lang/String;->isEmpty()Z
+-
+-    move-result v2
+-
+-    if-eqz v2, :cond_0
+-
+-    goto :goto_0
+-
+-    :cond_0
+-    invoke-virtual {p0}, Lcom/samsung/android/knox/hdm/HdmManager;->getService()Lcom/samsung/android/knox/hdm/IHdmManager;
+-
+-    move-result-object v2
+-
+-    if-eqz v2, :cond_1
+-
+-    const-string v1, "Calling getHdmPolicy() using HDM Service on HdmManager.java"
+-
+-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    iget-object v0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mService:Lcom/samsung/android/knox/hdm/IHdmManager;
+-
+-    iget-object p0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mContextInfo:Lcom/samsung/android/knox/ContextInfo;
+-
 -    invoke-interface {v0, p0, p1, p2}, Lcom/samsung/android/knox/hdm/IHdmManager;->getHdmPolicy(Lcom/samsung/android/knox/ContextInfo;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 -
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
--    :cond_0
+-
+-    :cond_1
 -    const-string p0, "Fail to call getHdmPolicy() using HDM Service on HdmManager.java"
-+    const-string p1, "getHdmPolicy() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -308,43 +155,18 @@
+-
+-    return-object v1
+-
+-    :cond_2
+-    :goto_0
+-    const-string p0, "invalid serviceName by old API"
+-
+-    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    return-object v1
++    return-object v0
  .end method
  
  .method public getRevocationInfo()Ljava/lang/String;
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "getRevocationInfo() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -310,33 +366,59 @@ index a1c954c..b2ee2f3 100644
 -    invoke-interface {v0, p0}, Lcom/samsung/android/knox/hdm/IHdmManager;->getRevocationInfo(Lcom/samsung/android/knox/ContextInfo;)Ljava/lang/String;
 -
 -    move-result-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    return-object p0
-+    const-string v0, "getRevocationInfo() on HdmManager.java"
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call getRevocationInfo() using HDM Service on HdmManager.java"
 -
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
+ .end method
  
-     const/4 p0, 0x0
+ .method public final getService()Lcom/samsung/android/knox/hdm/IHdmManager;
+     .locals 1
  
-@@ -377,43 +199,18 @@
+-    iget-object v0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mService:Lcom/samsung/android/knox/hdm/IHdmManager;
++    const/4 v0, 0x0
+ 
+-    if-nez v0, :cond_0
+-
+-    const-string v0, "hdm_service"
+-
+-    invoke-static {v0}, Landroid/os/ServiceManager;->getService(Ljava/lang/String;)Landroid/os/IBinder;
+-
+-    move-result-object v0
+-
+-    invoke-static {v0}, Lcom/samsung/android/knox/hdm/IHdmManager$Stub;->asInterface(Landroid/os/IBinder;)Lcom/samsung/android/knox/hdm/IHdmManager;
+-
+-    move-result-object v0
+-
+-    iput-object v0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mService:Lcom/samsung/android/knox/hdm/IHdmManager;
+-
+-    :cond_0
+-    iget-object p0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mService:Lcom/samsung/android/knox/hdm/IHdmManager;
+-
+-    return-object p0
++    return-object v0
  .end method
  
  .method public isNFCBlockedByHDM()Z
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "isNFCBlockedByHDM() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -360,31 +442,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call isNFCBlockedByHDM() using HDM Service on HdmManager.java"
-+    const-string v0, "isNFCBlockedByHDM() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -421,43 +218,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return p0
++    return v0
  .end method
  
  .method public isSwBlockEnabled()Z
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "isSwBlockEnabled() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -408,31 +489,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call isSwBlockEnabled() using HDM Service on HdmManager.java"
-+    const-string v0, "isSwBlockEnabled() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -465,43 +237,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return p0
++    return v0
  .end method
  
  .method public removeRevocationInfo()I
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, -0x1
+ 
 -    const-string v1, "removeRevocationInfo() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -456,34 +536,68 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call removeRevocationInfo() using HDM Service on HdmManager.java"
-+    const-string v0, "removeRevocationInfo() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, -0x1
- 
-@@ -509,43 +256,18 @@
+-
+-    const/4 p0, -0x1
+-
+-    return p0
++    return v0
  .end method
  
  .method public setHdmPolicy(Ljava/lang/String;)Ljava/lang/String;
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
- 
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
+-
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
 -
 -    const-string v1, "setHdmPolicy() on HdmManager.java"
 -
--    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
++    .locals 1
+ 
+     const/4 v0, 0x0
+ 
+-    invoke-virtual {p0, p1, v0}, Lcom/samsung/android/knox/hdm/HdmManager;->setHdmPolicy(Ljava/lang/String;Z)Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    return-object p0
++    return-object v0
+ .end method
+ 
+ .method public setHdmPolicy(Ljava/lang/String;Z)Ljava/lang/String;
+-    .locals 3
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
+ 
+-    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
++    const/4 v0, 0x0
+ 
+-    new-instance v1, Ljava/lang/StringBuilder;
+-
+-    const-string v2, "setHdmPolicy() on HdmManager.java: "
+-
+-    invoke-direct {v1, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v1, p2}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v1
+-
+-    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
 -
 -    invoke-virtual {p0}, Lcom/samsung/android/knox/hdm/HdmManager;->getService()Lcom/samsung/android/knox/hdm/IHdmManager;
 -
@@ -499,36 +613,35 @@ index a1c954c..b2ee2f3 100644
 -
 -    iget-object p0, p0, Lcom/samsung/android/knox/hdm/HdmManager;->mContextInfo:Lcom/samsung/android/knox/ContextInfo;
 -
--    invoke-interface {v0, p0, p1}, Lcom/samsung/android/knox/hdm/IHdmManager;->setHdmPolicy(Lcom/samsung/android/knox/ContextInfo;Ljava/lang/String;)Ljava/lang/String;
+-    invoke-interface {v0, p0, p1, p2}, Lcom/samsung/android/knox/hdm/IHdmManager;->setHdmPolicy(Lcom/samsung/android/knox/ContextInfo;Ljava/lang/String;Z)Ljava/lang/String;
 -
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call setHdmPolicy() using HDM Service on HdmManager.java"
-+    const-string p1, "setHdmPolicy() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -553,43 +275,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
  .end method
  
  .method public setHdmTaCmd(I)I
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, -0x1
+ 
 -    const-string v1, "setHdmTaCmd() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -552,31 +665,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call setHdmTaCmd() using HDM Service on HdmManager.java"
-+    const-string p1, "setHdmTaCmd() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, -0x1
- 
-@@ -597,43 +294,18 @@
+-
+-    const/4 p0, -0x1
+-
+-    return p0
++    return v0
  .end method
  
  .method public setSwBlock(Z)Z
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "setSwBlock() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -600,31 +712,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call setSwBlock() using HDM Service on HdmManager.java"
-+    const-string p1, "setSwBlock() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -641,43 +313,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return p0
++    return v0
  .end method
  
  .method public syncRevocationInfo(Ljava/lang/String;)Ljava/lang/String;
 -    .locals 2
-+    .locals 0
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
++    .locals 1
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, 0x0
+ 
 -    const-string v1, "syncRevocationInfo() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -648,31 +759,30 @@ index a1c954c..b2ee2f3 100644
 -    move-result-object p0
 -
 -    return-object p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call syncRevocationInfo() using HDM Service on HdmManager.java"
-+    const-string p1, "syncRevocationInfo() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, p1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, 0x0
- 
-@@ -685,41 +332,18 @@
+-
+-    const/4 p0, 0x0
+-
+-    return-object p0
++    return-object v0
  .end method
  
  .method public syncSwBlockFromBoot()I
 -    .locals 2
+-    .annotation system Ldalvik/annotation/Throws;
+-        value = {
+-            Landroid/os/RemoteException;
+-        }
+-    .end annotation
 +    .locals 1
-     .annotation system Ldalvik/annotation/Throws;
-         value = {
-             Landroid/os/RemoteException;
-         }
-     .end annotation
  
 -    sget-object v0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
--
++    const/4 v0, -0x1
+ 
 -    const-string v1, "syncSwBlockFromBoot() on HdmManager.java"
 -
 -    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
@@ -694,17 +804,15 @@ index a1c954c..b2ee2f3 100644
 -    move-result p0
 -
 -    return p0
-+    sget-object p0, Lcom/samsung/android/knox/hdm/HdmManager;->TAG:Ljava/lang/String;
- 
+-
 -    :cond_0
 -    const-string p0, "Fail to call syncSwBlockFromBoot() using HDM Service on HdmManager.java"
-+    const-string v0, "syncSwBlockFromBoot() on HdmManager.java"
- 
+-
 -    invoke-static {v0, p0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
-+    invoke-static {p0, v0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
- 
-     const/4 p0, -0x1
- 
--- 
-2.51.1
+-
+-    const/4 p0, -0x1
+-
+-    return p0
++    return v0
+ .end method
 

@@ -1,0 +1,165 @@
+{
+  "source_sha256": "bedfc253a4c577d6917f2a79412c1c98d7c43cf5b2101406de9e970e526fabd7",
+  "patched_sha256": "aad80573e108b51b8e47f401ced48fe08f3b527d1ff1e4730ad7ede587a26799",
+  "instructions": [
+    {
+      "va": 115944,
+      "offset": 115944,
+      "before": "c8c58d52",
+      "after": "c8858e52"
+    },
+    {
+      "va": 115952,
+      "offset": 115952,
+      "before": "35008052",
+      "after": "75008052"
+    },
+    {
+      "va": 115956,
+      "offset": 115956,
+      "before": "c86dac72",
+      "after": "c88cad72"
+    },
+    {
+      "va": 116952,
+      "offset": 116952,
+      "before": "62008052",
+      "after": "e2031f2a"
+    },
+    {
+      "va": 117984,
+      "offset": 117984,
+      "before": "62008052",
+      "after": "e2031f2a"
+    }
+  ],
+  "models": {
+    "human-pet-det_SR-V131.tflite": {
+      "sha256": "3b1f954be6c8a75dd718ab05811b3ba3d752f07fd04bd15b6cc934673a54e4aa",
+      "identifier": "TFL3",
+      "inputs": [
+        {
+          "index": 0,
+          "name": "images",
+          "shape": [
+            1,
+            320,
+            320,
+            3
+          ],
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "index": 870,
+          "name": "output",
+          "shape": [
+            1,
+            6300,
+            20
+          ],
+          "type": 0
+        }
+      ]
+    },
+    "human-pet-pose_SR-V200.tflite": {
+      "sha256": "d8e1c74c67e3e4b92415b688f036fb9385cb75f52e1821ca0e442f2ec559fe0e",
+      "identifier": "TFL3",
+      "inputs": [
+        {
+          "index": 0,
+          "name": "images",
+          "shape": [
+            1,
+            320,
+            320,
+            3
+          ],
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "index": 600,
+          "name": "output_0_pose",
+          "shape": [
+            1,
+            166,
+            640
+          ],
+          "type": 0
+        },
+        {
+          "index": 540,
+          "name": "output_1_feature",
+          "shape": [
+            1,
+            768
+          ],
+          "type": 0
+        }
+      ]
+    },
+    "keyword-classification_SR-V031.tflite": {
+      "sha256": "1ece2245e2c1888704d7c4c986f349fad19aeb6a06292cd1718fd8d429766e06",
+      "identifier": "TFL3",
+      "inputs": [
+        {
+          "index": 0,
+          "name": "inputs",
+          "shape": [
+            1,
+            224,
+            224,
+            3
+          ],
+          "type": 0
+        }
+      ],
+      "outputs": [
+        {
+          "index": 159,
+          "name": "output1",
+          "shape": [
+            1,
+            1492
+          ],
+          "type": 0
+        },
+        {
+          "index": 148,
+          "name": "output2",
+          "shape": [
+            1,
+            1024
+          ],
+          "type": 0
+        }
+      ]
+    }
+  },
+  "retained_libraries": {
+    "libcontextanalyzer_jni.media.samsung.so": "51bc86ad719680b4198767b5b9d724f4f2953772a1732597cb3a743f6d4ef963",
+    "libvideo-highlight-arm64-v8a.so": "1b5be48abfb9d37c5b3f75d85bcb618a12818c832e8d24d4a487a7623be7351c",
+    "libauto-reframing-arm64-v8a.so": "e8921a043f2050d69d11f906820a400054c835bebd0f743bff7a33405c42f835"
+  },
+  "target_snap_sha256": {
+    "o1s": "51e2e952e2ddfcad18581ef30773226581f40fb62f73e27a8ad4e1e16afaace1",
+    "t2s": "51e2e952e2ddfcad18581ef30773226581f40fb62f73e27a8ad4e1e16afaace1",
+    "p3s": "51e2e952e2ddfcad18581ef30773226581f40fb62f73e27a8ad4e1e16afaace1",
+    "r9s": "866697412890dd097ef20606d93d83f70e3cb4a2be83f2e1a1e9ab1ff8d26d6c"
+  },
+  "unchanged_guards": [
+    {
+      "offset": 118808,
+      "bytes": "e2031f2a",
+      "purpose": "Keyword already uses FP32"
+    },
+    {
+      "offset": 185832,
+      "bytes": "1f0d0071a10600542800805229018052060000144800805229008052030000146800805269018052682a00b9693200b9",
+      "purpose": "CoreType3 SNAP model/backend option mapping"
+    }
+  ]
+}

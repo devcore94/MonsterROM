@@ -80,22 +80,13 @@ done
 for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/raw/video_"*.mp4; do
     ENCODE_MP4 "$f"
 done
-WALLPAPER_PATCH_ROOT="$MODPATH"
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    # Use the firmware's matching native app, not an unpinned Store release.
-    LOG "- Keeping the SDK37 firmware's Samsung Wallpaper app"
-    WALLPAPER_PATCH_ROOT="$MODPATH/sdk37"
-else
-    LOG "- Downloading latest Samsung Wallpaper app"
-    DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "000008552712")" \
-        "$WORK_DIR/system/system/priv-app/SpriteWallpaper/SpriteWallpaper.apk"
-fi
+# Use the firmware's matching native app, not an unpinned Store release.
+LOG "- Keeping the One UI 9 firmware's Samsung Wallpaper app"
 APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
-    "$WALLPAPER_PATCH_ROOT/SpriteWallpaper.apk/0001-Force-Paradigm-wallpapers-motion-animator.patch"
+    "$MODPATH/SpriteWallpaper.apk/0001-Force-Paradigm-wallpapers-motion-animator.patch"
 APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
-    "$WALLPAPER_PATCH_ROOT/SpriteWallpaper.apk/0002-Adjust-motion-animator-for-60fps-video-files.patch"
+    "$MODPATH/SpriteWallpaper.apk/0002-Adjust-motion-animator-for-60fps-video-files.patch"
 APPLY_PATCH "system" "system/priv-app/wallpaper-res/wallpaper-res.apk" \
     "$MODPATH/wallpaper-res.apk/0001-Adjust-metadata-for-60fps-video-files.patch"
 
-unset WALLPAPER_PATCH_ROOT
 unset -f ENCODE_MP4 COMPRESS_WEBP

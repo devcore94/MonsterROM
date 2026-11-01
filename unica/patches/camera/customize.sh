@@ -10,7 +10,7 @@ sub raw { open my $f,'<:raw',$_[0] or die "$_[0]: $!\n"; local $/; return <$f>//
 sub sha { sha256_hex(raw($_[0])) }
 sub json { decode_json(raw($_[0])) }
 my %args; while(@ARGV) {my $key=shift @ARGV; need(($key eq '--target'||$key eq '--work') && @ARGV,'Expected Camera target/work paths'); $args{$key}=shift @ARGV}
-my $cohort=json("$ENV{SRC_DIR}/unica/patches/camera/sdk37/mass/cohort.json");
+my $cohort=json("$ENV{SRC_DIR}/unica/patches/camera/mass/cohort.json");
 for my $scope(qw(target work)) {my $root=$args{"--$scope"}; need(defined($root),'Missing Camera cohort root'); for my $name(keys %{$cohort->{$scope}}) {my $p="$root/$name"; need(-f $p,"Missing mass Camera cohort member: $p"); need(sha($p) eq $cohort->{$scope}{$name},"Unreviewed mass Camera cohort member: $p")}}
 PERL
 }
@@ -114,7 +114,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && \
             "system/priv-app/SamsungCamera/SamsungCamera.apk" 0 0 644 "u:object_r:system_file:s0"
         CAMERA_APP_COHORT="mass-sdk36-r9s"
     else
-        ABORT "Unreviewed SDK37 Camera flavor transition"
+        ABORT "Unreviewed One UI 9 Camera flavor transition"
         return 1
     fi
 fi
@@ -162,21 +162,21 @@ fi
 LOG_STEP_OUT
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$CAMERA_APP_COHORT" = "source" ]; then
-    LOG "- Matching Camera recording defaults to the SDK37 resolution parser"
+    LOG "- Matching Camera recording defaults to the One UI 9 resolution parser"
     CAMERA_RECORDING_DEFAULTS \
         "$WORK_DIR/system/system/cameradata/camera-feature.xml" || return 1
     APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-        "$MODPATH/sdk37/SamsungCamera.apk/0001-Recheck-processor-state-after-timed-wait.patch"
+        "$MODPATH/SamsungCamera.apk/0001-Recheck-processor-state-after-timed-wait.patch"
     APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-        "$MODPATH/sdk37/SamsungCamera.apk/0002-Accept-One-UI-9.5-with-the-SDK37-camera-contract.patch"
+        "$MODPATH/SamsungCamera.apk/0002-Accept-One-UI-9.5-with-the-camera-contract.patch"
 fi
 
 # Samsung Camera "hal3_mass-phone-release" app flavor
 if [ "$CAMERA_APP_COHORT" = "mass-sdk36-r9s" ]; then
     APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-        "$MODPATH/sdk37/mass/SamsungCamera.apk/0001-Recheck-processor-state-after-timed-wait.patch" || return 1
+        "$MODPATH/mass/SamsungCamera.apk/0001-Recheck-processor-state-after-timed-wait.patch" || return 1
     APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-        "$MODPATH/sdk37/mass/SamsungCamera.apk/0002-Port-stylus-UI-to-SDK37-View-APIs.patch" || return 1
+        "$MODPATH/mass/SamsungCamera.apk/0002-Port-stylus-UI-to-View-APIs.patch" || return 1
 elif ! $SOURCE_CAMERA_SUPPORT_MASS_APP_FLAVOR; then
     if $TARGET_CAMERA_SUPPORT_MASS_APP_FLAVOR; then
         ADD_TO_WORK_DIR "r9qxxx" "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" 0 0 644 "u:object_r:system_file:s0"
@@ -226,7 +226,7 @@ if ! grep -q "ENABLE_SINGLE_TAKE_LITE.*true" "$WORK_DIR/system/system/cameradata
         fi
     elif [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && \
             [ -f "$FW_DIR/$TARGET_FIRMWARE_PATH/vendor/etc/singletake/SmartCrop/SmartCrop.tflite" ]; then
-        # Select the existing SDK37 GPU reader, retaining inference and errors.
+        # Select the existing One UI 9 GPU reader, retaining inference and errors.
         SMART_CROP_GPU()
         {
             local APK="system/priv-app/SingleTakeService/SingleTakeService.apk"
@@ -258,7 +258,7 @@ if ! grep -q "ENABLE_SINGLE_TAKE_LITE.*true" "$WORK_DIR/system/system/cameradata
             NATIVE="$APKTOOL_DIR/system/priv-app/SingleTakeService/SingleTakeService.apk/$LIB"
             [ "$(sha256sum "$NATIVE" | cut -d ' ' -f 1)" = \
                 "a03c626acd5e06c8182a488b8bccc89edb5d8e5f400517d99d4be2cec505edf8" ] || {
-                ABORT "SmartCrop GPU selector requires the exact reviewed SDK-37 reader"
+                ABORT "SmartCrop GPU selector requires the exact reviewed One UI 9 reader"
                 return 1
             }
             BEFORE_COUNT="$(xxd -p -c 0 "$NATIVE" | { grep -o "$BEFORE" || true; } | wc -l)"
@@ -311,7 +311,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
                 "1f02483acc1351519e658619a1a799c96974bab2d37e48826914fe80160e29d1" ] && \
                 [ "$(sha256sum "$WORK_DIR/system/system/apex/com.samsung.android.media.imagecodec.system.signed.apex" | cut -d ' ' -f 1)" = \
                 "b312ae8f7229d34be555bec1df296117d4805cbd798336f60ad202bfb596617b" ] || {
-                ABORT "Camera v2 node requires the reviewed matching SDK-37 ImageCodec/Simba provider cohort"
+                ABORT "Camera v2 node requires the reviewed matching One UI 9 ImageCodec/Simba provider cohort"
                 return 1
             }
             CAMERA_CODEC_VALUE=",$CAMERA_CODEC_VALUE,"
@@ -337,7 +337,7 @@ if [ "$SOURCE_CAMERA_CONFIG_ACTION_CLASSIFIER" ]; then
                     [ ! -e "$WORK_DIR/system/system/lib64/libtensorflowLite2_11_0_dynamic_camera.so" ] && \
                     [ ! -e "$FW_DIR/$SOURCE_FIRMWARE_PATH/system/system/lib64/libVideoClassifier.camera.samsung.so" ] && \
                     [ ! -e "$FW_DIR/$SOURCE_FIRMWARE_PATH/system/system/lib64/libtensorflowLite2_11_0_dynamic_camera.so" ]; then
-                LOG "- Keeping original target dynamic-viewing assets; SDK-37 donor has no legacy classifier reader"
+                LOG "- Keeping original target dynamic-viewing assets; One UI 9 donor has no legacy classifier reader"
             else
                 for CLASSIFIER_LIBRARY in libVideoClassifier.camera.samsung.so libOpenCv.camera.samsung.so; do
                     cmp -s "$WORK_DIR/system/system/lib64/$CLASSIFIER_LIBRARY" \

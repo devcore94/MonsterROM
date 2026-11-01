@@ -1,0 +1,23 @@
+From: UN1CA
+Subject: [PATCH] Restore ACK device, firmware and wakeup label contracts
+
+--- a/vendor_file_contexts
++++ b/vendor_file_contexts
+@@ -1387,3 +1387,6 @@
+ /sys/firmware/devicetree/base/soc/i2c@a8c000/touchscreen@48/sync-reportrate-120      u:object_r:sysfs_sec_touchscreen:s0
+ /sys/devices/platform/soc/890000\.i2c/i2c-0/0-0066/max77705-usbc/typec/port0/power_role                  u:object_r:sysfs_ss_writable:s0
+ /sys/devices/platform/14360000\.hsi2c/i2c-15/15-0066/max77705-usbc/dual_role_usb/otg_default/data_role		u:object_r:sysfs_usb:s0
++
++# ACK legacy ION compatibility device; retain its original dedicated type.
++/dev/ion    u:object_r:ion_device:s0
+--- a/vendor_sepolicy.cil
++++ b/vendor_sepolicy.cil
+@@ -17291,3 +17291,8 @@
+ (typeattributeset unica_api30_vendor_grant_20 (and appdomain (not (aasa_platform_app aasa_service_app adservices attiqi_app bluetooth device_as_webcam dsms_app dualdar_app ephemeral_app felica_app filtered_untrusted_app gmscore_app isolated_app isolated_compute_app ker_app kfa_app kg_app kpp_app kumihosync_app mediaprovider mediaprovider_app mosey_app network_stack nfc oneseg_apk pcc_component permissioncontroller_app platform_app platform_app_36 policyloader_app priv_app priv_app_36 radio rkpdapp runas_app sdk_sandbox_34 sdk_sandbox_audit sdk_sandbox_next sec_standard_app sec_untrusted_app secure_element shared_relro shell simpleperf spu_app system_app teed_app teeregistryd_app traceur_app trustonicpartner_app untrusted_app untrusted_app_25 untrusted_app_27 untrusted_app_29 untrusted_app_30 untrusted_app_32 untrusted_app_34 vendor_ds_app vendor_ns_app vendor_qns_app vendor_uce_app vmlauncher_app vzwfiltered_untrusted_app))))
+ (typeattribute unica_api30_vendor_grant_21)
+ (typeattributeset unica_api30_vendor_grant_21 (and appdomain (aasa_platform_app aasa_service_app adservices attiqi_app bluetooth device_as_webcam dsms_app dualdar_app ephemeral_app felica_app filtered_untrusted_app gmscore_app isolated_app isolated_compute_app ker_app kfa_app kg_app kpp_app kumihosync_app mediaprovider mediaprovider_app mosey_app network_stack nfc oneseg_apk pcc_component permissioncontroller_app platform_app platform_app_36 policyloader_app priv_app priv_app_36 radio rkpdapp runas_app sdk_sandbox_34 sdk_sandbox_audit sdk_sandbox_next sec_standard_app sec_untrusted_app secure_element shared_relro shell simpleperf spu_app system_app teed_app teeregistryd_app traceur_app trustonicpartner_app untrusted_app untrusted_app_25 untrusted_app_27 untrusted_app_29 untrusted_app_30 untrusted_app_32 untrusted_app_34 vendor_ds_app vendor_ns_app vendor_qns_app vendor_uce_app vmlauncher_app vzwfiltered_untrusted_app)))
++
++; ACK firmware loader checks the firmware inode SID, not kernel self.
++(allow kernel vendor_firmware_file (system (firmware_load)))
++; Label only the ACK secure-RPMB wakeup subtree using the existing type.
++(genfscon sysfs /devices/platform/ufs-srpmb/wakeup (u object_r sysfs_wakeup ((s0) (s0))))

@@ -39,13 +39,20 @@ BUILD_APKS()
 
 GET_WORK_DIR_HASH()
 {
-    if [ "${TARGET_PLATFORM//none/}" ] && [ -d "$SRC_DIR/platform/$TARGET_PLATFORM" ]; then
-        find "$SRC_DIR/unica" "$SRC_DIR/platform/$TARGET_PLATFORM" "$SRC_DIR/target/$TARGET_CODENAME" -type f -print0 | \
-            sort -z | xargs -0 sha1sum | sha1sum | cut -d " " -f 1
-    else
-        find "$SRC_DIR/unica" "$SRC_DIR/target/$TARGET_CODENAME" -type f -print0 | \
-            sort -z | xargs -0 sha1sum | sha1sum | cut -d " " -f 1
-    fi
+    {
+        if [ "${TARGET_PLATFORM//none/}" ] && [ -d "$SRC_DIR/platform/$TARGET_PLATFORM" ]; then
+            find "$SRC_DIR/buildenv.sh" "$SRC_DIR/scripts" "$SRC_DIR/unica" "$SRC_DIR/platform/$TARGET_PLATFORM" "$SRC_DIR/target/$TARGET_CODENAME" -type f -print0
+        else
+            find "$SRC_DIR/buildenv.sh" "$SRC_DIR/scripts" "$SRC_DIR/unica" "$SRC_DIR/target/$TARGET_CODENAME" -type f -print0
+        fi | sort -z | xargs -0 sha1sum
+        # These selectors change the One UI 9 patches and APEXes in the work dir.
+        # Defaults must match unica/mods/paradigm/customize.sh.
+        printf '%s\0' \
+            "${UN1CA_QPR2_CAMERA_METADATA:-true}" "${UN1CA_QPR2_CAMERA_PATH:-true}" \
+            "${UN1CA_QPR2_SUBJECT_CPU_PREVIEW:-true}" "${UN1CA_QPR2_MAINLINE:-true}" \
+            "${UN1CA_QPR2_SWCODEC:-false}" "${UN1CA_QPR2_RUNTIME_COHORT:-off}" \
+            "${UN1CA_QPR2_CPU_LEAVES:-true}" "${UN1CA_QPR2_GSI_DIR:-$SRC_DIR/prebuilts/qpr2}"
+    } | sha1sum | cut -d " " -f 1
 }
 
 PREPARE_SCRIPT()

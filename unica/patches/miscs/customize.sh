@@ -1,28 +1,12 @@
 SET_PROP_IF_DIFF "vendor" "ro.oem_unlock_supported" "0" || return 1
 
-# Better device/model detection in CoreRune
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/model_detection/sdk37-framework.patch" || return 1
-else
-    SMALI_PATCH "system" "system/framework/framework.jar" \
-        "smali_classes6/com/samsung/android/rune/CoreRune.smali" "replace" \
-        '<clinit>()V' \
-        'ro.product.model' \
-        'ro.product.vendor.model' || return 1
-    SMALI_PATCH "system" "system/framework/framework.jar" \
-        "smali_classes6/com/samsung/android/rune/CoreRune.smali" "replace" \
-        '<clinit>()V' \
-        'ro.product.device' \
-        'ro.product.vendor.device' || return 1
-fi
+# The upstream layout applies the smali patches from smali/ through the module
+# runner, after this script runs. Keep that order and do not apply them twice:
+#   framework.jar 0001 - CoreRune reads the vendor model/product properties,
+#   services.jar 0001  - hide the vendor firmware mismatch warning,
+#   services.jar 0002  - FreecessController reads the vendor model property.
 
-VENDOR_WARNING_PATCH="sdk36.patch"
-[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && VENDOR_WARNING_PATCH="sdk37.patch"
-APPLY_PATCH "system" "system/framework/services.jar" "$MODPATH/vendor_mismatch/$VENDOR_WARNING_PATCH" || return 1
-unset VENDOR_WARNING_PATCH
-
-# The SDK37 implementation lives in Mainline, not SecRescueParty. Reuse the
+# The One UI 9 implementation lives in Mainline, not SecRescueParty. Reuse the
 # original APEX packaging pattern (target/a53x/patches/bluetooth): apktool,
 # read-only payload mount, build_fs_image.sh, AVB, and platform signapk.
 PATCH_CRASHRECOVERY_APEX()
@@ -35,7 +19,7 @@ PATCH_CRASHRECOVERY_APEX()
 
     if [ ! -f "$SOURCE_APEX" ] || [ -e "$DEST_APEX" ] || \
             [ "$(sha256sum "$SOURCE_APEX" | cut -d ' ' -f 1)" != "$SOURCE_HASH" ]; then
-        ABORT "RescueParty requires the reviewed, unmodified SDK37 crashrecovery APEX"
+        ABORT "RescueParty requires the reviewed, unmodified One UI 9 crashrecovery APEX"
         return 1
     fi
     case "$ROM_IS_OFFICIAL" in
@@ -56,7 +40,7 @@ PATCH_CRASHRECOVERY_APEX()
     trap 'exit 130' INT
     trap 'exit 143' TERM
 
-    LOG "- Decoding SDK37 crashrecovery APEX"
+    LOG "- Decoding One UI 9 crashrecovery APEX"
     unzip -p "$SOURCE_APEX" original_apex > "$STAGE/com.google.android.crashrecovery.apex" || return 1
     apktool d -j 1 -s -r -p "$REAL_TOOLS_DIR/apktool/framework" \
         -o "$STAGE/apex" "$STAGE/com.google.android.crashrecovery.apex" || return 1
@@ -161,7 +145,7 @@ PATCH_CRASHRECOVERY_APEX()
         DELETE_FROM_WORK_DIR system "${FILE#"$WORK_DIR/system/"}" || return 1
     done < <(find "$WORK_DIR/system/system/framework/oat" -type f \
         -name 'apex@com.android.crashrecovery@javalib@service-crashrecovery.jar@classes.*' 2> /dev/null)
-    LOG "- RescueParty disabled in the signed SDK37 Mainline implementation"
+    LOG "- RescueParty disabled in the signed One UI 9 Mainline implementation"
 )
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
@@ -174,15 +158,3 @@ else
         'true' || return 1
 fi
 unset -f PATCH_CRASHRECOVERY_APEX
-
-# Better model detection in FreecessController
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    APPLY_PATCH "system" "system/framework/services.jar" \
-        "$MODPATH/model_detection/sdk37-services.patch" || return 1
-else
-    SMALI_PATCH "system" "system/framework/services.jar" \
-        "smali/com/android/server/am/FreecessController.smali" "replace" \
-        '<clinit>()V' \
-        'ro.product.model' \
-        'ro.product.vendor.model' || return 1
-fi

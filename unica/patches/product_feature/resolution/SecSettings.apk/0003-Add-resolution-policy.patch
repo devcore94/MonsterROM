@@ -1,0 +1,217 @@
+Subject: [PATCH] Add One UI 9 resolution policy
+
+diff --git a/smali_classes3/com/samsung/android/settings/display/ResolutionPolicy.smali b/smali_classes3/com/samsung/android/settings/display/ResolutionPolicy.smali
+new file mode 100644
+--- /dev/null
++++ b/smali_classes3/com/samsung/android/settings/display/ResolutionPolicy.smali
+@@ -0,0 +1,210 @@
++.class public final Lcom/samsung/android/settings/display/ResolutionPolicy;
++.super Ljava/lang/Object;
++.source "ResolutionPolicy.java"
++
++# One UI 9 forced-size / HWC-mode bridge. Never synthesize a physical mode: the
++# requested width and height must be present in Display.getSupportedModes().
++# WM persists the size/density; its logical-display notification drives the
++# One UI 9 RefreshRateController SizeVote and normal SurfaceFlinger HIDL route.
++
++.method public static availability(Landroid/content/Context;)I
++    .locals 1
++
++    invoke-static {p0}, Lcom/android/settings/Utils;->isDesktopModeEnabled(Landroid/content/Context;)Z
++    move-result v0
++    if-nez v0, :desktop
++    invoke-static {p0}, Lcom/android/settings/Utils;->isDesktopWindowing(Landroid/content/Context;)Z
++    move-result v0
++    if-nez v0, :desktop
++    const/4 v0, 0x0
++    return v0
++
++    :desktop
++    const/4 v0, 0x5
++    return v0
++.end method
++
++.method private static mode(ILandroid/view/Display;)Landroid/view/Display$Mode;
++    .locals 5
++
++    if-eqz p1, :unsupported
++    invoke-virtual {p1}, Landroid/view/Display;->getDisplayId()I
++    move-result v0
++    if-nez v0, :unsupported
++    if-ltz p0, :unsupported
++    const/4 v0, 0x2
++    if-gt p0, v0, :unsupported
++    add-int/lit8 p0, p0, 0x2
++    mul-int/lit16 p0, p0, 0x168
++
++    invoke-virtual {p1}, Landroid/view/Display;->getSupportedModes()[Landroid/view/Display$Mode;
++    move-result-object p1
++    array-length v0, p1
++    const/4 v1, 0x0
++    :next
++    if-ge v1, v0, :unsupported
++    aget-object v2, p1, v1
++    invoke-virtual {v2}, Landroid/view/Display$Mode;->getPhysicalWidth()I
++    move-result v3
++    invoke-virtual {v2}, Landroid/view/Display$Mode;->getPhysicalHeight()I
++    move-result v4
++    if-ne v3, p0, :skip
++    if-le v4, v3, :skip
++    return-object v2
++    :skip
++    add-int/lit8 v1, v1, 0x1
++    goto :next
++
++    :unsupported
++    new-instance v0, Ljava/lang/IllegalArgumentException;
++    const-string v1, "Resolution not advertised by the primary HWC display"
++    invoke-direct {v0, v1}, Ljava/lang/IllegalArgumentException;-><init>(Ljava/lang/String;)V
++    throw v0
++.end method
++
++.method public static apply(Ljava/lang/String;Landroid/view/Display;)V
++    .locals 10
++
++    invoke-static {p0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
++    move-result v0
++    invoke-static {v0, p1}, Lcom/samsung/android/settings/display/ResolutionPolicy;->mode(ILandroid/view/Display;)Landroid/view/Display$Mode;
++    move-result-object v7
++    invoke-virtual {v7}, Landroid/view/Display$Mode;->getPhysicalWidth()I
++    move-result v2
++    invoke-virtual {v7}, Landroid/view/Display$Mode;->getPhysicalHeight()I
++    move-result v3
++
++    :try_start
++    invoke-static {}, Landroid/view/WindowManagerGlobal;->getWindowManagerService()Landroid/view/IWindowManager;
++    move-result-object v0
++    const/4 v1, 0x0
++    new-instance v7, Landroid/graphics/Point;
++    invoke-direct {v7}, Landroid/graphics/Point;-><init>()V
++    invoke-interface {v0, v1, v7}, Landroid/view/IWindowManager;->getBaseDisplaySize(ILandroid/graphics/Point;)V
++    invoke-interface {v0, v1}, Landroid/view/IWindowManager;->getBaseDisplayDensity(I)I
++    move-result v4
++    iget v8, v7, Landroid/graphics/Point;->x:I
++    if-lez v8, :invalid_size
++    if-lez v4, :invalid_size
++    int-to-float v7, v2
++    int-to-float v8, v8
++    div-float/2addr v7, v8
++    int-to-float v8, v4
++    mul-float/2addr v7, v8
++    invoke-static {v7}, Ljava/lang/Math;->round(F)I
++    move-result v4
++    const/4 v5, 0x1
++    const/4 v6, -0x1
++    invoke-interface/range {v0 .. v6}, Landroid/view/IWindowManager;->setForcedDisplaySizeDensity(IIIIZI)V
++    :try_end
++    .catch Landroid/os/RemoteException; {:try_start .. :try_end} :remote
++
++    # This is a request, not a claim that HWC has completed the mode switch.
++    const-string v0, "UnicaResolution"
++    const-string v1, "Requested advertised HWC resolution through WM SizeVote"
++    invoke-static {v0, v1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
++    return-void
++
++    :invalid_size
++    new-instance v0, Ljava/lang/IllegalStateException;
++    const-string v1, "Invalid base display size or density"
++    invoke-direct {v0, v1}, Ljava/lang/IllegalStateException;-><init>(Ljava/lang/String;)V
++    throw v0
++
++    :remote
++    move-exception v0
++    invoke-virtual {v0}, Landroid/os/RemoteException;->rethrowFromSystemServer()Ljava/lang/RuntimeException;
++    move-result-object v0
++    throw v0
++.end method
++
++.method public static applySelected(Landroid/content/Context;Ljava/lang/String;)V
++    .locals 1
++
++    const-class v0, Landroid/hardware/display/DisplayManager;
++    invoke-virtual {p0, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/Class;)Ljava/lang/Object;
++    move-result-object p0
++    check-cast p0, Landroid/hardware/display/DisplayManager;
++    const/4 v0, 0x0
++    invoke-virtual {p0, v0}, Landroid/hardware/display/DisplayManager;->getDisplay(I)Landroid/view/Display;
++    move-result-object p0
++    invoke-static {p1, p0}, Lcom/samsung/android/settings/display/ResolutionPolicy;->apply(Ljava/lang/String;Landroid/view/Display;)V
++    return-void
++.end method
++
++.method public static reset(Landroid/content/Context;)V
++    .locals 9
++
++    const-class v0, Landroid/hardware/display/DisplayManager;
++    invoke-virtual {p0, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/Class;)Ljava/lang/Object;
++    move-result-object v0
++    check-cast v0, Landroid/hardware/display/DisplayManager;
++    const/4 v1, 0x0
++    invoke-virtual {v0, v1}, Landroid/hardware/display/DisplayManager;->getDisplay(I)Landroid/view/Display;
++    move-result-object v0
++    const/4 v2, 0x1
++    invoke-static {v2, v0}, Lcom/samsung/android/settings/display/ResolutionPolicy;->mode(ILandroid/view/Display;)Landroid/view/Display$Mode;
++    move-result-object v0
++    invoke-virtual {v0}, Landroid/view/Display$Mode;->getPhysicalWidth()I
++    move-result v2
++    invoke-virtual {v0}, Landroid/view/Display$Mode;->getPhysicalHeight()I
++    move-result v3
++    :try_start
++    invoke-static {}, Landroid/view/WindowManagerGlobal;->getWindowManagerService()Landroid/view/IWindowManager;
++    move-result-object v0
++    new-instance v7, Landroid/graphics/Point;
++    invoke-direct {v7}, Landroid/graphics/Point;-><init>()V
++    invoke-interface {v0, v1, v7}, Landroid/view/IWindowManager;->getInitialDisplaySize(ILandroid/graphics/Point;)V
++    invoke-interface {v0, v1}, Landroid/view/IWindowManager;->getInitialDisplayDensity(I)I
++    move-result v4
++    int-to-float v4, v4
++    int-to-float v8, v2
++    mul-float/2addr v4, v8
++    iget v7, v7, Landroid/graphics/Point;->x:I
++    int-to-float v7, v7
++    div-float/2addr v4, v7
++    invoke-static {v4}, Ljava/lang/Math;->round(F)I
++    move-result v4
++    const/4 v5, 0x1
++    const/4 v6, -0x1
++    invoke-interface/range {v0 .. v6}, Landroid/view/IWindowManager;->setForcedDisplaySizeDensity(IIIIZI)V
++    :try_end
++    .catch Landroid/os/RemoteException; {:try_start .. :try_end} :remote
++    return-void
++    :remote
++    move-exception v0
++    invoke-virtual {v0}, Landroid/os/RemoteException;->rethrowFromSystemServer()Ljava/lang/RuntimeException;
++    move-result-object v0
++    throw v0
++.end method
++
++.method public static routine(Landroid/content/Context;Lcom/samsung/android/sdk/routines/v3/data/ParameterValues;Lcom/samsung/android/sdk/routines/v3/internal/ActionDispatcher$$ExternalSyntheticLambda7;)V
++    .locals 3
++
++    sget-object v2, Lcom/samsung/android/sdk/routines/v3/data/ActionResult$ResultCode;->FAIL_NOT_SUPPORTED:Lcom/samsung/android/sdk/routines/v3/data/ActionResult$ResultCode;
++    invoke-static {p0}, Lcom/samsung/android/settings/display/ResolutionPolicy;->availability(Landroid/content/Context;)I
++    move-result v0
++    if-nez v0, :reply
++    const-string v0, "screen_resolution"
++    const-string v1, ""
++    invoke-virtual {p1, v0, v1}, Lcom/samsung/android/sdk/routines/v3/data/ParameterValues;->getString(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
++    move-result-object p1
++    :try_start
++    invoke-static {p0, p1}, Lcom/samsung/android/settings/display/ResolutionPolicy;->applySelected(Landroid/content/Context;Ljava/lang/String;)V
++    :try_end
++    .catch Ljava/lang/RuntimeException; {:try_start .. :try_end} :failed
++    # Samsung's SUCCESS here means the request was accepted, not HWC completion.
++    sget-object v2, Lcom/samsung/android/sdk/routines/v3/data/ActionResult$ResultCode;->SUCCESS:Lcom/samsung/android/sdk/routines/v3/data/ActionResult$ResultCode;
++    goto :reply
++    :failed
++    move-exception v0
++    const-string v1, "UnicaResolution"
++    invoke-virtual {v0}, Ljava/lang/RuntimeException;->toString()Ljava/lang/String;
++    move-result-object v0
++    invoke-static {v1, v0}, Landroid/util/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
++    :reply
++    new-instance v0, Lcom/samsung/android/sdk/routines/v3/data/ActionResult$Error;
++    invoke-direct {v0, v2}, Lcom/samsung/android/sdk/routines/v3/data/ActionResult$Error;-><init>(Lcom/samsung/android/sdk/routines/v3/data/ActionResult$ResultCode;)V
++    invoke-virtual {p2, v0}, Lcom/samsung/android/sdk/routines/v3/internal/ActionDispatcher$$ExternalSyntheticLambda7;->actionFinished(Lcom/samsung/android/sdk/routines/v3/data/ActionResult$Error;)V
++    return-void
++.end method

@@ -116,32 +116,8 @@ DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 
 # Disable stock OTA references
 if [ ! -f "$WORK_DIR/system/system/priv-app/ChoiDujour/ChoiDujour.apk" ]; then
-    if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "$MODPATH/sdk37/ota/SecSettings.apk/0001-Hide-unsupported-stock-OTA.patch"
-    else
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes3/com/samsung/android/settings/softwareupdate/SoftwareUpdateUtils.smali" "return" \
-        'isOTAUpgradeAllowed(Landroid/content/Context;)Z' \
-        'false'
-    fi
-fi
-
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -ne 37 ]; then
-# Always show One UI minor version
-SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-    "smali_classes4/com/samsung/android/settings/deviceinfo/softwareinfo/OneUIVersionPreferenceController.smali" "replace" \
-    'isDeviceWithMicroVersion()Z' \
-    'move-result p0' \
-    'const/4 p0, 0x1'
-
-# Show real device model number
-SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-    "smali_classes4/com/samsung/android/settings/deviceinfo/aboutphone/ModelNameGetter.smali" "replace" \
-    'getModelName()Ljava/lang/String;' \
-    'ro.product.model' \
-    'ro.boot.em.model'
-
+    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "$MODPATH/ota/SecSettings.apk/0001-Hide-unsupported-stock-OTA.patch"
 fi
 
 LOG_STEP_IN "- Adding UN1CA Settings"
@@ -150,72 +126,31 @@ LOG_STEP_IN "- Adding UN1CA Settings"
 # validates literal XML and handles the historical first-line directives.
 SETTINGS_INJECT "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" "$MODPATH/SecSettings.apk" || return 1
 
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    # Keep the final Android 17 search registry and its merged R8 factory.
-    # The dedicated patch also uses the native Settings-owned switch layout.
-    for SETTINGS_ARCHIVE in SecSettings SecSettingsIntelligence; do
-        for SETTINGS_PATCH in "$MODPATH/sdk37/$SETTINGS_ARCHIVE.apk/"*.patch; do
-            APPLY_PATCH "system" "system/priv-app/$SETTINGS_ARCHIVE/$SETTINGS_ARCHIVE.apk" "$SETTINGS_PATCH"
-        done
+# Keep the Android 17 search registry and native Settings-owned switch layout.
+for SETTINGS_ARCHIVE in SecSettings SecSettingsIntelligence; do
+    for SETTINGS_PATCH in "$MODPATH/patches/$SETTINGS_ARCHIVE.apk/"*.patch; do
+        APPLY_PATCH "system" "system/priv-app/$SETTINGS_ARCHIVE/$SETTINGS_ARCHIVE.apk" "$SETTINGS_PATCH"
     done
-else
-# Add UN1CA Settings SearchIndexableData registrations
-LOG "- Patching \"smali/com/android/settingslib/search/SearchIndexableResourcesMobile.smali\" in /system/system/priv-app/SecSettings.apk"
-SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-    "smali/com/android/settingslib/search/SearchIndexableResourcesMobile.smali" "replaceall" \
-    '.class public final Lcom/android/settingslib/search/SearchIndexableResourcesMobile;' \
-    '.class public Lcom/android/settingslib/search/SearchIndexableResourcesMobile;' \
-    > /dev/null
-LOG "- Patching \"smali/com/android/settings/search/SearchFeatureProviderImpl\$\$ExternalSyntheticLambda0.smali\" in /system/system/priv-app/SecSettings.apk"
-SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-    "smali/com/android/settings/search/SearchFeatureProviderImpl\$\$ExternalSyntheticLambda0.smali" "replace" \
-    'invoke()Ljava/lang/Object;' \
-    'new-instance p0, Lcom/android/settingslib/search/SearchIndexableResourcesMobile;' \
-    'new-instance p0, Lio/mesalabs/unica/search/UnicaSearchIndexableResources;' \
-    > /dev/null
-SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-    "smali/com/android/settings/search/SearchFeatureProviderImpl\$\$ExternalSyntheticLambda0.smali" "replace" \
-    'invoke()Ljava/lang/Object;' \
-    'invoke-direct {p0}, Lcom/android/settingslib/search/SearchIndexableResourcesBase;-><init>()V' \
-    'invoke-direct {p0}, Lio/mesalabs/unica/search/UnicaSearchIndexableResources;-><init>()V' \
-    > /dev/null
-
-DECODE_APK "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-LOG "- Patching \"smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali\" in /system/system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk"
-SMALI_PATCH "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
-    "smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali" "replace" \
-    '<init>(Landroid/content/Context;)V' \
-    '.locals 36' \
-    '.locals 37' \
-    > /dev/null
-SMALI_PATCH "system" "system/priv-app/SecSettingsIntelligence/SecSettingsIntelligence.apk" \
-    "smali_classes2/com/samsung/android/settings/intelligence/search/categorizing/TopLevelKeysCollector.smali" "replace" \
-    '<init>(Landroid/content/Context;)V' \
-    'filled-new-array/range {v1 .. v35}, [Ljava/lang/String;' \
-    '    const-string v36, "top_level_unica"\n\n    filled-new-array/range {v1 .. v36}, [Ljava/lang/String;' \
-    > /dev/null
-
-fi
+done
 
 # Show Vulkan renderer toggle if required
 if [[ "$(GET_PROP "ro.hwui.use_vulkan")" != "true" ]]; then
     SET_PROP "system" "persist.sys.unica.vulkan" "false"
 fi
 
-SETTINGS_PATCH_ABI="sdk36"
-[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && SETTINGS_PATCH_ABI="sdk37"
+# Apply these before the safety overlay, preserving the existing build order.
+# The module runner will discover smali/ automatically after customize.sh, so
+# these explicitly ordered patches remain under patches/ instead.
 for SETTINGS_ARCHIVE in "system/framework/framework.jar" "system/framework/services.jar" \
         "system/priv-app/MultiSoundSetting/MultiSoundSetting.apk"; do
-    APPLY_SMALI_PATCHES "$MODPATH/$SETTINGS_PATCH_ABI/smali" "$SETTINGS_ARCHIVE"
+    APPLY_SMALI_PATCHES "$MODPATH/patches/smali" "$SETTINGS_ARCHIVE"
 done
 
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    (
-        MODPATH="$MODPATH/sdk37/safety_center"
-        source "$MODPATH/customize.sh"
-    ) || return 1
-fi
+(
+    MODPATH="$MODPATH/safety_center"
+    source "$MODPATH/customize.sh"
+) || return 1
 
-unset SETTINGS_PATCH_ABI SETTINGS_ARCHIVE SETTINGS_PATCH
+unset SETTINGS_ARCHIVE SETTINGS_PATCH
 
 LOG_STEP_OUT

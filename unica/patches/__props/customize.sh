@@ -55,7 +55,7 @@ EVAL "echo \"ro.unica.fingerprint u:object_r:build_prop:s0 exact string\" >> \"$
 unset FINGERPRINT
 
 # Identify the actual backport input separately from user-selected build labels.
-# The SDK-37 version profile keeps the compiled base and hardware API metadata.
+# The One UI 9 version profile keeps the compiled base and hardware API metadata.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     SET_PROP "system" "ro.unica.qpr2.source.id" "CP41.260831.007.A3"
     SET_PROP "system" "ro.unica.qpr2.source.sdk_full" "37.2"
@@ -74,7 +74,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         OLD_ID="$(GET_PROP "$PARTITION" "ro.${PARTITION}.build.id")"
         OLD_INCREMENTAL="$(GET_PROP "$PARTITION" "ro.${PARTITION}.build.version.incremental")"
         [ -n "$OLD_ID" ] && [ -n "$OLD_INCREMENTAL" ] || {
-            ABORT "Missing SDK-37 $PARTITION version metadata"
+            ABORT "Missing One UI 9 $PARTITION version metadata"
             return 1
         }
         for PROP in "ro.${PARTITION}.build.fingerprint" "ro.build.fingerprint" "ro.build.description"; do

@@ -1,0 +1,57 @@
+diff --git a/smali_classes2/com/android/systemui/edgelighting/effect/view/DrawEdgeLayout.smali b/smali_classes2/com/android/systemui/edgelighting/effect/view/DrawEdgeLayout.smali
+--- a/smali_classes2/com/android/systemui/edgelighting/effect/view/DrawEdgeLayout.smali
++++ b/smali_classes2/com/android/systemui/edgelighting/effect/view/DrawEdgeLayout.smali
+@@ -199,6 +199,39 @@
+ .end method
+ 
+ 
++.method private resolutionScale()F
++    .locals 3
++
++    invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
++    move-result-object v0
++    const-string v1, "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL"
++    invoke-virtual {v0, v1}, Lcom/samsung/android/feature/SemFloatingFeature;->getString(Ljava/lang/String;)Ljava/lang/String;
++    move-result-object v0
++    invoke-virtual {v0}, Ljava/lang/String;->isEmpty()Z
++    move-result v0
++    if-nez v0, :single_resolution
++
++    invoke-virtual {p0}, Landroid/view/View;->getResources()Landroid/content/res/Resources;
++    move-result-object v0
++    invoke-virtual {v0}, Landroid/content/res/Resources;->getDisplayMetrics()Landroid/util/DisplayMetrics;
++    move-result-object v0
++    iget v1, v0, Landroid/util/DisplayMetrics;->widthPixels:I
++    iget v2, v0, Landroid/util/DisplayMetrics;->heightPixels:I
++    invoke-static {v1, v2}, Ljava/lang/Math;->min(II)I
++    move-result v1
++    if-lez v1, :single_resolution
++    int-to-float v1, v1
++    # Samsung's unscaled model radius is calibrated at FHD (1080), not WQHD.
++    const/high16 v2, 0x44870000    # 1080.0f
++    div-float/2addr v1, v2
++    return v1
++
++    :single_resolution
++    const/high16 v0, 0x3f800000    # 1.0f
++    return v0
++.end method
++
++
+ # virtual methods
+ .method public dispatchDraw(Landroid/graphics/Canvas;)V
+     .locals 17
+@@ -1743,6 +1776,13 @@
+ 
+     int-to-float v5, v5
+ 
++    invoke-direct {v0}, Lcom/android/systemui/edgelighting/effect/view/DrawEdgeLayout;->resolutionScale()F
++
++    # v7 remains a live resource ID on the normal-screen path.
++    move-result v9
++
++    mul-float/2addr v5, v9
++
+     invoke-virtual {v3}, Landroid/content/Context;->getResources()Landroid/content/res/Resources;
+ 
+     move-result-object v3

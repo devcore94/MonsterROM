@@ -28,11 +28,11 @@ FLOPPY_PREPARE_SOURCE()
     [ "$(git -C "$source/build/mkbootimg" rev-parse HEAD)" = d2bb0af5ba6d3198a3e99529c97eda1be0b5a093 ] || exit 1
     for patch in \
         source/0001-Retain-the-UN1CA-source-overlay.patch \
-        source/0002-Pin-the-retained-SDK37-configuration.patch \
+        source/0002-Pin-the-retained-configuration.patch \
         source/0003-Pin-vendor-load-policy-and-reproducible-ramdisk.patch \
         uname/0001-Report-5.15.206-for-the-selected-uname-spoof.patch \
         uname/0002-Respect-the-explicit-BPF-spoof-boot-option.patch \
-        uname/0003-Select-full-BPF-uname-mode-for-SDK37.patch \
+        uname/0003-Select-full-BPF-uname-mode.patch \
         bpf/0001-Backport-cgroup-bind-permission-flags.patch; do
         git -C "$source" apply --check "$module/$patch" || exit 1
         git -C "$source" apply "$module/$patch" || exit 1
@@ -97,7 +97,7 @@ sub rewrite {
 }
 sub source_hashes { my($fixed,$full,$bind)=@_; my @files=('uname/0001-Report-5.15.206-for-the-selected-uname-spoof.patch','uname/uname.config');
     push @files,'uname/0002-Respect-the-explicit-BPF-spoof-boot-option.patch' if $fixed;
-    push @files,'uname/0003-Select-full-BPF-uname-mode-for-SDK37.patch' if $full;
+    push @files,'uname/0003-Select-full-BPF-uname-mode.patch' if $full;
     push @files,'bpf/0001-Backport-cgroup-bind-permission-flags.patch' if $bind; return {map {$_=>sha("$ENV{FLOPPY_MODULE}/$_")} @files} }
 sub same { JSON::PP->new->canonical->encode($_[0]) eq JSON::PP->new->canonical->encode($_[1]) }
 sub uname_check { my($r,$config)=@_;
@@ -369,11 +369,11 @@ sub source_inputs {
         mkbootimg_commit=>'d2bb0af5ba6d3198a3e99529c97eda1be0b5a093',
         patches=>{map {$_=>sha("$ENV{FLOPPY_MODULE}/$_")} qw(
             source/0001-Retain-the-UN1CA-source-overlay.patch
-            source/0002-Pin-the-retained-SDK37-configuration.patch
+            source/0002-Pin-the-retained-configuration.patch
             source/0003-Pin-vendor-load-policy-and-reproducible-ramdisk.patch
             uname/0001-Report-5.15.206-for-the-selected-uname-spoof.patch
             uname/0002-Respect-the-explicit-BPF-spoof-boot-option.patch
-            uname/0003-Select-full-BPF-uname-mode-for-SDK37.patch
+            uname/0003-Select-full-BPF-uname-mode.patch
             bpf/0001-Backport-cgroup-bind-permission-flags.patch)},
         uname_config_sha256=>sha("$ENV{FLOPPY_MODULE}/uname/uname.config"),
         expected_resolved_config_sha256=>'40971838c329afaa1c25af65392dfd99ea326595d909e2e6f110c8e94a85268f',
@@ -393,13 +393,13 @@ if($action eq 'stage') {
     my $t=target(); my $published=selected_publication(); my $c=cache('5.15.206',1,1,1,$published);
     my $install=install_root($published).'/vendor/lib/modules';
     need(-d $install && !(grep { !-f "$c/$_" } qw(floppy-build-info.json kernel.config boot.img dtbo.img vendor_boot.img)),
-        "SDK-37 selected kernel cache/install cohort is missing or incomplete for $t. Clean-host ROM provisioning is not qualified. " .
+        "One UI 9 selected kernel cache/install cohort is missing or incomplete for $t. Clean-host ROM provisioning is not qualified. " .
         'prepare-source provisions inputs only; publish-build verifies/packages an existing full build. See the module README. No stock/older-cache fallback.');
     my $r=json("$c/floppy-build-info.json"); my $config=raw("$c/kernel.config");
     if($published) { need(($r->{published_cohort}//'') eq $published && same($r->{source_inputs},source_inputs()),'Wrong published build provenance') }
     need($r->{bpf_boot_option_order_fixed},'Cached kernel does not respect the explicit BPF boot option');
-    need($r->{bpf_compiled_full_default},'Cached SDK-37 kernel does not select requested BPF mode 2');
-    need($r->{bpf_bind_flags_backport},'Cached kernel lacks the SDK-37 cgroup bind return flags');
+    need($r->{bpf_compiled_full_default},'Cached One UI 9 kernel does not select requested BPF mode 2');
+    need($r->{bpf_bind_flags_backport},'Cached kernel lacks the One UI 9 cgroup bind return flags');
     need($r->{target} eq $t,'Cached DTBO/device mismatch'); need($r->{commit} eq '113ce9d986f74e1526981324ec164e4d90930071','Unexpected kernel revision');
     need($r->{compiled}{mali_version} eq 'r54p3-01eac0 (UK version 11.46)','Not the retained Mali r54 build');
     need($r->{compiled}{module_symbol_abi_checked},'Kernel/module ABI was not verified');

@@ -1,6 +1,6 @@
 # QPR2 Bluetooth microphone routing for Samsung recorders
 
-SDK-37-only ordinary APK patches. Settings > Sounds and vibration exposes an
+One UI 9-only ordinary APK patches. Settings > Sounds and vibration exposes an
 off-by-default, per-user switch. The original Samsung screen-recording consent,
 MediaProjection path, audio source modes, permissions and save flow remain.
 

@@ -1,5 +1,5 @@
 From: Stanislav Fomichev <sdf@google.com>
-Subject: [PATCH] bpf: backport cgroup bind permission flags for SDK-37 netd
+Subject: [PATCH] bpf: backport cgroup bind permission flags for One UI 9 netd
 
 Based on upstream Linux commit 772412176fb9 (BPF bind return flags).
 Adapt to Floppy 5.4 without changing the exported four-argument sockaddr

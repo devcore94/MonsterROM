@@ -1,0 +1,102 @@
+Subject: [PATCH] Allow existing UN1CA identity-field overrides on One UI 9
+
+ART rejects reflective writes to static final fields on the One UI 9 cohort.
+Keep the existing per-process UN1CA Build hooks working by making only their
+eleven already-used identity fields mutable. Keep SDK_INT, SDK_INT_FULL,
+release values, serial access and the runtime's general final-field rules.
+No reflection/JNI bypass, attestation implementation or SELinux rule is added.
+
+diff --git a/smali_classes3/android/os/Build.smali b/smali_classes3/android/os/Build.smali
+--- a/smali_classes3/android/os/Build.smali
++++ b/smali_classes3/android/os/Build.smali
+@@ -29,7 +29,7 @@
+ 
+ .field public static final whitelist BOOTLOADER:Ljava/lang/String;
+ 
+-.field public static final whitelist BRAND:Ljava/lang/String;
++.field public static whitelist BRAND:Ljava/lang/String;
+ 
+ .field public static final blacklist BRAND_FOR_ATTESTATION:Ljava/lang/String;
+ 
+@@ -43,13 +43,13 @@
+     .end annotation
+ .end field
+ 
+-.field public static final whitelist DEVICE:Ljava/lang/String;
++.field public static whitelist DEVICE:Ljava/lang/String;
+ 
+ .field public static final blacklist DEVICE_FOR_ATTESTATION:Ljava/lang/String;
+ 
+ .field public static final whitelist DISPLAY:Ljava/lang/String;
+ 
+-.field public static final whitelist FINGERPRINT:Ljava/lang/String;
++.field public static whitelist FINGERPRINT:Ljava/lang/String;
+ 
+ .field public static final whitelist HARDWARE:Ljava/lang/String;
+ 
+@@ -57,7 +57,7 @@
+ 
+ .field public static final blacklist HW_TIMEOUT_MULTIPLIER:I
+ 
+-.field public static final whitelist ID:Ljava/lang/String;
++.field public static whitelist ID:Ljava/lang/String;
+ 
+ .field public static final blacklist IS_ARC:Z
+ 
+@@ -71,11 +71,11 @@
+ 
+ .field public static final greylist-max-o IS_USERDEBUG:Z
+ 
+-.field public static final whitelist MANUFACTURER:Ljava/lang/String;
++.field public static whitelist MANUFACTURER:Ljava/lang/String;
+ 
+ .field public static final blacklist MANUFACTURER_FOR_ATTESTATION:Ljava/lang/String;
+ 
+-.field public static final whitelist MODEL:Ljava/lang/String;
++.field public static whitelist MODEL:Ljava/lang/String;
+ 
+ .field public static final blacklist MODEL_FOR_ATTESTATION:Ljava/lang/String;
+ 
+@@ -86,7 +86,7 @@
+     .end annotation
+ .end field
+ 
+-.field public static final whitelist PRODUCT:Ljava/lang/String;
++.field public static whitelist PRODUCT:Ljava/lang/String;
+ 
+ .field public static final blacklist PRODUCT_FOR_ATTESTATION:Ljava/lang/String;
+ 
+@@ -122,7 +122,7 @@
+ 
+ .field public static final whitelist TIME:J
+ 
+-.field public static final whitelist TYPE:Ljava/lang/String;
++.field public static whitelist TYPE:Ljava/lang/String;
+ 
+ .field public static final whitelist UNKNOWN:Ljava/lang/String; = "unknown"
+ 
+diff --git a/smali_classes3/android/os/Build$VERSION.smali b/smali_classes3/android/os/Build$VERSION.smali
+--- a/smali_classes3/android/os/Build$VERSION.smali
++++ b/smali_classes3/android/os/Build$VERSION.smali
+@@ -23,7 +23,7 @@
+ 
+ .field public static final whitelist CODENAME:Ljava/lang/String;
+ 
+-.field public static final blacklist DEVICE_INITIAL_SDK_INT:I
++.field public static blacklist DEVICE_INITIAL_SDK_INT:I
+     .annotation runtime Landroid/annotation/SystemApi;
+         client = .enum Landroid/annotation/SystemApi$Client;->MODULE_LIBRARIES:Landroid/annotation/SystemApi$Client;
+     .end annotation
+@@ -76,9 +76,9 @@
+ 
+ .field public static final blacklist SECURITY_INDEX:Ljava/lang/String;
+ 
+-.field public static final whitelist SECURITY_PATCH:Ljava/lang/String;
+-
+-.field public static final whitelist SEM_FIRST_SDK_INT:I
++.field public static whitelist SECURITY_PATCH:Ljava/lang/String;
++
++.field public static whitelist SEM_FIRST_SDK_INT:I
+ 
+ .field public static final whitelist SEM_INT:I
+ 

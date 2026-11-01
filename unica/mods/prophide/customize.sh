@@ -1,12 +1,13 @@
-# Select the platform before installing either payload. SDK37 never receives
-# the legacy init_exec-labelled writer or its forbidden reverse transition.
+# Select the platform before installing either payload. The current platform
+# never receives the legacy init_exec-labelled writer or its forbidden reverse
+# transition.
 # shellcheck disable=SC2034 # Read by the original module installer.
 SKIPUNZIP=1
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]; then
-    PROPHIDE_SDK37()
+    PROPHIDE_PAYLOAD()
     (
-        local BASE="$MODPATH/sdk37" INIT="$WORK_DIR/system/system/bin/init"
+        local BASE="$MODPATH" INIT="$WORK_DIR/system/system/bin/init"
         local POLICY="$WORK_DIR/system/system/etc/selinux/plat_sepolicy.cil"
         local PROPS="$WORK_DIR/system/system/etc/selinux/plat_property_contexts"
         local FILES="$WORK_DIR/system/system/etc/selinux/plat_file_contexts"
@@ -29,7 +30,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]; then
         [ "$(avbtool info_image --image "$VBIMG" | awk '/Block:/ {sum+=$3} END {print sum}')" = 9344 ] || { ABORT "Prophide: unexpected vbmeta geometry"; return 1; }
         [ "$(GET_PROP system ro.build.version.sdk)" = 37 ] &&
             [ "$(GET_PROP system ro.build.version.security_patch)" = 2026-10-05 ] || { ABORT "Prophide: source property cohort changed"; return 1; }
-        # The helper uses only these original SDK37 bootstrap/crypto providers.
+        # The helper uses only these original One UI 9 bootstrap/crypto providers.
         for FILE in \
             "02ae6f415c54323d51ddf3a445da5c159ef41b756dd3e2d82214bda190189b89 system/lib64/bootstrap/libc.so" \
             "da26104a7725f09373526a17be278197208953328b038b02ff9cbf646a681577 system/lib64/libcrypto.so" \
@@ -56,10 +57,10 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]; then
                 ABORT "Prophide: conflicting policy/context declaration in $INPUT"; return 1
             fi
         }
-        PROPHIDE_BLOCK "$POLICY" "$BASE/policy.cil" "$TMP/policy" '; UN1CA Prophide SDK37' || return 1
-        PROPHIDE_BLOCK "$PROPS" "$BASE/property_contexts" "$TMP/props" '# UN1CA Prophide SDK37' || return 1
+        PROPHIDE_BLOCK "$POLICY" "$BASE/policy.cil" "$TMP/policy" '; UN1CA Prophide' || return 1
+        PROPHIDE_BLOCK "$PROPS" "$BASE/property_contexts" "$TMP/props" '# UN1CA Prophide' || return 1
         printf '/system/bin/prophide_stage u:object_r:prophide_stage_exec:s0\n' > "$TMP/files" || return 1
-        PROPHIDE_BLOCK "$FILES" "$TMP/files" "$TMP/init.hex" '# UN1CA Prophide SDK37' || return 1
+        PROPHIDE_BLOCK "$FILES" "$TMP/files" "$TMP/init.hex" '# UN1CA Prophide' || return 1
         mv "$TMP/init.hex" "$TMP/files" || return 1
         [ "$TARGET_CODENAME" != r9s ] || VENDOR_PATCH="$BASE/r9s-api30-properties.patch"
         cp -p "$VENDOR" "$TMP/plat_pub_versioned.cil" || return 1
@@ -77,15 +78,18 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]; then
             [ "$(sha256sum "$TMP/init" | cut -d ' ' -f 1)" = 1b3d2850aa95e88320ee6fb0cc14f0f9640aa8b7953337a4481e58fb2eb83274 ] || { ABORT "Prophide: native patch result mismatch"; return 1; }
             chmod --reference="$INIT" "$TMP/init" || return 1
         fi
-        ADD_TO_WORK_DIR "$BASE" system . 0 0 755 u:object_r:system_file:s0 || return 1
+        # The payload now lives at the module root, next to the build sources.
+        # Install only the two shipped entries, not the sources or the patches.
+        ADD_TO_WORK_DIR "$BASE" system system/bin/prophide_stage 0 0 755 u:object_r:system_file:s0 || return 1
+        ADD_TO_WORK_DIR "$BASE" system system/etc/init/prophide.rc 0 0 644 u:object_r:system_file:s0 || return 1
         if [ -f "$TMP/init" ]; then mv "$TMP/init" "$INIT" || return 1; fi
         mv "$TMP/plat_pub_versioned.cil" "$VENDOR" || return 1
         cat "$TMP/policy" >> "$POLICY" && cat "$TMP/props" >> "$PROPS" && cat "$TMP/files" >> "$FILES" || return 1
-        LOG "Prophide: installed pinned SDK37 init-owned handoff; device boot/readback remains unqualified"
+        LOG "Prophide: installed pinned init-owned handoff; device boot/readback remains unqualified"
     )
-    PROPHIDE_SDK37
+    PROPHIDE_PAYLOAD
     PROPHIDE_RESULT=$?
-    unset -f PROPHIDE_SDK37
+    unset -f PROPHIDE_PAYLOAD
     return "$PROPHIDE_RESULT"
 fi
 

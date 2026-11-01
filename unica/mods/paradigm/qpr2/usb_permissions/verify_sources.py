@@ -9,6 +9,9 @@ from pathlib import Path
 import re
 import subprocess
 
+# git apply silently filters paths when invoked from a repository subdirectory.
+# Run the absolute-path preflight outside the checkout so every hunk is checked.
+
 
 REQUIRED_INPUTS = {
     *(f"smali/com/android/settings/connecteddevice/usb/{name}.smali" for name in (
@@ -66,7 +69,7 @@ def verify_sources(module_dir, decoded_dir):
         patch = patch_root / "SecSettings.apk" / name
         result = subprocess.run(
             ["git", "apply", "--check", "--unsafe-paths", f"--directory={decoded_dir}", str(patch)],
-            capture_output=True, text=True, check=False,
+            cwd="/", capture_output=True, text=True, check=False,
         )
         if result.returncode:
             raise ValueError(f"USB permission patch preflight failed: {name}\n{result.stderr}")

@@ -1,6 +1,6 @@
 # Print preview selection state, preserving Samsung's signer
 
-The SDK37 root customization adds localized selected/not-selected accessibility
+The One UI 9 root customization adds localized selected/not-selected accessibility
 state descriptions through `framework.jar`. It never rebuilds or re-signs
 `PrintSpooler.apk`; SDK36 is unchanged.
 

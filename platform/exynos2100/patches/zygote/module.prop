@@ -1,3 +1,3 @@
 name=Native app zygote compatibility
 author=UN1CA
-description=Keep SDK37 native app zygotes on the actual kernel capability range.
+description=Keep One UI 9 native app zygotes on the actual kernel capability range.

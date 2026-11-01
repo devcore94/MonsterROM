@@ -1,5 +1,5 @@
 From: UN1CA contributors
-Subject: [PATCH] Backport QPR2 sparse collection compute APIs to Samsung SDK 37
+Subject: [PATCH] Backport QPR2 sparse collection compute APIs to Samsung One UI 9
 
 diff --git a/smali_classes4/android/util/SparseArray.smali b/smali_classes4/android/util/SparseArray.smali
 --- a/smali_classes4/android/util/SparseArray.smali

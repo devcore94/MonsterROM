@@ -1,4 +1,4 @@
-NFC_SDK37_ANTENNA()
+NFC_ANTENNA()
 {
     perl - "$@" <<'PERL'
 use strict;
@@ -36,7 +36,7 @@ my %resources=(0=>"center",1=>"center",2=>"above",3=>"bottom",4=>"above_mid",5=>
 need($position =~ /^(?:0|[1-9][0-9]*)$/ && exists $resources{$position},"Unreviewed target NFC antenna position");
 my $base="$decoded/smali_classes3/com/samsung/android/settings/nfc"; my $enum=raw("$base/NfcAntennaInfo.smali");
 my $count=()=$enum =~ /new-instance v0, Lcom\/samsung\/android\/settings\/nfc\/NfcAntennaInfo;/g;
-need($count==1 && index($enum,"0x7f140087")>=0,"Unexpected SDK37 NFC DEFAULT animation contract");
+need($count==1 && index($enum,"0x7f140087")>=0,"Unexpected One UI 9 NFC DEFAULT animation contract");
 my %owners=(NfcSettings=>"populateViewForOrientation(Lcom/android/settingslib/widget/LayoutPreference;)V",NfcAntennaGuideDialog=>"onCreate(Landroid/os/Bundle;)V"); my %writes;
 for my $owner(sort keys %owners) {
     my $path="$base/$owner.smali"; my $text=raw($path); my $m=methods($text); my $signature=$owners{$owner}; need(exists $m->{$signature},"Missing NFC method $signature"); my $body=$m->{$signature};
@@ -45,7 +45,7 @@ for my $owner(sort keys %owners) {
     need($n==1,"Unexpected inlined NFC antenna position"); $writes{$path}=once($text,$m->{$signature},$body);
 }
 my $animation="sec_nfc_antenna_animation.json"; my @actual=grep {m{/raw[^/]*/\Q$animation\E$}} walk("$decoded/res");
-need(same(\@actual,[sort "$decoded/res/raw/$animation","$decoded/res/raw-night/$animation"]),"Unexpected SDK37 day/night animation layout");
+need(same(\@actual,[sort "$decoded/res/raw/$animation","$decoded/res/raw-night/$animation"]),"Unexpected One UI 9 day/night animation layout");
 my @members=split /\n/,run("unzip","-Z1",$apk); my $name=$position==27?"sec_nfc_antenna_animation.json":"sec_nfc_ant_$resources{$position}.json";
 for my $q(qw(raw raw-night)) {
     my @names=("res/$q/$name"); push @names,"res/raw-night-v8/$name" if $q eq "raw-night"; my @matches=grep {my $n=$_; scalar grep {$_ eq $n} @members} @names;
@@ -61,23 +61,23 @@ PERL
 _LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
 # ]
 
-NFC_SDK37_PREFLIGHT()
+NFC_PREFLIGHT()
 {
     local NFC_APEX_SHA256
     NFC_APEX_SHA256="$(sha256sum "$WORK_DIR/system/system/apex/com.android.nfcservices.capex" | cut -d ' ' -f 1)"
     # Keep the complete signed APK/framework/JNI cohort. Admit only reviewed
-    # package hashes; see SDK37.md before adding another one.
+    # package hashes; see NFC-APEX.md before adding another one.
     case "$NFC_APEX_SHA256" in
         408f490bf488a6ef364ed0d1d1c249a7546fe6cec1efecfce6552c9192dab597|\
         00a29b4a9f83cf07746400613e0fa0910c50836e17ab92928a2c9651ed921ae0) ;;
         *)
-            ABORT "Unreviewed SDK37 NFC APEX (SHA-256: ${NFC_APEX_SHA256:-unreadable}); review the modular NFC/target HIDL contract"
+            ABORT "Unreviewed One UI 9 NFC APEX (SHA-256: ${NFC_APEX_SHA256:-unreadable}); review the modular NFC/target HIDL contract"
             return 1
             ;;
     esac
     if [ ! -s "$WORK_DIR/vendor/bin/hw/nxp.android.hardware.nfc@1.2-service" ] || \
             [ ! -s "$WORK_DIR/vendor/lib64/nfc_nci_nxpsn.so" ]; then
-        ABORT "SDK37 NFC requires the target NXP HIDL 1.2 service and 64-bit NFC library"
+        ABORT "One UI 9 NFC requires the target NXP HIDL 1.2 service and 64-bit NFC library"
         return 1
     fi
     if ! python3 - "$WORK_DIR/vendor/etc/vintf/manifest/nxp.android.hardware.nfc@1.2-service.xml" <<'PY'
@@ -108,10 +108,10 @@ try:
     if not valid:
         raise ValueError("Expected android.hardware.nfc@1.2::INfc/default over hwbinder")
 except (OSError, ValueError, ET.ParseError) as error:
-    sys.exit(f"SDK37 NFC VINTF: {error}")
+    sys.exit(f"One UI 9 NFC VINTF: {error}")
 PY
     then
-        ABORT "Review the modular SDK-37 NFC/target HIDL contract: incompatible target VINTF manifest"
+        ABORT "Review the modular One UI 9 NFC/target HIDL contract: incompatible target VINTF manifest"
         return 1
     fi
 }
@@ -121,9 +121,9 @@ TARGET_FIRMWARE_PATH="$(cut -d "/" -f 1 -s <<< "$TARGET_FIRMWARE")_$(cut -d "/" 
 # Fail before copying target configuration or decoding Settings, including when
 # this module is sourced from a conditional that suppresses Bash errexit.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    NFC_SDK37_PREFLIGHT || return 1
+    NFC_PREFLIGHT || return 1
 fi
-unset -f NFC_SDK37_PREFLIGHT
+unset -f NFC_PREFLIGHT
 
 if [ -f "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/etc/libnfc-nci.conf" ]; then
     ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/etc/libnfc-nci.conf" 0 0 644 "u:object_r:system_file:s0"
@@ -141,16 +141,16 @@ fi
 # already has the matching NXP 1.2 service and vendor driver; do not request
 # obsolete global 32-bit JNI prebuilts or mix an older app into that APEX.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    LOG "- Retaining the complete SDK-37 NFC APEX with the target NXP HIDL 1.2 service"
+    LOG "- Retaining the complete One UI 9 NFC APEX with the target NXP HIDL 1.2 service"
     # Settings is outside the NFC APEX. Its inlined donor antenna position and
     # animation must describe the target, while its mismatch checks stay intact.
     NFC_ANTENNA_POSITION="$(GET_PROP "vendor" "ro.vendor.nfc.info.antpos")"
     if ! [[ "$NFC_ANTENNA_POSITION" =~ ^[0-9]+$ ]]; then
-        ABORT "SDK37 NFC Settings requires a numeric target vendor antenna position"
+        ABORT "One UI 9 NFC Settings requires a numeric target vendor antenna position"
         return 1
     fi
     DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
-    NFC_SDK37_ANTENNA "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" \
+    NFC_ANTENNA "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" \
         "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/priv-app/SecSettings/SecSettings.apk" "$NFC_ANTENNA_POSITION" || return 1
     unset NFC_ANTENNA_POSITION
     unset TARGET_FIRMWARE_PATH

@@ -1,0 +1,19 @@
+Subject: [PATCH] Exclude Prophide from r9s's retained legacy charger-property reader
+
+Subtract ONLY the new helper from the already narrowed r9s compatibility
+reader. All original domains, mapping members and assertions stay intact.
+
+diff --git a/plat_pub_versioned.cil b/plat_pub_versioned.cil
+--- a/plat_pub_versioned.cil
++++ b/plat_pub_versioned.cil
+@@ -6411,7 +6411,9 @@
+ (allow domain exported_radio_prop_30_0 (file (read getattr map open)))
+ (allow domain exported_secure_prop_30_0 (file (read getattr map open)))
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_r9s_charger_readers exported_system_prop_30_0 (file (read open)))
++(typeattribute unica_prophide_api30_property_reader)
++(typeattributeset unica_prophide_api30_property_reader (and unica_api30_r9s_charger_readers (not (prophide_stage))))
++(allow unica_prophide_api30_property_reader exported_system_prop_30_0 (file (read open)))
+ (allow unica_api30_r9s_charger_legacy_sources unica_api30_public_grant_43 (file (read open)))
+ (allow unica_api30_public_grant_42 unica_api30_public_grant_43 (file (read open)))
+ (allow domain exported_system_prop_30_0 (file (getattr map)))

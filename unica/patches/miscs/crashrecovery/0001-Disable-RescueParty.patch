@@ -1,6 +1,6 @@
 Subject: [PATCH] Disable Mainline RescueParty using the original UN1CA policy
 
-The SDK37 observer's boot-loop and package-failure callbacks all use this
+The One UI 9 observer's boot-loop and package-failure callbacks all use this
 bridge. Keep the Mainline service, watchdog, rollback observer, flags and
 factory-reset policy intact; port the original unconditional disable hook.
 

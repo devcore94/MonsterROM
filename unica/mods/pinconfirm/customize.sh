@@ -22,4 +22,12 @@ SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
     'setAutoPinConfirmOption(IZ)V' \
     'const/4 p2, 0x6' \
     'const/4 p2, 0x4'
+if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
+    # One UI 9 also gates the screen-lock preference on the current PIN length.
+    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "smali_classes2/com/android/settings/security/screenlock/AutoPinConfirmPreferenceController.smali" "replace" \
+        'isAvailable()Z' \
+        'const/4 v0, 0x6' \
+        'const/4 v0, 0x4'
+fi
 unset PINCONFIRM_SMALI_DIR

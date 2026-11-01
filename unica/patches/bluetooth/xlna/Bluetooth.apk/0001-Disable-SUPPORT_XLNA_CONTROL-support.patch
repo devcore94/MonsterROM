@@ -1,51 +1,40 @@
-From d362fbc2930067ca87a3f97fe18c270124e19ff1 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Thu, 23 Jul 2026 17:59:07 +0200
-Subject: [PATCH] Disable SUPPORT_XLNA_CONTROL support
-
----
- .../bluetooth/btservice/AdapterService.smali  |  8 ----
- .../le_scan/ScanManager$ScanNative.smali      | 44 +------------------
- 2 files changed, 1 insertion(+), 51 deletions(-)
+From: UN1CA <unica@localhost>
+Subject: [PATCH] Disable unsupported XLNA on the One UI 9 ScanManager ABI
 
 diff --git a/smali/com/android/bluetooth/btservice/AdapterService.smali b/smali/com/android/bluetooth/btservice/AdapterService.smali
-index b8684de..55ceeb4 100644
 --- a/smali/com/android/bluetooth/btservice/AdapterService.smali
 +++ b/smali/com/android/bluetooth/btservice/AdapterService.smali
-@@ -15018,14 +15018,6 @@
+@@ -16359,15 +16359,7 @@
  
-     iput-object p0, v7, Lcom/android/bluetooth/btservice/AdapterService;->mTelephonyManager:Landroid/telephony/TelephonyManager;
+     invoke-virtual {p0}, Lcom/android/bluetooth/btservice/AdapterService;->sarBackoffEnable()V
  
--    iget-object p0, v7, Lcom/android/bluetooth/btservice/AdapterService;->mSensorManager:Landroid/hardware/SensorManager;
+-    iget-object v0, p0, Lcom/android/bluetooth/btservice/AdapterService;->mSensorManager:Landroid/hardware/SensorManager;
 -
--    invoke-virtual {p0, v5}, Landroid/hardware/SensorManager;->getDefaultSensor(I)Landroid/hardware/Sensor;
--
--    move-result-object p0
--
--    iput-object p0, v7, Lcom/android/bluetooth/btservice/AdapterService;->mAccelerSensor:Landroid/hardware/Sensor;
--
-     invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->invalidateBluetoothCaches()V
- 
-     new-instance p0, Lcom/android/bluetooth/btservice/AdapterService$1;
-diff --git a/smali/com/android/bluetooth/le_scan/ScanManager$ScanNative.smali b/smali/com/android/bluetooth/le_scan/ScanManager$ScanNative.smali
-index ab4cc85..89518d9 100644
---- a/smali/com/android/bluetooth/le_scan/ScanManager$ScanNative.smali
-+++ b/smali/com/android/bluetooth/le_scan/ScanManager$ScanNative.smali
-@@ -5775,49 +5775,7 @@
- .end method
- 
- .method public startLNAControl(II)V
--    .locals 2
--
--    invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->getAdapterService()Lcom/android/bluetooth/btservice/AdapterService;
+-    invoke-virtual {v0, v11}, Landroid/hardware/SensorManager;->getDefaultSensor(I)Landroid/hardware/Sensor;
 -
 -    move-result-object v0
 -
+-    iput-object v0, p0, Lcom/android/bluetooth/btservice/AdapterService;->mAccelerSensor:Landroid/hardware/Sensor;
+-
+     invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->invalidateBluetoothCaches()V
+ 
+     invoke-virtual {p0}, Lcom/android/bluetooth/btservice/AdapterService;->cacheLeAudioAllowlistDevicesFromProp()V
+ 
+diff --git a/smali/com/android/bluetooth/le_scan/ScanManager.smali b/smali/com/android/bluetooth/le_scan/ScanManager.smali
+--- a/smali/com/android/bluetooth/le_scan/ScanManager.smali
++++ b/smali/com/android/bluetooth/le_scan/ScanManager.smali
+@@ -7823,49 +7823,11 @@
+     return-void
+ .end method
+ 
+ .method public startLNAControl(II)V
+-    .locals 1
+-
+-    iget-object v0, p0, Lcom/android/bluetooth/le_scan/ScanManager;->mAdapterService:Lcom/android/bluetooth/btservice/AdapterService;
+-
 -    if-nez v0, :cond_0
 -
--    invoke-static {}, Lcom/android/bluetooth/le_scan/ScanManager;->-$$Nest$sfgetTAG()Ljava/lang/String;
--
--    move-result-object p0
+-    sget-object p0, Lcom/android/bluetooth/le_scan/ScanManager;->TAG:Ljava/lang/String;
 -
 -    const-string p1, "startLNAControl: adapterService is null"
 -
@@ -54,34 +43,37 @@ index ab4cc85..89518d9 100644
 -    return-void
 -
 -    :cond_0
--    iget-object v1, p0, Lcom/android/bluetooth/le_scan/ScanManager$ScanNative;->this$0:Lcom/android/bluetooth/le_scan/ScanManager;
+-    iget-boolean v0, p0, Lcom/android/bluetooth/le_scan/ScanManager;->mScreenOn:Z
 -
--    invoke-static {v1}, Lcom/android/bluetooth/le_scan/ScanManager;->-$$Nest$misScreenOn(Lcom/android/bluetooth/le_scan/ScanManager;)Z
+-    if-nez v0, :cond_1
 -
--    move-result v1
+-    invoke-static {p1, p2}, Lcom/samsung/ble/SecScanUtil;->getDutyCycle(II)I
 -
--    if-nez v1, :cond_1
+-    move-result p1
 -
--    invoke-virtual {p0, p1, p2}, Lcom/android/bluetooth/le_scan/ScanManager$ScanNative;->getDutyCycle(II)I
+-    const/16 p2, 0x32
 -
--    move-result p0
+-    if-lt p1, p2, :cond_1
 -
--    const/16 p1, 0x32
+-    iget-object p0, p0, Lcom/android/bluetooth/le_scan/ScanManager;->mAdapterService:Lcom/android/bluetooth/btservice/AdapterService;
 -
--    if-lt p0, p1, :cond_1
--
--    invoke-virtual {v0}, Lcom/android/bluetooth/btservice/AdapterService;->startAccelerSensor()V
+-    invoke-virtual {p0}, Lcom/android/bluetooth/btservice/AdapterService;->startAccelerSensor()V
 -
 -    return-void
 -
 -    :cond_1
--    const/4 p0, 0x0
+-    iget-object p0, p0, Lcom/android/bluetooth/le_scan/ScanManager;->mAdapterService:Lcom/android/bluetooth/btservice/AdapterService;
 -
--    invoke-virtual {v0, p0}, Lcom/android/bluetooth/btservice/AdapterService;->stopAccelerSensor(I)V
+-    const/4 p1, 0x0
+-
+-    invoke-virtual {p0, p1}, Lcom/android/bluetooth/btservice/AdapterService;->stopAccelerSensor(I)V
 +    .locals 0
  
      return-void
  .end method
+ 
+ .method public final startOffloadScan()V
+     .locals 2
 -- 
 2.55.0
 

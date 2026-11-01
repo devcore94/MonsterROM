@@ -9,6 +9,9 @@ from pathlib import Path
 import re
 import subprocess
 
+# git apply silently filters paths when invoked from a repository subdirectory.
+# Run the absolute-path preflight outside the checkout so every hunk is checked.
+
 
 REQUIRED_INPUTS = {
     "AndroidManifest.xml", "res/values/strings.xml",
@@ -34,7 +37,7 @@ def unique_object(pairs):
 def check_patch(folder, patch):
     return subprocess.run(
         ["git", "apply", "--check", "--unsafe-paths", f"--directory={folder}", str(patch)],
-        capture_output=True, text=True, check=False,
+        cwd="/", capture_output=True, text=True, check=False,
     )
 
 
@@ -66,7 +69,7 @@ def verify_sources(module_dir, decoded_dir):
         path = patch_dir / name
         if path.is_symlink() or not path.is_file() or not path.stat().st_size:
             raise ValueError("Incomplete/unsafe capture-actions patch set")
-        result = subprocess.run(["git", "apply", "--numstat", "--", str(path)], capture_output=True, text=True, check=False)
+        result = subprocess.run(["git", "apply", "--numstat", "--", str(path)], cwd="/", capture_output=True, text=True, check=False)
         if result.returncode:
             raise ValueError(f"Malformed capture-actions patch: {name}\n{result.stderr}")
     for name in MAIN_PATCHES:

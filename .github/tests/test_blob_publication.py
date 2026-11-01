@@ -22,7 +22,7 @@ class BlobPublicationTests(unittest.TestCase):
     def test_negotiation_is_local_and_runs_before_the_guarded_pr_action(self):
         workflow = (ROOT / ".github/workflows/blobs.yml").read_text()
         step = publication_step()
-        self.assertIn("        if: steps.sdk37.outputs.update != 'false'\n", step)
+        self.assertIn("        if: steps.blobs.outputs.update != 'false'\n", step)
         self.assertIn("        run: git config --local push.negotiate true\n", step)
         self.assertLess(workflow.index(STEP), workflow.index("      - name: Create Pull Request\n"))
 

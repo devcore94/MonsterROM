@@ -1,0 +1,161 @@
+Subject: [PATCH] Reconcile the additional r9s domains with One UI 9 security boundaries
+
+The newer API30 vendor adds dmd, hal_kg30_default and the MLS-trusted
+vendor_telephony_silentlogging_app. Extend only the reviewed legacy
+grant restrictions to those actual additional domains. Keep unrelated
+permissions, aliases, and every donor allow/neverallow byte-for-byte.
+Remove the vendor application's forbidden modem-logging service lookup;
+do not exempt it from either the current or old public assertion.
+
+The donor domain.te:607 already permits dmd and hal_kg30_default to
+execute shell_exec/toolbox_exec through base_typeattr_412. Reconcile
+only those exact source/target/permission intersections in the obsolete
+API30 guards; retain their guards against every other executable.
+No allow absent from the original complete policy is introduced.
+
+diff --git a/plat_pub_versioned.cil b/plat_pub_versioned.cil
+--- a/plat_pub_versioned.cil
++++ b/plat_pub_versioned.cil
+@@ -5556,11 +5556,11 @@
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_4 app_data_file_30_0 (dir (ioctl read lock open watch watch_reads)))
+-(allow unica_api30_public_grant_6 app_data_file_30_0 (dir (write create setattr rename)))
+-(allow unica_api30_public_grant_8 app_data_file_30_0 (dir (getattr search)))
+-(allow unica_api30_public_grant_10 app_data_file_30_0 (dir (add_name remove_name reparent rmdir)))
++(allow unica_api30_r9s_app_grant_4 app_data_file_30_0 (dir (ioctl read lock open watch watch_reads)))
++(allow unica_api30_r9s_app_grant_6 app_data_file_30_0 (dir (write create setattr rename)))
++(allow unica_api30_r9s_app_grant_8 app_data_file_30_0 (dir (getattr search)))
++(allow unica_api30_r9s_app_grant_10 app_data_file_30_0 (dir (add_name remove_name reparent rmdir)))
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_4 privapp_data_file_30_0 (dir (ioctl read lock open watch watch_reads)))
+-(allow unica_api30_public_grant_6 privapp_data_file_30_0 (dir (write create setattr rename)))
+-(allow unica_api30_public_grant_8 privapp_data_file_30_0 (dir (getattr search)))
+-(allow unica_api30_public_grant_10 privapp_data_file_30_0 (dir (add_name remove_name reparent rmdir)))
++(allow unica_api30_r9s_app_grant_4 privapp_data_file_30_0 (dir (ioctl read lock open watch watch_reads)))
++(allow unica_api30_r9s_app_grant_6 privapp_data_file_30_0 (dir (write create setattr rename)))
++(allow unica_api30_r9s_app_grant_8 privapp_data_file_30_0 (dir (getattr search)))
++(allow unica_api30_r9s_app_grant_10 privapp_data_file_30_0 (dir (add_name remove_name reparent rmdir)))
+ ; One UI 9 contract: restrict legacy grant
+@@ -5569,5 +5569,5 @@
+ (allow unica_api30_public_grant_14 app_data_file_30_0 (file (write append)))
+-(allow unica_api30_public_grant_6 app_data_file_30_0 (file (create setattr unlink rename)))
+-(allow unica_api30_public_grant_16 app_data_file_30_0 (file (open)))
+-(allow unica_api30_public_grant_4 app_data_file_30_0 (file (watch watch_reads)))
++(allow unica_api30_r9s_app_grant_6 app_data_file_30_0 (file (create setattr unlink rename)))
++(allow unica_api30_r9s_app_grant_16 app_data_file_30_0 (file (open)))
++(allow unica_api30_r9s_app_grant_4 app_data_file_30_0 (file (watch watch_reads)))
+ ; One UI 9 contract: restrict legacy grant
+@@ -5576,5 +5576,5 @@
+ (allow unica_api30_public_grant_14 privapp_data_file_30_0 (file (write append)))
+-(allow unica_api30_public_grant_6 privapp_data_file_30_0 (file (create setattr unlink rename)))
+-(allow unica_api30_public_grant_16 privapp_data_file_30_0 (file (open)))
+-(allow unica_api30_public_grant_4 privapp_data_file_30_0 (file (watch watch_reads)))
++(allow unica_api30_r9s_app_grant_6 privapp_data_file_30_0 (file (create setattr unlink rename)))
++(allow unica_api30_r9s_app_grant_16 privapp_data_file_30_0 (file (open)))
++(allow unica_api30_r9s_app_grant_4 privapp_data_file_30_0 (file (watch watch_reads)))
+ (allow appdomain mnt_expand_file_30_0 (dir (ioctl read getattr lock open watch watch_reads search)))
+@@ -5728,6 +5728,6 @@
+ (allow appdomain apk_data_file_30_0 (dir (ioctl read getattr lock open search)))
+-(allow unica_api30_public_grant_38 apk_data_file_30_0 (dir (watch watch_reads)))
++(allow unica_api30_r9s_app_grant_38 apk_data_file_30_0 (dir (watch watch_reads)))
+ ; One UI 9 contract: restrict legacy grant
+ (allow appdomain apk_data_file_30_0 (file (ioctl read getattr lock map execute open execute_no_trans)))
+-(allow unica_api30_public_grant_38 apk_data_file_30_0 (file (watch watch_reads)))
++(allow unica_api30_r9s_app_grant_38 apk_data_file_30_0 (file (watch watch_reads)))
+ (allow appdomain resourcecache_data_file_30_0 (file (ioctl read getattr lock map open watch watch_reads)))
+@@ -6413,3 +6413,4 @@
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_41 exported_system_prop_30_0 (file (read open)))
++(allow unica_api30_r9s_charger_readers exported_system_prop_30_0 (file (read open)))
++(allow unica_api30_r9s_charger_legacy_sources unica_api30_public_grant_43 (file (read open)))
+ (allow unica_api30_public_grant_42 unica_api30_public_grant_43 (file (read open)))
+@@ -6471,7 +6472,7 @@
+ (allow unica_api30_public_grant_49 zoneinfo_data_file_30_0 (file (ioctl read getattr map)))
+-(allow unica_api30_public_grant_50 zoneinfo_data_file_30_0 (file (lock watch watch_reads)))
+-(allow unica_api30_public_grant_52 zoneinfo_data_file_30_0 (file (open)))
++(allow unica_api30_r9s_core_grant_50 zoneinfo_data_file_30_0 (file (lock watch watch_reads)))
++(allow unica_api30_r9s_core_grant_52 zoneinfo_data_file_30_0 (file (open)))
+ (allow domain system_zoneinfo_file_30_0 (dir (ioctl read getattr lock open watch watch_reads search)))
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_50 zoneinfo_data_file_30_0 (dir (ioctl read getattr lock open watch watch_reads search)))
++(allow unica_api30_r9s_core_grant_50 zoneinfo_data_file_30_0 (dir (ioctl read getattr lock open watch watch_reads search)))
+ (allow domain sysfs_devices_system_cpu_30_0 (dir (ioctl read getattr lock open watch watch_reads search)))
+@@ -6488,3 +6489,4 @@
+ ; One UI 9 contract: restrict legacy grant
+-(allow unica_api30_public_grant_50 system_data_file_30_0 (dir (search)))
++(allow unica_api30_r9s_core_grant_50 system_data_file_30_0 (dir (search)))
++(allow unica_api30_r9s_vendor_data_sources system_data_file (dir (search)))
+ (allow unica_api30_public_grant_51 system_data_file (dir (search)))
+@@ -7083,6 +7085,8 @@
+ ; One UI 9 contract: retain canonical platform access in API30 guard
+-(neverallow unica_api30_public_guard_116 base_typeattr_267_30_0 (file (execute)))
++(neverallow unica_api30_r9s_exec_guard base_typeattr_267_30_0 (file (execute)))
++(neverallow unica_api30_r9s_exec_sources unica_api30_public_guard_118 (file (execute)))
+ (neverallow unica_api30_public_guard_117 unica_api30_public_guard_118 (file (execute)))
+ (neverallow init_dev_config unica_api30_public_guard_119 (file (execute)))
+-(neverallow unica_api30_public_guard_116 base_typeattr_267_30_0 (file (execute_no_trans)))
++(neverallow unica_api30_r9s_exec_guard base_typeattr_267_30_0 (file (execute_no_trans)))
++(neverallow unica_api30_r9s_exec_sources unica_api30_public_guard_118 (file (execute_no_trans)))
+ (neverallow unica_api30_public_guard_120 unica_api30_public_guard_118 (file (execute_no_trans)))
+@@ -7131,5 +7135,7 @@
+-(neverallow unica_api30_public_guard_116 base_typeattr_274_30_0 (file (execute)))
++(neverallow unica_api30_r9s_exec_guard base_typeattr_274_30_0 (file (execute)))
++(neverallow unica_api30_r9s_exec_sources unica_api30_public_guard_144 (file (execute)))
+ (neverallow unica_api30_public_guard_117 unica_api30_public_guard_144 (file (execute)))
+ (neverallow init_dev_config unica_api30_public_guard_145 (file (execute)))
+-(neverallow unica_api30_public_guard_116 base_typeattr_274_30_0 (file (execute_no_trans)))
++(neverallow unica_api30_r9s_exec_guard base_typeattr_274_30_0 (file (execute_no_trans)))
++(neverallow unica_api30_r9s_exec_sources unica_api30_public_guard_144 (file (execute_no_trans)))
+ (neverallow unica_api30_public_guard_120 unica_api30_public_guard_144 (file (execute_no_trans)))
+@@ -8609,3 +8615,4 @@
+ ; One UI 9 contract: retain canonical platform access in API30 guard
+-(neverallow unica_api30_public_guard_165 file_type (file (execute_no_trans)))
++(neverallow unica_api30_r9s_hal_exec_guard file_type (file (execute_no_trans)))
++(neverallow unica_api30_r9s_hal_exec_sources unica_api30_public_guard_167 (file (execute_no_trans)))
+ (neverallow unica_api30_public_guard_166 unica_api30_public_guard_167 (file (execute_no_trans)))
+@@ -13921,2 +13928,37 @@
+ (typeattribute unica_api30_public_guard_197)
+ (typeattributeset unica_api30_public_guard_197 (and base_typeattr_541_30_0 (not (casefolding_remover keystore))))
++
++; The additional MLS-trusted r9s application cannot access other users' data.
++(typeattribute unica_api30_r9s_app_grant_4)
++(typeattributeset unica_api30_r9s_app_grant_4 (and unica_api30_public_grant_4 (not (vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_app_grant_6)
++(typeattributeset unica_api30_r9s_app_grant_6 (and unica_api30_public_grant_6 (not (vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_app_grant_8)
++(typeattributeset unica_api30_r9s_app_grant_8 (and unica_api30_public_grant_8 (not (vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_app_grant_10)
++(typeattributeset unica_api30_r9s_app_grant_10 (and unica_api30_public_grant_10 (not (vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_app_grant_16)
++(typeattributeset unica_api30_r9s_app_grant_16 (and unica_api30_public_grant_16 (not (vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_app_grant_38)
++(typeattributeset unica_api30_r9s_app_grant_38 (and unica_api30_public_grant_38 (not (vendor_telephony_silentlogging_app))))
++; Retain the original property-read grant except for charger_status_prop.
++(typeattribute unica_api30_r9s_charger_readers)
++(typeattributeset unica_api30_r9s_charger_readers (and unica_api30_public_grant_41 (not (dmd hal_kg30_default vendor_telephony_silentlogging_app))))
++(typeattribute unica_api30_r9s_charger_legacy_sources)
++(typeattributeset unica_api30_r9s_charger_legacy_sources (and unica_api30_public_grant_41 (dmd hal_kg30_default vendor_telephony_silentlogging_app)))
++; dmd and hal_kg30_default are vendor domains, not core-data owners.
++(typeattribute unica_api30_r9s_core_grant_50)
++(typeattributeset unica_api30_r9s_core_grant_50 (and unica_api30_public_grant_50 (not (dmd hal_kg30_default))))
++(typeattribute unica_api30_r9s_core_grant_52)
++(typeattributeset unica_api30_r9s_core_grant_52 (and unica_api30_public_grant_52 (not (dmd hal_kg30_default))))
++(typeattribute unica_api30_r9s_vendor_data_sources)
++(typeattributeset unica_api30_r9s_vendor_data_sources (and unica_api30_public_grant_50 (dmd hal_kg30_default)))
++; Preserve only domain.te:607's canonical shell/toolbox execution exceptions.
++(typeattribute unica_api30_r9s_exec_guard)
++(typeattributeset unica_api30_r9s_exec_guard (and unica_api30_public_guard_116 (not (dmd hal_kg30_default))))
++(typeattribute unica_api30_r9s_exec_sources)
++(typeattributeset unica_api30_r9s_exec_sources (and unica_api30_public_guard_116 (dmd hal_kg30_default)))
++(typeattribute unica_api30_r9s_hal_exec_guard)
++(typeattributeset unica_api30_r9s_hal_exec_guard (and unica_api30_public_guard_165 (not (hal_kg30_default))))
++(typeattribute unica_api30_r9s_hal_exec_sources)
++(typeattributeset unica_api30_r9s_hal_exec_sources (and unica_api30_public_guard_165 (hal_kg30_default)))
+diff --git a/vendor_sepolicy.cil b/vendor_sepolicy.cil
+--- a/vendor_sepolicy.cil
++++ b/vendor_sepolicy.cil
+@@ -15976,3 +15976,3 @@
+ (allow vendor_telephony_silentlogging_app servicemanager_30_0 (fd (use)))
+-(allow vendor_telephony_silentlogging_app hal_vendor_modem_logging_service (service_manager (find)))
++; One UI 9 forbids application lookup of this vendor-only service.
+ (dontaudit vendor_telephony_silentlogging_app system_app_data_file_30_0 (dir (ioctl read write create getattr setattr lock rename open watch watch_reads add_name remove_name reparent search rmdir)))

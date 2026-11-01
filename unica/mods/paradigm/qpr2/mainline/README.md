@@ -1,4 +1,4 @@
-# Complete QPR2 Mainline modules in the isolated SDK-37 profile
+# Complete QPR2 Mainline modules in the isolated One UI 9 profile
 
 Imports the original, byte-identical Google-signed SDK Extensions and Time Zone
 Data APEX containers from the reviewed CP41.260831.007.A3 GSI. Both APK/container

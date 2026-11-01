@@ -220,7 +220,7 @@ APPLY_CUSTOM_FEATURE()
 }
 # ]
 
-# Keep the SDK-37 donor's audio-eraser model/runtime declaration coherent with
+# Keep the One UI 9 donor's audio-eraser model/runtime declaration coherent with
 # the retained newer native cohort. Screen-recorder support is already in the
 # blacklist above. The CPU preview does not invent a Samsung subject/AI flag.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then

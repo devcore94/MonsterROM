@@ -1,0 +1,159 @@
+Subject: [PATCH] Disable marquee in One UI 9 Compose quick tile labels
+
+The One UI 9 panel uses Compose for both normal and tile-box labels. Preserve
+the incoming layout and semantics modifiers without appending an animated
+marquee, and use end ellipsis for each title and subtitle. Clear the Text
+overflow default bit so Compose does not replace Ellipsis with Clip.
+Other media, detail and header marquees retain their stock behavior.
+
+diff --git a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScope.smali b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScope.smali
+--- a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScope.smali
++++ b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScope.smali
+@@ -120,31 +120,7 @@
+ .end method
+ 
+ .method public presentAwareMarquee(Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+-    .locals 1
++    .locals 0
+ 
+-    check-cast p0, Lcom/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScopeImpl;
+-
+-    iget-boolean p0, p0, Lcom/android/systemui/samsung/quicksetting/ui/base/spannablegrid/SpannableGridTileScopeImpl;->isPresenting:Z
+-
+-    if-eqz p0, :cond_0
+-
+-    sget-object p0, Landroidx/compose/ui/Modifier;->Companion:Landroidx/compose/ui/Modifier$Companion;
+-
+-    const/16 v0, 0x3f
+-
+-    invoke-static {p0, v0}, Lcom/android/systemui/samsung/quicksetting/ui/common/util/BasicMarqueeTemporaryKt;->basicMarqueeFixedRTL-1Mj1MLw$default(Landroidx/compose/ui/Modifier;I)Landroidx/compose/ui/Modifier;
+-
+-    move-result-object p0
+-
+-    goto :goto_0
+-
+-    :cond_0
+-    sget-object p0, Landroidx/compose/ui/Modifier;->Companion:Landroidx/compose/ui/Modifier$Companion;
+-
+-    :goto_0
+-    invoke-interface {p1, p0}, Landroidx/compose/ui/Modifier;->then(Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+-
+-    move-result-object p0
+-
+-    return-object p0
++    return-object p1
+ .end method
+diff --git a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt.smali b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt.smali
+--- a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt.smali
++++ b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt.smali
+@@ -2459,31 +2459,7 @@
+ .end method
+ 
+ .method public static final fractionOverMarquee(Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
+-    .locals 1
+-
+-    const/4 v0, 0x0
+-
+-    cmpl-float p1, p1, v0
+-
+-    if-lez p1, :cond_0
+-
+-    sget-object p1, Landroidx/compose/ui/Modifier;->Companion:Landroidx/compose/ui/Modifier$Companion;
+-
+-    const/16 v0, 0x3f
+-
+-    invoke-static {p1, v0}, Lcom/android/systemui/samsung/quicksetting/ui/common/util/BasicMarqueeTemporaryKt;->basicMarqueeFixedRTL-1Mj1MLw$default(Landroidx/compose/ui/Modifier;I)Landroidx/compose/ui/Modifier;
+-
+-    move-result-object p1
+-
+-    goto :goto_0
+-
+-    :cond_0
+-    sget-object p1, Landroidx/compose/ui/Modifier;->Companion:Landroidx/compose/ui/Modifier$Companion;
+-
+-    :goto_0
+-    invoke-interface {p0, p1}, Landroidx/compose/ui/Modifier;->then(Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+-
+-    move-result-object p0
++    .locals 0
+ 
+     return-object p0
+ .end method
+diff --git a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tiles/QuickTileKt$$ExternalSyntheticLambda15.smali b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tiles/QuickTileKt$$ExternalSyntheticLambda15.smali
+--- a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tiles/QuickTileKt$$ExternalSyntheticLambda15.smali
++++ b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tiles/QuickTileKt$$ExternalSyntheticLambda15.smali
+@@ -369,7 +369,7 @@
+ 
+     const/16 v30, 0x6c00
+ 
+-    const v31, 0x39b68
++    const v31, 0x38b68
+ 
+     move/from16 v18, v14
+ 
+@@ -393,7 +393,7 @@
+ 
+     move/from16 v25, v22
+ 
+-    const/16 v22, 0x0
++    sget v22, Landroidx/compose/ui/text/style/TextOverflow;->Ellipsis:I
+ 
+     move/from16 v26, v23
+ 
+@@ -635,7 +635,7 @@
+ 
+     const/16 v30, 0x6c00
+ 
+-    const v31, 0x39b68
++    const v31, 0x38b68
+ 
+     const/4 v14, 0x0
+ 
+@@ -645,7 +645,7 @@
+ 
+     const-wide/16 v20, 0x0
+ 
+-    const/16 v22, 0x0
++    sget v22, Landroidx/compose/ui/text/style/TextOverflow;->Ellipsis:I
+ 
+     const/16 v23, 0x0
+ 
+diff --git a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt$$ExternalSyntheticLambda10.smali b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt$$ExternalSyntheticLambda10.smali
+--- a/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt$$ExternalSyntheticLambda10.smali
++++ b/smali_classes3/com/android/systemui/samsung/quicksetting/ui/tilebox/QuickTileBoxItemLayoutKt$$ExternalSyntheticLambda10.smali
+@@ -297,7 +297,7 @@
+ 
+     const/16 v24, 0x6000
+ 
+-    const v25, 0x3bb68
++    const v25, 0x3ab68
+ 
+     move-wide/from16 v16, v4
+ 
+@@ -319,7 +319,7 @@
+ 
+     move-wide/from16 v6, v16
+ 
+-    const/16 v16, 0x0
++    sget v16, Landroidx/compose/ui/text/style/TextOverflow;->Ellipsis:I
+ 
+     const/16 v17, 0x0
+ 
+@@ -410,7 +410,7 @@
+ 
+     const/16 v24, 0x6000
+ 
+-    const v25, 0x3bb68
++    const v25, 0x3ab68
+ 
+     const/4 v8, 0x0
+ 
+@@ -420,7 +420,7 @@
+ 
+     const-wide/16 v14, 0x0
+ 
+-    const/16 v16, 0x0
++    sget v16, Landroidx/compose/ui/text/style/TextOverflow;->Ellipsis:I
+ 
+     const/16 v17, 0x0
+ 

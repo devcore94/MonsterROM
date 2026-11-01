@@ -1,10 +1,10 @@
 # Miscellaneous policy patches
 
-## SDK37 RescueParty
+## One UI 9 RescueParty
 
 The original module made `RescueParty.-$$Nest$smisDisabled()` return true.
-SDK37 moved that same implementation from `services.jar` into
-`com.android.crashrecovery/javalib/service-crashrecovery.jar`. The SDK37 root
+One UI 9 moved that same implementation from `services.jar` into
+`com.android.crashrecovery/javalib/service-crashrecovery.jar`. The One UI 9 root
 customization patches the actual Mainline bridge, not Samsung's unrelated
 `SecRescueParty`. All four package-failure/boot-loop observer entrypoints
 check it before offering or executing mitigation. Watchdog and rollback

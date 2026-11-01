@@ -1,6 +1,6 @@
 # User-selected QPR2 version metadata
 
-For SDK 37 the version profile reports build
+For One UI 9 the version profile reports build
 CP4A.261005.017.S942BXXU5CZJJ, SDK-full 37.2 and One UI 90500 across system,
 product and system_ext, retaining each fingerprint's existing device/product,
 build type and signing tags. Android's major API remains 37. Build.VERSION reads

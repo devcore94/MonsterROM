@@ -1,9 +1,9 @@
-# SmartCrop SDK-37 / Exynos 2100 GPU route
+# SmartCrop One UI 9 / Exynos 2100 GPU route
 
 This is an app-local native selector patch, not an NCP29 model converter or a
 SmartCrop feature disable. The original S21 libfixsal chooses the TFLite file
 and sets its model selector to 2; its SnapOptionsV3 Open call uses vtable slot
-0x38. The pinned SDK-37 reader retains that GPU branch, including input
+0x38. The pinned One UI 9 reader retains that GPU branch, including input
 `serving_default_input:0`, output `PartitionedCall:0` and model path
 `/vendor/etc/singletake/SmartCrop/SmartCrop.tflite`.
 

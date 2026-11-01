@@ -1,0 +1,23 @@
+Subject: [PATCH] Preserve vendor device and model detection in One UI 9 CoreRune
+
+diff --git a/smali_classes6/com/samsung/android/rune/CoreRune.smali b/smali_classes6/com/samsung/android/rune/CoreRune.smali
+--- a/smali_classes6/com/samsung/android/rune/CoreRune.smali
++++ b/smali_classes6/com/samsung/android/rune/CoreRune.smali
+@@ -2799,7 +2799,7 @@
+ 
+     sput-boolean v4, Lcom/samsung/android/rune/CoreRune;->FW_TEMP_TOO_MANY_INSETS_LEASH_BUG_FIX:Z
+ 
+-    const-string/jumbo v1, "ro.product.device"
++    const-string/jumbo v1, "ro.product.vendor.device"
+ 
+     invoke-static {v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
+ 
+@@ -4060,7 +4060,7 @@
+ 
+     const-string v12, "None"
+ 
+-    const-string/jumbo v14, "ro.product.model"
++    const-string/jumbo v14, "ro.product.vendor.model"
+ 
+     invoke-static {v14, v12}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ 

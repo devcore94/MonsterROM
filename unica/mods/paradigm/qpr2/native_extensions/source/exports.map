@@ -1,0 +1,1 @@
+LIBC { global: membarrier; execveat; free_sized; free_aligned_sized; local: *; };

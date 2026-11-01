@@ -2,7 +2,7 @@
 SKIPUNZIP=1
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$TARGET_PLATFORM_SDK_VERSION" -lt 35 ]; then
-    ABORT "SDK37 pre-API35 Camera/Face/Lights/native backports require a reviewed port"
+    ABORT "One UI 9 pre-API35 Camera/Face/Lights/native backports require a reviewed port"
     return 1
 fi
 
@@ -208,10 +208,10 @@ if [ "$TARGET_PLATFORM_SDK_VERSION" -lt "36" ]; then
             # fallback (including the 202404 limit). Do not add it twice.
             [ "$(sha256sum "$WORK_DIR/system/system/framework/telephony-common.jar" | cut -d ' ' -f 1)" = \
                 "a8c72bb961b667ccc1ea29d87580c50382f7eadbaeeff36d0b3e28308a076583" ] || {
-                ABORT "Review the SDK-37 UiccController fallback before changing this telephony cohort"
+                ABORT "Review the One UI 9 UiccController fallback before changing this telephony cohort"
                 return 1
             }
-            LOG "- SDK-37 UiccController already has the required legacy physical-slot fallback"
+            LOG "- One UI 9 UiccController already has the required legacy physical-slot fallback"
         else
             APPLY_PATCH "system" "system/framework/telephony-common.jar" \
                 "$MODPATH/ril/telephony-common.jar/0001-Backport-legacy-UiccController-code.patch"

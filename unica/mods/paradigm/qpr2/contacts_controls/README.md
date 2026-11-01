@@ -15,7 +15,7 @@ existing UN1CA key as the other candidates. That new certificate is kept as the
 real Contacts signing identity; Contacts is excluded from the old platform
 certificate alias and is not marked platform-signed by that alias.
 
-The companion SDK 37 signature patch and final-JAR contract checker are required.
+The companion One UI 9 signature patch and final-JAR contract checker are required.
 The image verifier accepts this one explicit preinstalled Contacts transition
 only with the expected old certificate, package, system path, empty shared UID,
 verified new signature and exact knownSigner backup permission. The original

@@ -7,7 +7,7 @@
   {"module": "Galaxy Z Flip4 (b4qxxx)", "device": "b4qxxx", "firmware": "SM-F721B/BTE/350525851234569"},
   {"module": "Galaxy Tab A9+ 5G (gta9pxxx)", "device": "gta9pxxx", "firmware": "SM-X216B/EUX/352862571234563"},
   {"module": "Galaxy Jump3 (m44xktt)", "device": "m44xktt", "firmware": "SM-M446K/KTC/350454001234561"},
-  {"module": "Galaxy S25+ (One UI 9.0 / SDK37 wallpapers)", "device": "pa2qxxx-sdk37", "firmware": "SM-S936B/EUX/35063460"},
+  {"module": "Galaxy S25+ (One UI 9.0 wallpapers)", "device": "pa2qxxx-sdk37", "firmware": "SM-S936B/EUX/35063460"},
   {"module": "Galaxy S21 FE 5G (Snapdragon) (r9qxxx)", "device": "r9qxxx", "firmware": "SM-G990B/EUX/353718681234563"},
   {"module": "Galaxy S21 FE 5G (Exynos) (r9sxxx)", "device": "r9sxxx", "firmware": "SM-G990E/THL/355798871234563"}
 ]

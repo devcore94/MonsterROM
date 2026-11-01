@@ -1,17 +1,15 @@
-From 0bb77a4b171d668af1b0b8f069a20883ef852e9d Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Fri, 14 Nov 2025 01:10:03 +0100
-Subject: [PATCH] Launch UN1CA Updates from suggestions
+Subject: [PATCH] Launch UN1CA Updates from Android 17 suggestions
 
----
- .../Settings$FOTASuggestionActivity.smali     | 31 +++++++++++++------
- 1 file changed, 21 insertions(+), 10 deletions(-)
+The activity moved to the primary dex. Reserve all four temporary registers;
+v1 must not alias the Activity receiver while constructing the explicit Intent.
 
-diff --git a/smali_classes2/com/android/settings/Settings$FOTASuggestionActivity.smali b/smali_classes2/com/android/settings/Settings$FOTASuggestionActivity.smali
-index 1d2c2da8e..6f1e8f374 100644
---- a/smali_classes2/com/android/settings/Settings$FOTASuggestionActivity.smali
-+++ b/smali_classes2/com/android/settings/Settings$FOTASuggestionActivity.smali
-@@ -19,26 +19,37 @@
+diff --git a/smali/com/android/settings/Settings$FOTASuggestionActivity.smali b/smali/com/android/settings/Settings$FOTASuggestionActivity.smali
+--- a/smali/com/android/settings/Settings$FOTASuggestionActivity.smali
++++ b/smali/com/android/settings/Settings$FOTASuggestionActivity.smali
+@@ -17,29 +17,40 @@
+ .method public final onCreate(Landroid/os/Bundle;)V
+-    .locals 1
++    .locals 4
  
      invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
  
@@ -59,6 +57,4 @@ index 1d2c2da8e..6f1e8f374 100644
      invoke-virtual {p0}, Landroid/app/Activity;->finish()V
  
      return-void
--- 
-2.51.2
-
+ .end method

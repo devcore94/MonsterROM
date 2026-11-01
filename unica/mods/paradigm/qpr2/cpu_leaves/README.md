@@ -4,7 +4,7 @@ This normal UN1CA module imports three exact arm64 libraries from the user's
 local CRB `android17QPR2gsi/ROM`, CP41.260831.007.A3. It does not bundle a GSI,
 modify `scripts/`, add a universal adapter, or alter any APK signing identity.
 
-The r14 SDK-37 profile selects these three pinned inputs by default, from
+The r14 One UI 9 profile selects these three pinned inputs by default, from
 prebuilts/qpr2. The original source files and digests are recorded there.
 The SDK-36 profile is unchanged. An explicit external source remains supported:
 
@@ -21,7 +21,7 @@ An unreviewed cohort aborts instead of disabling checks or extending a namespace
 The root's shared, read-only runtime check also serves camera metadata and the
 optional software-codec/ART profiles. It accepts the exact donor APEX or reads
 the post-VNDK signed payload and compares every original provider, symlink,
-UID/GID, mode and SELinux label against the pinned SDK37 donor. It does not
+UID/GID, mode and SELinux label against the pinned One UI 9 donor. It does not
 trust a receipt's claim, call a removed VNDK dispatcher, or rerun the graft.
 
 Offline evidence: real Android arm64 binaries ran on unmodified Samsung Bionic,

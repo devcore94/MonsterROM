@@ -13,7 +13,7 @@ on:
         type: boolean
         default: false
       target:
-        description: 'SDK37 Exynos2100 target (not device-qualified)'
+        description: 'One UI 9 Exynos2100 target (not device-qualified)'
         type: choice
         default: t2s
         options:

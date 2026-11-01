@@ -118,7 +118,7 @@ else {
 }
 my %added;
 for my $n(keys %adds) {
-    need(!exists($original{$n}),'Graft overwrites an SDK37 provider');
+    need(!exists($original{$n}),'Graft overwrites a One UI 9 provider');
     $added{$n}=describe($adds{$n});
     if($added{$n}{type} eq 'file') {
         open my $f,'<:raw',$adds{$n} or die "$!\n"; read($f,my $head,20);

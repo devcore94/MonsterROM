@@ -1,0 +1,20 @@
+Subject: [PATCH] Disable unsupported Wi-Fi sharing before interface selection on One UI 9
+
+The common join overrides vendor-derived sharing flags in the donor. Reset
+both flags here so queries, interface selection and published Lite state agree.
+Keep power-save support and all vendor capability parsing intact.
+
+diff --git a/smali/com/samsung/android/server/wifi/ap/SemWifiApChipInfo.smali b/smali/com/samsung/android/server/wifi/ap/SemWifiApChipInfo.smali
+--- a/smali/com/samsung/android/server/wifi/ap/SemWifiApChipInfo.smali
++++ b/smali/com/samsung/android/server/wifi/ap/SemWifiApChipInfo.smali
+@@ -664,7 +664,9 @@
+ 
+     :cond_3
+     :goto_0
+-    sput-boolean v5, Lcom/samsung/android/server/wifi/ap/SemWifiApChipInfo;->mSupportWifiSharing:Z
++    sput-boolean v4, Lcom/samsung/android/server/wifi/ap/SemWifiApChipInfo;->mSupportWifiSharing:Z
++
++    sput-boolean v4, Lcom/samsung/android/server/wifi/ap/SemWifiApChipInfo;->mSupportWifiSharingLite:Z
+ 
+     new-instance v2, Ljava/lang/StringBuilder;
+ 

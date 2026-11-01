@@ -79,24 +79,13 @@ PERL
 "${BASH_SOURCE[0]%/*}/../../../scripts/run_xml_perl.sh" --check || return 1
 DECODE_APK "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
 LOG "- Enabling navigation bar type settings step"
-SETUP_LIST="smali/S2/f.smali"
-SETUP_GATE='f(Ljava/lang/String;)Z'
-if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    SETUP_LIST="smali/e7/f.smali"
-    SETUP_GATE='e(Ljava/lang/String;)Z'
-fi
 SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
-    "$SETUP_LIST" "replace" \
+    "smali/e7/f.smali" "replace" \
     "d(Landroid/content/Context;Z)Ljava/util/ArrayList;" \
     "navigationbar_setting" "this_string_does_not_exist" > /dev/null
 SMALI_PATCH "system" "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
     "smali/com/sec/android/app/SecSetupWizard/SecSetupWizardActivity.smali" "replace" \
-    "$SETUP_GATE" "navigationbar_setting" "this_string_does_not_exist" > /dev/null
+    'e(Ljava/lang/String;)Z' "navigationbar_setting" "this_string_does_not_exist" > /dev/null
 LOG "- Disabling Recommended apps step"
 SETUP_RESOURCES "$APKTOOL_DIR/system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk" \
     "$MODPATH/SecSetupWizard_Global.apk" || return 1
-SETUP_PATCH_ABI="sdk36"
-[ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && SETUP_PATCH_ABI="sdk37"
-APPLY_SMALI_PATCHES "$MODPATH/$SETUP_PATCH_ABI/smali" \
-    "system/priv-app/SecSetupWizard_Global/SecSetupWizard_Global.apk"
-unset SETUP_LIST SETUP_GATE SETUP_PATCH_ABI

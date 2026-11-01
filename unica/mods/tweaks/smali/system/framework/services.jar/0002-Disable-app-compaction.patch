@@ -1,0 +1,20 @@
+Subject: [PATCH] Keep app compaction disabled on One UI 9
+
+The legacy patch no longer matches One UI 9. A false DeviceConfig default does
+not disable compaction when the flag is true. Preserve the new optimizer and
+freezer initialization; force the sole runtime assignment false.
+
+diff --git a/smali/com/android/server/am/CachedAppOptimizer.smali b/smali/com/android/server/am/CachedAppOptimizer.smali
+--- a/smali/com/android/server/am/CachedAppOptimizer.smali
++++ b/smali/com/android/server/am/CachedAppOptimizer.smali
+@@ -5472,9 +5472,7 @@
+ 
+     const-string/jumbo v2, "activity_manager"
+ 
+-    invoke-static {v2, v0, v1}, Landroid/provider/DeviceConfig;->getBoolean(Ljava/lang/String;Ljava/lang/String;Z)Z
+-
+-    move-result v0
++    const/4 v0, 0x0
+ 
+     iput-boolean v0, p0, Lcom/android/server/am/CachedAppOptimizer;->mUseCompaction:Z
+ 

@@ -140,7 +140,7 @@ done
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(dict(line.split("=", 1) for line in result.stdout.splitlines()), options)
 
-    def test_sdk36_does_not_validate_or_default_sdk37_options(self):
+    def test_older_layout_does_not_validate_or_default_options(self):
         result, mutations = self.run_profile({RUNTIME_OPTION: "unrelated"}, sdk=36)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(mutations, [])

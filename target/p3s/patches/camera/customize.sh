@@ -12,12 +12,12 @@ EVAL "echo \"libuwsuperresolution_wrapper_v1.camera.samsung.so\" >> \"$WORK_DIR/
 case "$SOURCE_PLATFORM_SDK_VERSION" in
     36)
         APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
-            "$MODPATH/sdk36/SamsungCamera.apk/0001-Fix-ArcSsHdrNodeBase-NPE.patch" || return 1
+            "$MODPATH/SamsungCamera.apk/0001-Fix-ArcSsHdrNodeBase-NPE.patch" || return 1
         ;;
     37)
-        # SDK37 passes ImageInfo/ExtraBundle directly to makeSsHdr() and no
+        # One UI 9 passes ImageInfo/ExtraBundle directly to makeSsHdr() and no
         # longer has the two ArcSsHdrNodeBase fields used by the SDK36 fix.
-        LOG "- Skipping SDK36 ArcSsHdrNodeBase fix on SDK37"
+        LOG "- Skipping SDK36 ArcSsHdrNodeBase fix on One UI 9"
         ;;
     *)
         ABORT "Unsupported source SDK: $SOURCE_PLATFORM_SDK_VERSION" || return 1

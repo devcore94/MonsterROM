@@ -59,15 +59,15 @@ sub elf_abi {
     $e->{symbols}=\@symbols; $e->{exports}=\%exports; $e->{imports}=\%imports; $e->{needed}=\@needed; return $e;
 }
 sub methods { my($text)=@_; my %m; while($text =~ /^(\.method [^\n]+\n.*?^\.end method)/msg) {my $raw=$1; my($first)=split /\n/,$raw; my($name)=$first =~ /(\S+)$/; need(!exists $m{$name},"Duplicate method $name"); $m{$name}=$raw} return \%m }
-my $action=shift(@ARGV)//''; my $module="$ENV{SRC_DIR}/unica/patches/product_feature/fingerprint/optical_fod/sdk37";
+my $action=shift(@ARGV)//''; my $module="$ENV{SRC_DIR}/unica/patches/product_feature/fingerprint/optical_fod";
 if($action eq 'check-patches') {
     my($root)=@ARGV; my $contract=json("$module/contract.json");
     for my $row(@{$contract->{files}}) {my $relative=$row->{path}; $relative =~ s{^smali[^/]*/}{}; my $artifact="$root/$contract->{artifacts}{$row->{artifact}}"; my @paths=grep {-f $_} bsd_glob("$artifact/smali*/$relative");
-        need(@paths==1 && rel($paths[0],$artifact) eq $row->{path},"Missing/ambiguous SDK37 optical class: $relative"); my $text=raw($paths[0]); my $descriptor='L'.substr($relative,0,-6).';'; my @decl=$text =~ /^\.class [^\n]* (L[^\s]+;)$/mg; need(same(\@decl,[$descriptor]),'Optical class descriptor does not match path');
+        need(@paths==1 && rel($paths[0],$artifact) eq $row->{path},"Missing/ambiguous One UI 9 optical class: $relative"); my $text=raw($paths[0]); my $descriptor='L'.substr($relative,0,-6).';'; my @decl=$text =~ /^\.class [^\n]* (L[^\s]+;)$/mg; need(same(\@decl,[$descriptor]),'Optical class descriptor does not match path');
         my $m=methods($text); for my $sig(keys %{$row->{methods}}) {my $hash=$row->{methods}{$sig}; need(defined($hash)?(exists($m->{$sig})&&sha256_hex($m->{$sig}) eq $hash):!exists($m->{$sig}),"Unmeasured/existing optical method: $relative->$sig")}
     }
-    for my $artifact(sort keys %{$contract->{artifacts}}) {my $patch="$module/$artifact/0001-Port-optical-FOD-to-SDK37.patch"; need(sha($patch) eq $contract->{patches}{$artifact},'Optical patch differs from reviewed method plan'); run('git','apply','--check','--unsafe-paths',"--directory=$root/$contract->{artifacts}{$artifact}",$patch)}
-    print "SDK37 optical: all 18 owners and five ordinary patches validated before mutation\n"; exit 0;
+    for my $artifact(sort keys %{$contract->{artifacts}}) {my $patch="$module/$artifact/0001-Port-optical-FOD-to.patch"; need(sha($patch) eq $contract->{patches}{$artifact},'Optical patch differs from reviewed method plan'); run('git','apply','--check','--unsafe-paths',"--directory=$root/$contract->{artifacts}{$artifact}",$patch)}
+    print "One UI 9 optical: all 18 owners and five ordinary patches validated before mutation\n"; exit 0;
 }
 need($action eq 'native','Expected native or check-patches optical action'); my %args; while(@ARGV) {my $key=shift @ARGV; need($key =~ /^--/ && @ARGV,'Expected optical argument'); $args{$key}=shift @ARGV}
 my $platform=$args{'--platform'}; need(defined($platform),'Missing optical platform'); my $output=$args{'--output'}; my $libui='system/system/lib64/libui.so';
@@ -76,15 +76,15 @@ my $platform=$args{'--platform'}; need(defined($platform),'Missing optical platf
 my %cohort=('system/system/lib64/libgui.so'=>'aff919fec79a2636533d8026a07ccaa31b3c92673142f68f64e0b60570329b04',$libui=>'466dffbd2087a5a0c18b84717437e7204128af9343a9ec42657ba9839a309d0f','system/system/lib64/libandroid_runtime.so'=>['4a21077a466d05232d8fc521455a3b9e1b036793e3a91bb32ac51252f6beb6b9','7e7d3c0ecb6adc789e02d8d76e8defa0fc003651f514ec22b15efdb446c3f755'],'vendor/lib64/hw/android.hardware.graphics.allocator@4.0-impl.so'=>'789d49fbcf3620160855e89b17323adf4366f0dff65cf8d1258153e0a6fe01d0','vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl.so'=>'7859d7e6596127a32b178650a37219146615e5c324cd508b2ac5fb05c72bbcb4','vendor/lib64/libexynosgraphicbuffer.so'=>'177570fe889185ea8834a2f4c55b513a4941e660328a43d452ad81fce1e58e54','vendor/lib64/libexynosdisplay.so'=>'21ec8cf91ba79c838b04f2dedaf7af9192c194757a462549d8c9caa1dc7d1955','vendor/etc/vintf/manifest.xml'=>'e292660d39a886d2a83b7f7e63b1c43b854760a3e1c9dd356c3acb3a7134f875');
 my %measured;
 for my $path(sort keys %cohort) {
-    need(-f "$platform/$path" && !-l "$platform/$path","Missing/unsafe SDK37/r9s optical native input: $path");
+    need(-f "$platform/$path" && !-l "$platform/$path","Missing/unsafe One UI 9/r9s optical native input: $path");
     my $actual=sha("$platform/$path"); my @accepted=ref($cohort{$path}) eq 'ARRAY'?@{$cohort{$path}}:($cohort{$path});
-    need((grep {$_ eq $actual} @accepted),"Unmeasured SDK37/r9s optical native cohort: $path"); $measured{$path}=$actual;
+    need((grep {$_ eq $actual} @accepted),"Unmeasured One UI 9/r9s optical native cohort: $path"); $measured{$path}=$actual;
 }
-exit 0 unless defined $output; need(!-e $output && !-l $output,'Refusing existing optical native outputs'); my $raw=raw("$platform/$libui"); my $elf=elf64($raw); my $va=0x446a8; my @offsets=map {$_->[2]+$va-$_->[3]} grep {$_->[0]==1 && $va>=$_->[3] && $va+4<=$_->[3]+$_->[5]} @{$elf->{segments}}; need(@offsets==1,'Ambiguous/unmapped SDK37 instruction'); my $offset=$offsets[0]; need(u32($raw,$offset)==0xf2dfffe8,'Unexpected libui validation instruction'); substr($raw,$offset,4)=pack('V',0xf2dfff68);
+exit 0 unless defined $output; need(!-e $output && !-l $output,'Refusing existing optical native outputs'); my $raw=raw("$platform/$libui"); my $elf=elf64($raw); my $va=0x446a8; my @offsets=map {$_->[2]+$va-$_->[3]} grep {$_->[0]==1 && $va>=$_->[3] && $va+4<=$_->[3]+$_->[5]} @{$elf->{segments}}; need(@offsets==1,'Ambiguous/unmapped One UI 9 instruction'); my $offset=$offsets[0]; need(u32($raw,$offset)==0xf2dfffe8,'Unexpected libui validation instruction'); substr($raw,$offset,4)=pack('V',0xf2dfff68);
 need(sha256_hex($raw) eq '979a5ed04506a6be231ebbe6c5546670739f8dcc89c571c759ad8d600e42c461','Unexpected libui edit scope'); make_path($output); my $library='libunica_optical37.so'; my $target="$output/$library";
 run('clang','--target=aarch64-linux-android37','-fuse-ld=lld','-nostdlib','-shared','-O2','-Wall','-Wextra','-Werror','-fPIC','-fvisibility=hidden','-fstack-protector-strong','-mbranch-protection=standard',"-Wl,-soname,$library",'-Wl,-z,defs,-z,relro,-z,now,-z,noexecstack','-Wl,-z,max-page-size=16384,--build-id=sha1','-Wl,--no-as-needed',"$module/consumer_usage.c","$platform/system/system/lib64/libgui.so",'-o',$target);
 my $jni='Java_android_view_ViewRootImpl_nativeSetOpticalMaskBufferUsage'; my $consumer='_ZN7android12ConsumerBase20setConsumerUsageBitsEm'; my $abi=elf_abi(raw($target)); need(same([sort keys %{$abi->{imports}}],[$consumer]) && same([sort keys %{$abi->{exports}}],[$jni]) && same($abi->{needed},['libgui.so']),'Unexpected optical JNI/linkage ABI'); my $dynamic=run('readelf','-dW',$target); need(index($dynamic,'BIND_NOW')>=0 && index($dynamic,'TEXTREL')<0,'Optical bridge lacks hardening'); put("$output/libui.so",$raw);
-save("$output/native-report.json",{profile=>'r9s HIDL4 / SM-S942B SDK37 arm64 optical usage',input_sha256=>\%measured,bridge_sha256=>sha($target),libui_output_sha256=>sha256_hex($raw),libui_patch=>{virtual_address=>'0x446a8',file_offset=>sprintf('0x%x',$offset),before=>'0xf2dfffe8',after=>'0xf2dfff68',effect=>'HIDL reserved-usage rejection mask 0xffff00280000 -> 0xfffb00280000; AIDL unchanged'},jni_export=>$jni,import=>$consumer,runtime_verified=>JSON::PP::false,panel_hbm_verified=>JSON::PP::false});
+save("$output/native-report.json",{profile=>'r9s HIDL4 / SM-S942B One UI 9 arm64 optical usage',input_sha256=>\%measured,bridge_sha256=>sha($target),libui_output_sha256=>sha256_hex($raw),libui_patch=>{virtual_address=>'0x446a8',file_offset=>sprintf('0x%x',$offset),before=>'0xf2dfffe8',after=>'0xf2dfff68',effect=>'HIDL reserved-usage rejection mask 0xffff00280000 -> 0xfffb00280000; AIDL unchanged'},jni_export=>$jni,import=>$consumer,runtime_verified=>JSON::PP::false,panel_hbm_verified=>JSON::PP::false});
 PERL
 }
 PRODUCT_ENABLE_OPTICAL()
@@ -93,38 +93,36 @@ PRODUCT_ENABLE_OPTICAL()
             [ "$TARGET_PLATFORM_SDK_VERSION" != "36" ] || [ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" != "essi" ] || \
             [ "$TARGET_FINGERPRINT_CONFIG_SENSOR" != "google_touch_display_optical,settings=3" ] || \
             [ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "google_touch_display_ultrasonic" ]; then
-        ABORT "SDK37 optical FOD only supports the reviewed r9s/ESSI cohort"
+        ABORT "One UI 9 optical FOD only supports the reviewed r9s/ESSI cohort"
         return 1
     fi
-    local OPTICAL_PATH="$MODPATH/fingerprint/optical_fod/sdk37"
-    PRODUCT_OPTICAL native --platform "$WORK_DIR" --output "$APKTOOL_DIR/.optical-fod-sdk37/native" || return 1
+    local OPTICAL_PATH="$MODPATH/fingerprint/optical_fod"
+    PRODUCT_OPTICAL native --platform "$WORK_DIR" --output "$APKTOOL_DIR/.optical-fod/native" || return 1
     DECODE_APK "system" "system/framework/framework.jar" || return 1
     DECODE_APK "system" "system/framework/services.jar" || return 1
     DECODE_APK "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" || return 1
     DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk" || return 1
     DECODE_APK "system_ext" "priv-app/SystemUI/SystemUI.apk" || return 1
     PRODUCT_OPTICAL check-patches "$APKTOOL_DIR" || return 1
-    APPLY_PATCH "system" "system/framework/framework.jar" "$OPTICAL_PATH/framework.jar/0001-Port-optical-FOD-to-SDK37.patch" || return 1
-    APPLY_PATCH "system" "system/framework/services.jar" "$OPTICAL_PATH/services.jar/0001-Port-optical-FOD-to-SDK37.patch" || return 1
-    APPLY_PATCH "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" "$OPTICAL_PATH/BiometricSetting.apk/0001-Port-optical-FOD-to-SDK37.patch" || return 1
-    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$OPTICAL_PATH/SecSettings.apk/0001-Port-optical-FOD-to-SDK37.patch" || return 1
-    APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$OPTICAL_PATH/SystemUI.apk/0001-Port-optical-FOD-to-SDK37.patch" || return 1
+    APPLY_PATCH "system" "system/framework/framework.jar" "$OPTICAL_PATH/framework.jar/0001-Port-optical-FOD-to.patch" || return 1
+    APPLY_PATCH "system" "system/framework/services.jar" "$OPTICAL_PATH/services.jar/0001-Port-optical-FOD-to.patch" || return 1
+    APPLY_PATCH "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" "$OPTICAL_PATH/BiometricSetting.apk/0001-Port-optical-FOD-to.patch" || return 1
+    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" "$OPTICAL_PATH/SecSettings.apk/0001-Port-optical-FOD-to.patch" || return 1
+    APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" "$OPTICAL_PATH/SystemUI.apk/0001-Port-optical-FOD-to.patch" || return 1
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES" "optical_display_phone" || return 1
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_CONFIG_LOCAL_HBM" "0" || return 1
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_CONFIG_SELFMASK_VERSION" "0" || return 1
-    install -m 644 "$APKTOOL_DIR/.optical-fod-sdk37/native/libui.so" "$WORK_DIR/system/system/lib64/libui.so" || return 1
-    install -m 644 "$APKTOOL_DIR/.optical-fod-sdk37/native/libunica_optical37.so" "$WORK_DIR/system/system/lib64/libunica_optical37.so" || return 1
+    install -m 644 "$APKTOOL_DIR/.optical-fod/native/libui.so" "$WORK_DIR/system/system/lib64/libui.so" || return 1
+    install -m 644 "$APKTOOL_DIR/.optical-fod/native/libunica_optical37.so" "$WORK_DIR/system/system/lib64/libunica_optical37.so" || return 1
     SET_METADATA "system" "system/lib64/libunica_optical37.so" 0 0 644 "u:object_r:system_lib_file:s0" || return 1
 }
 
-PRODUCT_PATCH_ABI=""
 PRODUCT_DISPLAY_SMALI_DIR="smali_classes4"
 PRODUCT_TELEPHONY_SMALI_DIR="smali_classes4"
 PRODUCT_REFRESH_DUMP_METHOD="dump(Ljava/io/PrintWriter;Ljava/lang/String;Z)V"
-PRODUCT_SDK37_RESOLUTION=false
-PRODUCT_SDK37_OPTICAL=false
+PRODUCT_RESOLUTION_PROFILE=false
+PRODUCT_OPTICAL_PROFILE=false
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
-    PRODUCT_PATCH_ABI="sdk37/"
     PRODUCT_DISPLAY_SMALI_DIR="smali_classes3"
     PRODUCT_TELEPHONY_SMALI_DIR="smali_classes6"
     PRODUCT_REFRESH_DUMP_METHOD="dumpProductFeature(Ljava/io/PrintWriter;Ljava/lang/String;Z)V"
@@ -156,7 +154,7 @@ LOG_MISSING_PATCHES()
 }
 # ]
 
-# Admit only the reviewed SDK37 profiles and dispatch around the ENTIRE legacy
+# Admit only the reviewed One UI 9 profiles and dispatch around the ENTIRE legacy
 # branches. Never import their SDK36 compositor or R8-generated UI replacements.
 # Reject unsupported transitions before any product-feature mutations.
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
@@ -166,9 +164,9 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
                 [ "$SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" = false ] && \
                 [ "$TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL" = true ] && \
                 [ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" = ultrasonic ]; then
-            PRODUCT_SDK37_RESOLUTION=true
+            PRODUCT_RESOLUTION_PROFILE=true
         else
-            ABORT "Unreviewed SDK37 dynamic-resolution capability transition"
+            ABORT "Unreviewed One UI 9 dynamic-resolution capability transition"
             return 1
         fi
     fi
@@ -181,9 +179,9 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
             # Layout and legacy allocator compatibility are cohort-dependent.
             # Fail BEFORE unrelated product-feature mutations on new inputs.
             PRODUCT_OPTICAL native --platform "$WORK_DIR" || return 1
-            PRODUCT_SDK37_OPTICAL=true
+            PRODUCT_OPTICAL_PROFILE=true
         else
-            ABORT "Unreviewed SDK37 fingerprint sensor-type transition"
+            ABORT "Unreviewed One UI 9 fingerprint sensor-type transition"
             return 1
         fi
     fi
@@ -265,7 +263,7 @@ fi
 if $SOURCE_AUDIO_SUPPORT_ACH_RINGTONE; then
     if ! $TARGET_AUDIO_SUPPORT_ACH_RINGTONE; then
         APPLY_PATCH "system" "system/framework/framework.jar" \
-            "$MODPATH/audio/ach/${PRODUCT_PATCH_ABI}framework.jar/0001-Disable-ACH-ringtone-support.patch"
+            "$MODPATH/audio/ach/framework.jar/0001-Disable-ACH-ringtone-support.patch"
     fi
 else
     if $TARGET_AUDIO_SUPPORT_ACH_RINGTONE; then
@@ -297,7 +295,7 @@ if $SOURCE_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
         APPLY_PATCH "system" "system/framework/framework.jar" \
             "$MODPATH/audio/virtual_vib/framework.jar/0001-Disable-virtual-vibration-support.patch"
         APPLY_PATCH "system" "system/framework/services.jar" \
-            "$MODPATH/audio/virtual_vib/${PRODUCT_PATCH_ABI}services.jar/0001-Disable-virtual-vibration-support.patch"
+            "$MODPATH/audio/virtual_vib/services.jar/0001-Disable-virtual-vibration-support.patch"
         if [ "$SOURCE_PLATFORM_SDK_VERSION" -lt 37 ]; then
         SMALI_PATCH "system" "system/framework/services.jar" \
             "smali/com/android/server/audio/BtHelper\$\$ExternalSyntheticLambda0.smali" "remove"
@@ -308,9 +306,9 @@ if $SOURCE_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
             "smali_classes2/com/android/server/vibrator/VirtualVibSoundHelper.smali" "remove"
         fi
         APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "$MODPATH/audio/virtual_vib/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-virtual-vibration-support.patch"
+            "$MODPATH/audio/virtual_vib/SecSettings.apk/0001-Disable-virtual-vibration-support.patch"
         APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
-            "$MODPATH/audio/virtual_vib/${PRODUCT_PATCH_ABI}SettingsProvider.apk/0001-Disable-virtual-vibration-support.patch"
+            "$MODPATH/audio/virtual_vib/SettingsProvider.apk/0001-Disable-virtual-vibration-support.patch"
     fi
 else
     if $TARGET_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
@@ -331,8 +329,8 @@ if [[ "$SOURCE_COMMON_CONFIG_MDNIE_MODE" != "$TARGET_COMMON_CONFIG_MDNIE_MODE" ]
 fi
 
 # SEC_PRODUCT_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL
-if $PRODUCT_SDK37_RESOLUTION; then
-    # Keep the SDK37 compositor and bootanimation; only enable the reviewed
+if $PRODUCT_RESOLUTION_PROFILE; then
+    # Keep the One UI 9 compositor and bootanimation; only enable the reviewed
     # forced-size resolution policy, never the legacy native/R8 replacements.
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL" "WQHD,FHD,HD" || return 1
 
@@ -352,23 +350,23 @@ if $PRODUCT_SDK37_RESOLUTION; then
     unset PRODUCT_RESOLUTION_MEDIA
 
     APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/resolution/sdk37/framework.jar/0001-Enable-legacy-resolution-voting.patch" || return 1
+        "$MODPATH/resolution/framework.jar/0001-Enable-legacy-resolution-voting.patch" || return 1
     APPLY_PATCH "system" "system/framework/gamemanager.jar" \
-        "$MODPATH/resolution/sdk37/gamemanager.jar/0001-Enable-resolution-notifications.patch" || return 1
+        "$MODPATH/resolution/gamemanager.jar/0001-Enable-resolution-notifications.patch" || return 1
 
-    # Both SDK37 confirmation listeners retain the source entry point's ABI.
+    # Both One UI 9 confirmation listeners retain the source entry point's ABI.
     SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
         "smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali" "null" \
         "setDisplayMode(Ljava/lang/String;Landroid/view/Display;)V" || return 1
     APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "$MODPATH/resolution/sdk37/SecSettings.apk/0001-Enable-resolution-controls.patch" || return 1
+        "$MODPATH/resolution/SecSettings.apk/0001-Enable-resolution-controls.patch" || return 1
     APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "$MODPATH/resolution/sdk37/SecSettings.apk/0002-Connect-reset-routines-and-backup.patch" || return 1
+        "$MODPATH/resolution/SecSettings.apk/0002-Connect-reset-routines-and-backup.patch" || return 1
     APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "$MODPATH/resolution/sdk37/SecSettings.apk/0003-Add-resolution-policy.patch" || return 1
+        "$MODPATH/resolution/SecSettings.apk/0003-Add-resolution-policy.patch" || return 1
 
     APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
-        "$MODPATH/resolution/sdk37/SystemUI.apk/0001-Scale-edge-mask-for-resolution.patch" || return 1
+        "$MODPATH/resolution/SystemUI.apk/0001-Scale-edge-mask-for-resolution.patch" || return 1
 elif ! $SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
     if $TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
         if [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" == "optical" ]]; then
@@ -474,9 +472,9 @@ if $SOURCE_COMMON_SUPPORT_HDR_EFFECT; then
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT" --delete || return 1
 
         APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "$MODPATH/mdnie/hdr/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-HDR-Settings.patch" || return 1
+            "$MODPATH/mdnie/hdr/SecSettings.apk/0001-Disable-HDR-Settings.patch" || return 1
         APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
-            "$MODPATH/mdnie/hdr/${PRODUCT_PATCH_ABI}SettingsProvider.apk/0001-Disable-HDR-Settings.patch" || return 1
+            "$MODPATH/mdnie/hdr/SettingsProvider.apk/0001-Disable-HDR-Settings.patch" || return 1
     else
         if [ ! "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT")" ]; then
             SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT" "TRUE"
@@ -490,9 +488,9 @@ else
 fi
 
 # SEC_PRODUCT_FEATURE_FINGERPRINT_CONFIG_SENSOR
-if $PRODUCT_SDK37_OPTICAL; then
+if $PRODUCT_OPTICAL_PROFILE; then
     # The renderer must see the source strings/owners, not pre-edited legacy
-    # replacements. It patches all five SDK37 artifacts as one validated plan.
+    # replacements. It patches all five One UI 9 artifacts as one validated plan.
     # shellcheck source=/dev/null
     PRODUCT_ENABLE_OPTICAL || return 1
 elif [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR" ]]; then
@@ -679,7 +677,7 @@ fi
 # Apply before SEC_PRODUCT_FEATURE_LCD_CONFIG_HFR_* to avoid conflicts
 if [ "$SOURCE_PLATFORM_SDK_VERSION" = "37" ]; then
     APPLY_PATCH "system" "system/framework/framework.jar" \
-        "$MODPATH/hfr/sdk37/framework.jar/0001-Allow-custom-refresh-rate-thresholds.patch"
+        "$MODPATH/hfr/framework.jar/0001-Allow-custom-refresh-rate-thresholds.patch"
     SMALI_PATCH "system" "system/framework/framework.jar" \
         "smali_classes6/com/samsung/android/hardware/display/RefreshRateConfig.smali" "replaceall" \
         "CONFIG_SEAMLESS_BRT" "${TARGET_LCD_CONFIG_SEAMLESS_BRT//none/}"
@@ -915,13 +913,13 @@ if $SOURCE_LCD_SUPPORT_MDNIE_HW && [[ "$SOURCE_LCD_CONFIG_COLOR_WEAKNESS_SOLUTIO
         SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_SUPPORT_MDNIE_HW" --delete || return 1
 
         APPLY_PATCH "system" "system/framework/framework.jar" \
-            "$MODPATH/mdnie/hw/${PRODUCT_PATCH_ABI}framework.jar/0001-Disable-HW-mDNIe.patch" || return 1
+            "$MODPATH/mdnie/hw/framework.jar/0001-Disable-HW-mDNIe.patch" || return 1
         if [[ "$TARGET_LCD_CONFIG_COLOR_WEAKNESS_SOLUTION" == "0" ]]; then
             APPLY_PATCH "system" "system/framework/framework.jar" \
-                "$MODPATH/mdnie/hw/${PRODUCT_PATCH_ABI}framework.jar/0002-Disable-A11Y_COLOR_BOOL_SUPPORT_DMC_COLORWEAKNESS.patch" || return 1
+                "$MODPATH/mdnie/hw/framework.jar/0002-Disable-A11Y_COLOR_BOOL_SUPPORT_DMC_COLORWEAKNESS.patch" || return 1
         fi
         APPLY_PATCH "system" "system/framework/services.jar" \
-            "$MODPATH/mdnie/hw/${PRODUCT_PATCH_ABI}services.jar/0001-Disable-HW-mDNIe.patch" || return 1
+            "$MODPATH/mdnie/hw/services.jar/0001-Disable-HW-mDNIe.patch" || return 1
     fi
 elif $SOURCE_LCD_SUPPORT_MDNIE_HW && [[ "$SOURCE_LCD_CONFIG_COLOR_WEAKNESS_SOLUTION" == "0" ]]; then
     # TODO handle these conditions
@@ -1019,7 +1017,7 @@ if [[ "$SOURCE_WLAN_CONFIG_CPU_CSTATE_DISABLE_THRESHOLD" != "$TARGET_WLAN_CONFIG
             [[ "$SOURCE_WLAN_CONFIG_DATA_ACTIVITY_AFFINITY_BOOSTER_THRESHOLD" == "0" ]] && \
             [[ "$SOURCE_WLAN_CONFIG_L1SS_DISABLE_THRESHOLD" == "0" ]]; then
         APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-            "$MODPATH/wifi/thresholds/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Allow-custom-booster-thresholds-values.patch"
+            "$MODPATH/wifi/thresholds/semwifi-service.jar/0001-Allow-custom-booster-thresholds-values.patch"
         SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
             "smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali" "replace" \
             "getBoosterThresholds()[I" \
@@ -1114,11 +1112,11 @@ if $SOURCE_WLAN_SUPPORT_80211AX; then
             if ! $TARGET_WLAN_SUPPORT_80211AX_6GHZ; then
                 if [[ "$SOURCE_PLATFORM_SDK_VERSION" -ge "37" ]]; then
                     APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-                        "$MODPATH/wifi/80211ax_6ghz/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Disable-80211AX_6GHZ-support.patch"
+                        "$MODPATH/wifi/80211ax_6ghz/semwifi-service.jar/0001-Disable-80211AX_6GHZ-support.patch"
                     APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-                        "$MODPATH/wifi/80211ax_6ghz/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-80211AX_6GHZ-support.patch"
+                        "$MODPATH/wifi/80211ax_6ghz/SecSettings.apk/0001-Disable-80211AX_6GHZ-support.patch"
                     APPLY_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
-                        "$MODPATH/wifi/80211ax_6ghz/${PRODUCT_PATCH_ABI}SystemUI.apk/0001-Disable-80211AX_6GHZ-support.patch"
+                        "$MODPATH/wifi/80211ax_6ghz/SystemUI.apk/0001-Disable-80211AX_6GHZ-support.patch"
                     if [ -f "$WORK_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk" ]; then
                         DECODE_APK "product" "overlay/SoftapOverlay/SoftapOverlay.apk"
                         EVAL "sed -i '/name=\"config_wifi6ghzSupport\"/s/>true</>false</' \"$APKTOOL_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk/res/values/bools.xml\""
@@ -1173,7 +1171,7 @@ if [[ "$SOURCE_WLAN_CONFIG_CONNECTION_PERSONALIZATION" != "$TARGET_WLAN_CONFIG_C
                 "0" > /dev/null
         fi
         APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-            "$MODPATH/wifi/connection_personalization/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Allow-custom-CONNECTION_PERSONALIZATION-value.patch"
+            "$MODPATH/wifi/connection_personalization/semwifi-service.jar/0001-Allow-custom-CONNECTION_PERSONALIZATION-value.patch"
         if [[ "$SOURCE_PLATFORM_SDK_VERSION" -lt "37" ]] && [[ "$SOURCE_WLAN_CONFIG_DYNAMIC_SWITCH" != "0" ]]; then
             SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
                 "smali/com/samsung/android/server/wifi/SemWifiInjector.smali" "replace" \
@@ -1234,13 +1232,13 @@ if [[ "$SOURCE_WLAN_CONFIG_CONNECTION_PERSONALIZATION" != "$TARGET_WLAN_CONFIG_C
 
         if ! $TARGET_WLAN_SUPPORT_APE_SERVICE; then
             APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-                "$MODPATH/wifi/ape_service/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Disable-APE_SERVICE-support.patch"
+                "$MODPATH/wifi/ape_service/semwifi-service.jar/0001-Disable-APE_SERVICE-support.patch"
             if [[ "$SOURCE_PLATFORM_SDK_VERSION" -lt "37" ]]; then
                 SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
                     "smali/com/samsung/android/server/wifi/SemQboxController\$1.smali" "remove"
             fi
             APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-                "$MODPATH/wifi/ape_service/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-APE_SERVICE-support.patch"
+                "$MODPATH/wifi/ape_service/SecSettings.apk/0001-Disable-APE_SERVICE-support.patch"
         fi
     else
         # TODO handle these conditions
@@ -1302,7 +1300,7 @@ else
     if ! $TARGET_WLAN_SUPPORT_MOBILEAP_5G_BASEDON_COUNTRY; then
         if [[ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]]; then
             APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-                "$MODPATH/wifi/5g_basedon_country/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Disable-unsupported-capabilities.patch"
+                "$MODPATH/wifi/5g_basedon_country/semwifi-service.jar/0001-Disable-unsupported-capabilities.patch"
             SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
                 "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
                 "SPF_5G_BASEDON_COUNTRY=true" \
@@ -1377,9 +1375,9 @@ else
     if ! $TARGET_WLAN_SUPPORT_MOBILEAP_DUALAP; then
         if [[ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]]; then
             APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-                "$MODPATH/wifi/dualap/${PRODUCT_PATCH_ABI}semwifi-service.jar/0001-Disable-unsupported-capabilities.patch"
+                "$MODPATH/wifi/dualap/semwifi-service.jar/0001-Disable-unsupported-capabilities.patch"
             APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-                "$MODPATH/wifi/dualap/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-unsupported-capabilities.patch"
+                "$MODPATH/wifi/dualap/SecSettings.apk/0001-Disable-unsupported-capabilities.patch"
             if [ -f "$WORK_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk" ]; then
                 DECODE_APK "product" "overlay/SoftapOverlay/SoftapOverlay.apk"
                 EVAL "sed -i '/name=\"config_wifiBridgedSoftApSupported\"/s/>true</>false</' \"$APKTOOL_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk/res/values/bools.xml\""
@@ -1413,7 +1411,7 @@ else
     if ! $TARGET_WLAN_SUPPORT_MOBILEAP_OWE; then
         if [[ "$SOURCE_PLATFORM_SDK_VERSION" -ge 37 ]]; then
             APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-                "$MODPATH/wifi/owe/${PRODUCT_PATCH_ABI}SecSettings.apk/0001-Disable-unsupported-capabilities.patch"
+                "$MODPATH/wifi/owe/SecSettings.apk/0001-Disable-unsupported-capabilities.patch"
             if [ -f "$WORK_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk" ]; then
                 DECODE_APK "product" "overlay/SoftapOverlay/SoftapOverlay.apk"
                 EVAL "sed -i '/name=\"config_wifiSoftapOweSupported\"/s/>true</>false</' \"$APKTOOL_DIR/product/overlay/SoftapOverlay/SoftapOverlay.apk/res/values/bools.xml\""
@@ -1492,7 +1490,7 @@ else
     if ! $TARGET_WLAN_SUPPORT_MOBILEAP_WIFI_CONCURRENCY; then
         if [ "$SOURCE_PLATFORM_SDK_VERSION" = "37" ]; then
             APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
-                "$MODPATH/wifi/wifisharing/sdk37/semwifi-service.jar/0001-Disable-MOBILEAP_WIFI_CONCURRENCY-support.patch"
+                "$MODPATH/wifi/wifisharing/semwifi-service.jar/0001-Disable-MOBILEAP_WIFI_CONCURRENCY-support.patch"
             SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
                 "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
                 "SPF_Concurrency=true" \
@@ -1531,7 +1529,7 @@ fi
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_LOWLATENCY
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
     if $SOURCE_WLAN_SUPPORT_TWT_CONTROL && ! $TARGET_WLAN_SUPPORT_TWT_CONTROL; then
-        # SDK37 obtains TWT feature bits from the vendor, not the old default
+        # One UI 9 obtains TWT feature bits from the vendor, not the old default
         # map. Treat TWT and LOWLATENCY as independent target capabilities.
         SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
             "smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali" "return" \
@@ -1567,7 +1565,7 @@ fi
 
 if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && \
         $SOURCE_WLAN_SUPPORT_LOWLATENCY && ! $TARGET_WLAN_SUPPORT_LOWLATENCY; then
-    # SDK37 reads the vendor optimizer bitmask instead of an API36 default
+    # One UI 9 reads the vendor optimizer bitmask instead of an API36 default
     # map. Clear bit 0 only: dynamic/enhanced scan capability bits are distinct.
     SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
         "smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali" "replace" \
@@ -1602,6 +1600,6 @@ elif $SOURCE_WLAN_SUPPORT_WIFI_TO_CELLULAR && ! $TARGET_WLAN_SUPPORT_WIFI_TO_CEL
 fi
 
 unset TARGET_FIRMWARE_PATH
-unset PRODUCT_PATCH_ABI PRODUCT_DISPLAY_SMALI_DIR PRODUCT_TELEPHONY_SMALI_DIR PRODUCT_REFRESH_DUMP_METHOD \
-    PRODUCT_SDK37_RESOLUTION PRODUCT_SDK37_OPTICAL
+unset PRODUCT_DISPLAY_SMALI_DIR PRODUCT_TELEPHONY_SMALI_DIR PRODUCT_REFRESH_DUMP_METHOD \
+    PRODUCT_RESOLUTION_PROFILE PRODUCT_OPTICAL_PROFILE
 unset -f GET_FINGERPRINT_SENSOR_TYPE LOG_MISSING_PATCHES

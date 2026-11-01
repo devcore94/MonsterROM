@@ -108,7 +108,7 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ] && [ "$TARGET_PLATFORM" = "exynos21
     unset COMPAT32_STAGEFRIGHT_ADDED
     ADD_TO_WORK_DIR "$COMPAT32_ROOT" "system" "system/bin/linker" 0 2000 755 "u:object_r:system_linker_exec:s0" || return 1
 
-    # Only native Bionic/ICU providers are added. Preserve all SDK37 ARM64,
+    # Only native Bionic/ICU providers are added. Preserve all One UI 9 ARM64,
     # Java, ART and data providers and the existing platform/AVB signing path.
     bash "$MODPATH/compat32/build-apex.sh" runtime || return 1
     bash "$MODPATH/compat32/build-apex.sh" i18n || return 1

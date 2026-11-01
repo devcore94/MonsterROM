@@ -1,6 +1,6 @@
-# UN1CA Settings on SDK37
+# UN1CA Settings on One UI 9
 
-The common `SecSettings.apk/` payload is adapted by the SDK37 patches **after**
+The common `SecSettings.apk/` payload is adapted by the One UI 9 patches **after**
 injection. Do not apply the SDK36 search-factory or ActivityResult constructor
 edits to the Android 17 donor. Keep all native search providers, Buds categories,
 and permission/lifecycle checks.
@@ -18,7 +18,7 @@ and permission/lifecycle checks.
   `UserHandle.getUserId`. The picker stores this argument in `AppInfo.user` and
   passes it unchanged through `PackageManagerHelperImpl` to `UserHandle.of`.
   A package UID such as 10123 is not Android user 10123. This also matters for
-  secondary/profile users. Native SDK37 flash-notification builders have the
+  secondary/profile users. Native One UI 9 flash-notification builders have the
   same apparent UID pattern, but copying it is not a valid contract.
 - Both document result callbacks ignore `RESULT_OK` without a data URI, just as
   they already ignored cancellation and missing result Intents.
@@ -29,7 +29,7 @@ and permission/lifecycle checks.
 - Keybox clearing checks the actual secure-settings write result. A denied or
   rejected clear leaves the existing preference state and reports an error.
   XML/certificate validation and the framework attestation hooks are unchanged.
-- SDK37 Intelligence retains its 36 native keys and adds both `top_level_unica`
+- One UI 9 Intelligence retains its 36 native keys and adds both `top_level_unica`
   and `top_level_choidujour`. The latter is the official updater's real tile key;
   its absence on unofficial builds does not create an updater or search result.
   The two new array registers are locals, not aliased constructor parameters.
@@ -48,7 +48,7 @@ Development tests and the superseded Python implementation are archived under
 
 The retained validation is under
 `out/oneui9-remaining-fixes-20261026/settings/README.md`. It records two ordered
-SDK37 replays and complete Settings/Intelligence/MultiSound APK builds, final
+One UI 9 replays and complete Settings/Intelligence/MultiSound APK builds, final
 DEX inspection, source digests and explicit limits. The replay includes the
 actual 36-to-30 shipping-API changes **before** DeKnox and the selected Paradigm
 QPR2 predecessors; a patch applying only to pristine Settings is insufficient.

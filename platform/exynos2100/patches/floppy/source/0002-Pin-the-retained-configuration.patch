@@ -1,0 +1,28 @@
+Subject: [PATCH] configs: retain the resolved UN1CA One UI 9 build choices
+
+Start from the original 14-line unica.config input, not the cached full
+.config. Select the always-permissive choice actually used by the retained
+cohort, then the companion 5.15.206 uname choice. The upstream builder adds
+ksu.config and droidspaces.config and sets LOCALVERSION as before.
+
+diff --git a/arch/arm64/configs/unica.config b/arch/arm64/configs/unica.config
+new file mode 100644
+--- /dev/null
++++ b/arch/arm64/configs/unica.config
+@@ -0,0 +1,16 @@
++CONFIG_SECURITY_SELINUX=y
++CONFIG_SECURITY_SELINUX_DEVELOP=y
++# CONFIG_SECURITY_SELINUX_MODE_DEFAULT is not set
++# CONFIG_SECURITY_SELINUX_ALWAYS_ENFORCE is not set
++CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE=y
++CONFIG_MALI_MIDGARD_R54P3=m
++CONFIG_MALI_VERSION_SELECTOR=y
++CONFIG_DMABUF_HEAPS_ION_COMPAT=y
++CONFIG_ZSMALLOC_STAT=y
++CONFIG_TCP_CONG_WESTWOOD=y
++CONFIG_NET_SCH_FQ=y
++CONFIG_NET_SCH_FQ_CODEL=y
++CONFIG_BLK_DEV_THROTTLING=y
++CONFIG_SEC_DEBUG_WQ_LOCKUP_INFO=m
++# CONFIG_FAKE_UNAME_5_10 is not set
++CONFIG_FAKE_UNAME_5_15=y

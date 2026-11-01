@@ -123,7 +123,7 @@ if($action eq 'vaultkeeper') {
     need(sha($jni) eq 'fa1a7be4125866a162864166b20d6ec27ca198bfecdae48afcfee8fdd9f92752','Unreviewed VaultKeeper JNI'); need(sha("$src/libvkmanager.so") eq '0fdf61d254ff10c50f9f5e9027e3d2f5e0ac1fb938637c086540f85ffb1596e4','Unreviewed AIDL manager');
     my %cohorts=('s21-sdk35'=>['4d84d6674aa779b3460ddcf94f69459ba828ed30ffe2d00feccc500245a81aa5','adb95777c6db31a45ea88cb2b554e897c6e13c5802f4c4766e4fda89b35f1602'],'r9s-sdk36'=>['63610e52c7f110c68eff36c3fa1d870968ee5822ca78d94f91989bd579c2a778','d13537814b4d0a8ff4088bcd518031932981b968aea4e6f7d3540178e38551bd']);
     my @observed=(sha("$tgt/libvkmanager.so"),sha("$tgt/$hidl")); my @cohort=grep {same($cohorts{$_},\@observed)} keys %cohorts; need(@cohort==1,'Unreviewed VaultKeeper HIDL client cohort');
-    need(sha("$src/libhidlbase.so") eq '24f21e2f0873c80a32b9ae9d951edc803d9dd2ea16df89ad4d2c48ff7d3c4501','Unreviewed SDK37 libhidlbase');
+    need(sha("$src/libhidlbase.so") eq '24f21e2f0873c80a32b9ae9d951edc803d9dd2ea16df89ad4d2c48ff7d3c4501','Unreviewed One UI 9 libhidlbase');
     my %files=('libvkmanager.so'=>"$tgt/libvkmanager.so",$hidl=>"$tgt/$hidl",'libhidlbase.so'=>"$src/libhidlbase.so"); my $jni_info=elf_symbols($jni); my @imports=sort grep {/VaultKeeperManager/} keys %{$jni_info->{imports}};
     need(same(\@imports,[sort qw(_ZN18VaultKeeperManager11getInstanceEv _ZN18VaultKeeperManager12freeInstanceEv _ZN18VaultKeeperManager4readEiPcPi _ZN18VaultKeeperManager5writeEiPci)]),'Bluetooth no longer uses the reviewed opaque VaultKeeper API');
     my $bridge=elf_symbols($files{'libvkmanager.so'}); need(!scalar(grep {!exists $bridge->{exports}{$_}} @imports),'Target bridge lacks VaultKeeper methods');
@@ -133,7 +133,7 @@ if($action eq 'vaultkeeper') {
         my $info=elf_symbols($path); need($info->{soname} eq $name,"Native SONAME mismatch: $path"); $providers{$name}=$info; $paths{$name}=$path; push @pending,@{$info->{needed}};
     }
     my %exports=map {map {$_=>1} keys %{$_->{exports}}} values %providers;
-    for my $name(keys %providers) {my @missing=grep {!exists $exports{$_}} keys %{$providers{$name}{imports}}; need(!@missing,"Unresolved SDK37 imports for $name: @missing")}
+    for my $name(keys %providers) {my @missing=grep {!exists $exports{$_}} keys %{$providers{$name}{imports}}; need(!@missing,"Unresolved One UI 9 imports for $name: @missing")}
     opendir(my $d,"$payload/lib64") or die $!; my %allowed=map {$_=>1} (readdir($d),keys(%files),@{$jni_info->{needed}},'libandroidicu.so'); closedir $d;
     for my $name(keys %files) {need(!scalar(grep {!$allowed{$_}} @{$providers{$name}{needed}}),"New APEX namespace dependencies: $name")}
     my $manager="$payload/lib64/libvkmanager.so"; need(-l $manager && readlink($manager) eq '/system/lib64/libvkmanager.so','VaultKeeper is not the reviewed source symlink');
@@ -197,7 +197,7 @@ BLUETOOTH_MAIN()
     local REAL_WORK_DIR="$WORK_DIR" REAL_APKTOOL_DIR="$APKTOOL_DIR"
     # UN1CA's caller-provided scratch root is distinct from POSIX TMPDIR below.
     local TMP_DIR="${TMP_DIR:?The build runner must provide TMP_DIR}"
-    local MEMBER FILE SALT PATCH_ABI="" APP APKS
+    local MEMBER FILE SALT APP APKS
     local -A BLUETOOTH_MEMBERS=()
 
     # Configuration strings must not be executed as arbitrary shell commands.
@@ -242,16 +242,15 @@ BLUETOOTH_MAIN()
     # These legacy patches do not describe the Android 17 ABI. Keep the guards;
     # the current t2s path needs only the reviewed SBM-enable/XLNA-disable pair.
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -gt 37 ]; then
-        BLUETOOTH_FAIL "Bluetooth APEX port is not reviewed above SDK37"
+        BLUETOOTH_FAIL "Bluetooth APEX port is not reviewed above One UI 9"
         return 1
     elif [ "$SOURCE_PLATFORM_SDK_VERSION" -eq 37 ]; then
         if [[ "$SOURCE_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE" != "$TARGET_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE" ]] || \
                 [[ "$SOURCE_BLUETOOTH_SUPPORT_HEAD_SAR_BACKOFF" != "$TARGET_BLUETOOTH_SUPPORT_HEAD_SAR_BACKOFF" ]] || \
                 { ! $SOURCE_BLUETOOTH_SUPPORT_XLNA_CONTROL && $TARGET_BLUETOOTH_SUPPORT_XLNA_CONTROL; }; then
-            BLUETOOTH_FAIL "SDK37 Bluetooth A2DP sink/HEAD SAR/XLNA enable transitions require reviewed SDK37 patches"
+            BLUETOOTH_FAIL "One UI 9 Bluetooth A2DP sink/HEAD SAR/XLNA enable transitions require reviewed One UI 9 patches"
             return 1
         fi
-        PATCH_ABI="sdk37/"
     fi
     if { ! $SOURCE_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE && $TARGET_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE; } || \
             { $SOURCE_BLUETOOTH_SUPPORT_A2DP_SBM && ! $TARGET_BLUETOOTH_SUPPORT_A2DP_SBM; } || \
@@ -294,7 +293,7 @@ BLUETOOTH_MAIN()
         BLUETOOTH_PATCH javalib/framework-bluetooth.jar "$MODPATH/a2dp_sink/framework-bluetooth.jar/0001-Disable-SUPPORT_A2DPSINK_PROFILE-support.patch" || return 1
     fi
     if ! $SOURCE_BLUETOOTH_SUPPORT_A2DP_SBM && $TARGET_BLUETOOTH_SUPPORT_A2DP_SBM; then
-        BLUETOOTH_PATCH "$APP" "$MODPATH/sbm/${PATCH_ABI}Bluetooth.apk/0001-Enable-SUPPORT_A2DP_SBM-support.patch" || return 1
+        BLUETOOTH_PATCH "$APP" "$MODPATH/sbm/Bluetooth.apk/0001-Enable-SUPPORT_A2DP_SBM-support.patch" || return 1
     fi
     if ! $SOURCE_BLUETOOTH_SUPPORT_HEAD_SAR_BACKOFF && $TARGET_BLUETOOTH_SUPPORT_HEAD_SAR_BACKOFF; then
         BLUETOOTH_PATCH "$APP" "$MODPATH/head_sar/Bluetooth.apk/0001-Enable-SUPPORT_HEAD_SAR_BACKOFF-support.patch" || return 1
@@ -302,12 +301,12 @@ BLUETOOTH_MAIN()
     if [[ "$SOURCE_BLUETOOTH_SUPPORT_XLNA_CONTROL" != "$TARGET_BLUETOOTH_SUPPORT_XLNA_CONTROL" ]]; then
         local ACTION=Disable
         $TARGET_BLUETOOTH_SUPPORT_XLNA_CONTROL && ACTION=Enable
-        BLUETOOTH_PATCH "$APP" "$MODPATH/xlna/${PATCH_ABI}Bluetooth.apk/0001-$ACTION-SUPPORT_XLNA_CONTROL-support.patch" || return 1
+        BLUETOOTH_PATCH "$APP" "$MODPATH/xlna/Bluetooth.apk/0001-$ACTION-SUPPORT_XLNA_CONTROL-support.patch" || return 1
     fi
     if [ "$SOURCE_PLATFORM_SDK_VERSION" -lt 37 ]; then
         HEX_PATCH "$BLUETOOTH_PAYLOAD/lib64/libbluetooth_jni.so" 28f7773948050037 28f777392a000014 || return 1
     else
-        LOG "- Selecting the genuine target VaultKeeper backend (SDK37 JNI unchanged)"
+        LOG "- Selecting the genuine target VaultKeeper backend (One UI 9 JNI unchanged)"
         BLUETOOTH_RUNTIME vaultkeeper "$FW_DIR/$SOURCE_FIRMWARE_PATH" "$FW_DIR/$TARGET_FIRMWARE_PATH" \
             "$BLUETOOTH_PAYLOAD" "$FS_CONFIG" "$CONTEXTS" "$BLUETOOTH_STAGE/vaultkeeper-contract.json" || return 1
     fi

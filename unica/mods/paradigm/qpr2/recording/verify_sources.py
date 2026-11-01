@@ -9,6 +9,9 @@ from pathlib import Path
 import re
 import subprocess
 
+# git apply silently filters paths when invoked from a repository subdirectory.
+# Run the absolute-path preflight outside the checkout so every hunk is checked.
+
 
 SETTINGS = "system/priv-app/SecSettings/SecSettings.apk"
 SYSTEMUI = "system_ext/priv-app/SystemUI/SystemUI.apk"
@@ -55,7 +58,7 @@ def read_contract(path):
 def check_patch(folder, patch):
     return subprocess.run(
         ["git", "apply", "--check", "--unsafe-paths", f"--directory={folder}", str(patch)],
-        capture_output=True, text=True, check=False,
+        cwd="/", capture_output=True, text=True, check=False,
     )
 
 
@@ -85,7 +88,7 @@ def verify_sources(module_dir, apktool_dir):
         raise ValueError("Incomplete/unexpected recording patch set")
     for name in sorted(expected):
         result = subprocess.run(["git", "apply", "--numstat", "--", str(patch_dir / name)],
-                                capture_output=True, text=True, check=False)
+                                cwd="/", capture_output=True, text=True, check=False)
         if result.returncode:
             raise ValueError(f"Malformed recording patch: {name}\n{result.stderr}")
     for app, name in MAIN_PATCHES:

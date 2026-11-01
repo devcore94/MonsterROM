@@ -10,7 +10,7 @@ The reference is the local CP41.260831.007.A3 GSI Settings inputmethod package:
 MouseReverseVerticalScrollingPreferenceController,
 MouseScrollingAccelerationPreferenceController and
 MouseScrollingSpeedPreferenceController. Their implementations already exist
-in this Samsung SDK 37 donor but were absent from this Samsung settings page.
+in this Samsung One UI 9 donor but were absent from this Samsung settings page.
 This is UI integration of those actual QPR2 behaviors, not a new input algorithm
 or a claim that the features are exclusive to QPR2.
 

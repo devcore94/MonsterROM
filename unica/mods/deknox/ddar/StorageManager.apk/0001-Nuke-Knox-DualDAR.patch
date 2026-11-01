@@ -1,18 +1,11 @@
-From 0f8dfee2415141ac5c718ce523a40b439ed385b0 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Wed, 29 Oct 2025 21:57:48 +0100
-Subject: [PATCH] Nuke Knox DualDAR
+From: UN1CA <unica@localhost>
+Subject: [PATCH] Nuke-Knox-DualDAR (One UI 9)
 
 ---
- .../knox/container/KnoxContainerManager.smali | 44 ++-----------------
- .../android/knox/ddar/DualDARPolicy.smali     |  4 +-
- 2 files changed, 5 insertions(+), 43 deletions(-)
-
 diff --git a/smali/com/samsung/android/knox/container/KnoxContainerManager.smali b/smali/com/samsung/android/knox/container/KnoxContainerManager.smali
-index 91152be..d9c12ef 100644
 --- a/smali/com/samsung/android/knox/container/KnoxContainerManager.smali
 +++ b/smali/com/samsung/android/knox/container/KnoxContainerManager.smali
-@@ -3754,49 +3754,11 @@
+@@ -3687,48 +3687,10 @@
  .end method
  
  .method public getDualDARPolicy()Lcom/samsung/android/knox/ddar/DualDARPolicy;
@@ -54,31 +47,30 @@ index 91152be..d9c12ef 100644
 -    monitor-exit p0
 -    :try_end_0
 -    .catchall {:try_start_0 .. :try_end_0} :catchall_0
-+    .locals 0
- 
+-
 -    throw v0
-+    iget-object p0, p0, Lcom/samsung/android/knox/container/KnoxContainerManager;->mDualDARPolicy:Lcom/samsung/android/knox/ddar/DualDARPolicy;
- 
+-
 -    :cond_1
--    return-object v0
-+    return-object p0
++    .locals 1
++
++    const/4 v0, 0x0
++
+     return-object v0
  .end method
  
- .method public getEmailAccountPolicy()Lcom/samsung/android/knox/accounts/EmailAccountPolicy;
 diff --git a/smali/com/samsung/android/knox/ddar/DualDARPolicy.smali b/smali/com/samsung/android/knox/ddar/DualDARPolicy.smali
-index 55b460a..acfc003 100644
 --- a/smali/com/samsung/android/knox/ddar/DualDARPolicy.smali
 +++ b/smali/com/samsung/android/knox/ddar/DualDARPolicy.smali
-@@ -96,7 +96,7 @@
+@@ -82,7 +82,7 @@
  .method public static getDualDARVersion()Ljava/lang/String;
      .locals 1
  
--    const-string v0, "1.8.0"
+-    const-string v0, "1.9.0"
 +    const/4 v0, 0x0
  
      return-object v0
  .end method
-@@ -129,7 +129,7 @@
+@@ -115,7 +115,7 @@
  .method public static isDualDarSupportedForManagedDevice()Z
      .locals 1
  
@@ -87,6 +79,4 @@ index 55b460a..acfc003 100644
  
      return v0
  .end method
--- 
-2.51.1
 

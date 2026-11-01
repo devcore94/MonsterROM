@@ -1,7 +1,7 @@
 # QPR2 camera metadata schema — experimental isolated-build component
 
 Enable explicitly with `UN1CA_QPR2_CAMERA_METADATA=true` only in an isolated
-SDK-37 build using the pinned Samsung native cohort. Paradigm's SDK-37 test
+One UI 9 build using the pinned Samsung native cohort. Paradigm's One UI 9 test
 profile now sets this opt-in together with camera_path; the child customize
 file alone still does nothing without the flag. No installer, live mount,
 driver or OS identity change. See ../README.md for the integrated profile.
