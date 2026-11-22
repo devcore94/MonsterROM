@@ -1,0 +1,4 @@
+id=native32
+name=Exynos 2100 native ARM32 support
+author=MonsterROM_NEXT
+description=Supplies the native runtime required by the t2s vendor services.
