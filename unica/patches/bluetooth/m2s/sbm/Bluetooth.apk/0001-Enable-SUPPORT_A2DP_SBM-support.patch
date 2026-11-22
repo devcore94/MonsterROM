@@ -1,0 +1,15 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Enable SUPPORT_A2DP_SBM support
+
+diff --git a/smali/com/android/bluetooth/a2dp/A2dpService.smali b/smali/com/android/bluetooth/a2dp/A2dpService.smali
+--- a/smali/com/android/bluetooth/a2dp/A2dpService.smali
++++ b/smali/com/android/bluetooth/a2dp/A2dpService.smali
+@@ -917,6 +917,8 @@
+ 
+     move-result-object p4
+ 
++    const/4 p1, 0x1
++
+     invoke-direct {p2, p1, p3, p4}, Lcom/android/bluetooth/a2dp/A2dpSbmManager;-><init>(ZLandroid/media/AudioManager;Lcom/android/bluetooth/btservice/AdapterService;)V
+ 
+     iput-object p2, p0, Lcom/android/bluetooth/a2dp/A2dpService;->mA2dpSbmManager:Lcom/android/bluetooth/a2dp/A2dpSbmManager;

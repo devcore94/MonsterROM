@@ -174,6 +174,11 @@ if [ ! -f "$TMP_DIR/unknown/apex_payload/app/$BLUETOOTH_APP" ]; then
     ABORT "Missing app/$BLUETOOTH_APP in the Bluetooth APEX"
 fi
 
+PROFILE_PATCHES="$MODPATH"
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    PROFILE_PATCHES="$MODPATH/m2s"
+fi
+
 # SEC_PRODUCT_FEATURE_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE
 if $SOURCE_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE; then
     if ! $TARGET_BLUETOOTH_SUPPORT_A2DPSINK_PROFILE; then
@@ -201,7 +206,7 @@ if ! $SOURCE_BLUETOOTH_SUPPORT_A2DP_SBM; then
         DECODE_APK_IN_APEX "$TMP_DIR/unknown/apex_payload/app/$BLUETOOTH_APP"
         LOG "- Applying \"Enable SUPPORT_A2DP_SBM support\" to apex_payload/app/$BLUETOOTH_APP"
         APPLY_PATCH "system" "system/app/$BLUETOOTH_APP" \
-            "$MODPATH/sbm/Bluetooth.apk/0001-Enable-SUPPORT_A2DP_SBM-support.patch" \
+            "$PROFILE_PATCHES/sbm/Bluetooth.apk/0001-Enable-SUPPORT_A2DP_SBM-support.patch" \
             > /dev/null
     fi
 else
@@ -233,7 +238,7 @@ if $SOURCE_BLUETOOTH_SUPPORT_XLNA_CONTROL; then
         DECODE_APK_IN_APEX "$TMP_DIR/unknown/apex_payload/app/$BLUETOOTH_APP"
         LOG "- Applying \"Disable SUPPORT_XLNA_CONTROL support\" to apex_payload/app/$BLUETOOTH_APP"
         APPLY_PATCH "system" "system/app/$BLUETOOTH_APP" \
-            "$MODPATH/xlna/Bluetooth.apk/0001-Disable-SUPPORT_XLNA_CONTROL-support.patch" \
+            "$PROFILE_PATCHES/xlna/Bluetooth.apk/0001-Disable-SUPPORT_XLNA_CONTROL-support.patch" \
             > /dev/null
     fi
 else
@@ -262,7 +267,7 @@ SIGN_APEX "$WORK_DIR/system/system/apex/com.android.bt.apex"
 
 rm -rf "$TMP_DIR"
 
-unset BLUETOOTH_APP SOURCE_FIRMWARE_PATH
+unset BLUETOOTH_APP PROFILE_PATCHES SOURCE_FIRMWARE_PATH
 unset -f BUILD_APK_IN_APEX BUILD_APEX BUILD_PAYLOAD \
     DECODE_APEX DECODE_APK_IN_APEX EXTRACT_PAYLOAD \
     LOG_MISSING_PATCHES SIGN_APEX SIGN_PAYLOAD

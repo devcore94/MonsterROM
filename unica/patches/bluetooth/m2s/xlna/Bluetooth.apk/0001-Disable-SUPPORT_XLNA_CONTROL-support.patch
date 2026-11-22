@@ -1,0 +1,35 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Disable SUPPORT_XLNA_CONTROL support
+
+diff --git a/smali/com/android/bluetooth/btservice/AdapterService.smali b/smali/com/android/bluetooth/btservice/AdapterService.smali
+--- a/smali/com/android/bluetooth/btservice/AdapterService.smali
++++ b/smali/com/android/bluetooth/btservice/AdapterService.smali
+@@ -14168,14 +14168,6 @@
+ 
+     invoke-virtual {p0}, Lcom/android/bluetooth/btservice/AdapterService;->sarBackoffEnable()V
+ 
+-    iget-object v0, p0, Lcom/android/bluetooth/btservice/AdapterService;->mSensorManager:Landroid/hardware/SensorManager;
+-
+-    invoke-virtual {v0, v9}, Landroid/hardware/SensorManager;->getDefaultSensor(I)Landroid/hardware/Sensor;
+-
+-    move-result-object v0
+-
+-    iput-object v0, p0, Lcom/android/bluetooth/btservice/AdapterService;->mAccelerSensor:Landroid/hardware/Sensor;
+-
+     invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->invalidateBluetoothCaches()V
+ 
+     invoke-virtual {p0}, Lcom/android/bluetooth/btservice/AdapterService;->cacheLeAudioAllowlistDevicesFromProp()V
+diff --git a/smali/com/android/bluetooth/btservice/AdapterNativeInterface.smali b/smali/com/android/bluetooth/btservice/AdapterNativeInterface.smali
+--- a/smali/com/android/bluetooth/btservice/AdapterNativeInterface.smali
++++ b/smali/com/android/bluetooth/btservice/AdapterNativeInterface.smali
+@@ -1056,9 +1056,7 @@
+ .method public setBtRFxLNA(I)Z
+     .locals 0
+ 
+-    invoke-direct {p0, p1}, Lcom/android/bluetooth/btservice/AdapterNativeInterface;->setBtRFxLNANative(I)Z
+-
+-    move-result p0
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
