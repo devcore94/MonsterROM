@@ -1,0 +1,4 @@
+id=sepolicy
+name=Exynos 2100 vendor policy mappings
+author=MonsterROM_NEXT
+description=Installs the API 30 compatibility mappings requested by the G996B vendor policy.
