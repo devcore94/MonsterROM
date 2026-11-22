@@ -1,0 +1,80 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Apply the live blur preference to the beta floating features
+
+diff --git a/smali_classes6/com/samsung/android/feature/SemFloatingFeature.smali b/smali_classes6/com/samsung/android/feature/SemFloatingFeature.smali
+--- a/smali_classes6/com/samsung/android/feature/SemFloatingFeature.smali
++++ b/smali_classes6/com/samsung/android/feature/SemFloatingFeature.smali
+@@ -86,6 +86,10 @@
+ 
+     :try_start_0
+     invoke-direct {p0}, Lcom/samsung/android/feature/SemFloatingFeature;->loadFeatureFile()V
++
++    iget-object v0, p0, Lcom/samsung/android/feature/SemFloatingFeature;->mFeatureList:Ljava/util/Hashtable;
++
++    invoke-static {v0}, Lio/mesalabs/unica/FloatingFeatureHooks;->applyLiveBlurPreference(Ljava/util/Hashtable;)V
+     :try_end_0
+     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+ 
+diff --git a/smali_classes6/io/mesalabs/unica/FloatingFeatureHooks.smali b/smali_classes6/io/mesalabs/unica/FloatingFeatureHooks.smali
+new file mode 100644
+--- /dev/null
++++ b/smali_classes6/io/mesalabs/unica/FloatingFeatureHooks.smali
+@@ -0,0 +1,56 @@
++.class public final Lio/mesalabs/unica/FloatingFeatureHooks;
++.super Ljava/lang/Object;
++.source "FloatingFeatureHooks.java"
++
++
++# static fields
++.field private static sLiveBlurSupported:Z
++
++
++# direct methods
++.method public static applyLiveBlurPreference(Ljava/util/Hashtable;)V
++    .locals 3
++
++    const-string v0, "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_3D_SURFACE_TRANSITION_FLAG"
++
++    invoke-virtual {p0, v0}, Ljava/util/Hashtable;->get(Ljava/lang/Object;)Ljava/lang/Object;
++
++    move-result-object v1
++
++    check-cast v1, Ljava/lang/String;
++
++    invoke-static {v1}, Ljava/lang/Boolean;->parseBoolean(Ljava/lang/String;)Z
++
++    move-result v1
++
++    sput-boolean v1, Lio/mesalabs/unica/FloatingFeatureHooks;->sLiveBlurSupported:Z
++
++    if-eqz v1, :done
++
++    const-string v1, "persist.sys.unica.nativeblur"
++
++    const/4 v2, 0x1
++
++    invoke-static {v1, v2}, Landroid/os/SemSystemProperties;->getBoolean(Ljava/lang/String;Z)Z
++
++    move-result v1
++
++    if-nez v1, :done
++
++    const-string v1, "FALSE"
++
++    invoke-virtual {p0, v0, v1}, Ljava/util/Hashtable;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
++
++    :done
++    return-void
++.end method
++
++.method public static isLiveBlurSupported()Z
++    .locals 1
++
++    invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
++
++    sget-boolean v0, Lio/mesalabs/unica/FloatingFeatureHooks;->sLiveBlurSupported:Z
++
++    return v0
++.end method
+-- 
+2.51.0
