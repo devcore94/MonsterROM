@@ -43,6 +43,22 @@ for i in "boot" "dtbo" "vendor_boot"; do
     EVAL "mv \"$TMP_DIR/files/$i.img\" \"$WORK_DIR/kernel/$i.img\""
 done
 
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    # Android v3 boot and vendor_boot each carry a kernel command line.
+    COMMAND_LINE="androidboot.selinux=permissive loop.max_part=7"
+    for IMAGE in boot vendor_boot; do
+        OFFSET=44
+        [[ "$IMAGE" == "vendor_boot" ]] && OFFSET=28
+        FILE="$WORK_DIR/kernel/$IMAGE.img"
+        if [[ "$(dd if="$FILE" bs=1 skip="$OFFSET" count="${#COMMAND_LINE}" status=none)" != "$COMMAND_LINE" ]]; then
+            ABORT "Unexpected command line in $IMAGE.img"
+        fi
+        LOG "- Selecting enforcing SELinux in $IMAGE.img"
+        printf '%s\0' "androidboot.selinux=enforcing loop.max_part=7" | dd of="$FILE" bs=1 seek="$OFFSET" conv=notrunc status=none
+    done
+    unset COMMAND_LINE FILE IMAGE OFFSET
+fi
+
 EVAL "rm -rf \"$TMP_DIR\""
 
 LOG_STEP_OUT
