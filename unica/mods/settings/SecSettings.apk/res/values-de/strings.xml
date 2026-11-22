@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Um die Änderungen anzuwenden, wird ein Neustart benötigt.</string>
+    <string name="unica_dialog_reboot_negative">Später</string>
+    <string name="unica_dialog_reboot_positive">Neustarten</string>
+    <string name="unica_dialog_reboot_title">Neustart benötigt</string>
+    <string name="unica_native_blur_title">Live-Blur-Effekt aktivieren</string>
+    <string name="unica_games_spoof_title">Höhere FPS in Spielen entsperren</string>
+    <string name="unica_hma_title">Installierte Apps verstecken</string>
+</resources>

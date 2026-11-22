@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Да бисте применили промене, потребно је поновно покретање.</string>
+    <string name="unica_dialog_reboot_negative">Не сада</string>
+    <string name="unica_dialog_reboot_positive">Поново покрени</string>
+    <string name="unica_dialog_reboot_title">Поновно покретање је потребно</string>
+    <string name="unica_native_blur_title">Укључи ефекат замућења уживо</string>
+    <string name="unica_games_spoof_title">Откључај већи FPS у играма</string>
+    <string name="unica_hma_title">Сакриј инсталиране апликације</string>
+</resources>

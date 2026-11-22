@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">बदलाव लागू करने के लिए रीस्टार्ट करना ज़रूरी है।</string>
+    <string name="unica_dialog_reboot_negative">अभी नहीं</string>
+    <string name="unica_dialog_reboot_positive">रीस्टार्ट</string>
+    <string name="unica_dialog_reboot_title">रीस्टार्ट करना पड़ेगा</string>
+    <string name="unica_native_blur_title">लाइव ब्लर प्रभाव सक्षम करें</string>
+    <string name="unica_games_spoof_title">गेम्स में ज़्यादा FPS अनलॉक करें</string>
+    <string name="unica_hma_title">इंस्टॉल किए गए ऐप्स छिपाएँ</string>
+</resources>

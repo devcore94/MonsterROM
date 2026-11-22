@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Necessário reiniciar para aplicar as alterações.</string>
+    <string name="unica_dialog_reboot_negative">Agora não</string>
+    <string name="unica_dialog_reboot_positive">Reiniciar</string>
+    <string name="unica_dialog_reboot_title">Necessário reiniciar</string>
+    <string name="unica_native_blur_title">Ativar desfoque em tempo real</string>
+    <string name="unica_games_spoof_title">Desbloquear FPS em jogos</string>
+    <string name="unica_hma_title">Esconder aplicações instaladas</string>
+</resources>

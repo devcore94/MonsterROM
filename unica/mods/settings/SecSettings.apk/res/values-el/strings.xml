@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Για να εφαρμοστούν οι αλλαγές, απαιτείται επανεκκίνηση.</string>
+    <string name="unica_dialog_reboot_negative">Όχι τώρα</string>
+    <string name="unica_dialog_reboot_positive">Επανεκκίνηση</string>
+    <string name="unica_dialog_reboot_title">Απαιτείται επανεκκίνηση</string>
+    <string name="unica_native_blur_title">Ενεργοποίηση ζωντανού εφέ θόλωσης</string>
+    <string name="unica_games_spoof_title">Ξεκλείδωμα υψηλότερου FPS στα παιχνίδια</string>
+    <string name="unica_hma_title">Απόκρυψη εγκατεστημένων εφαρμογών</string>
+</resources>

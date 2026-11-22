@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">बदल लागू करण्यासाठी, रीस्टार्ट करणे आवश्यक आहे.</string>
+    <string name="unica_games_spoof_title">गेम्समध्ये उच्च FPS अनलॉक करा</string>
+</resources>

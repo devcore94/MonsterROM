@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">A módosítások alkalmazásához újraindítás szükséges.</string>
+    <string name="unica_dialog_reboot_negative">Nem most</string>
+    <string name="unica_dialog_reboot_positive">Újraindítás</string>
+    <string name="unica_dialog_reboot_title">Újraindítás szükséges</string>
+    <string name="unica_native_blur_title">Élő elmosódás effekt engedélyezése</string>
+    <string name="unica_games_spoof_title">Magasabb FPS feloldása a játékokban</string>
+    <string name="unica_hma_title">Telepített alkalmazások elrejtése</string>
+</resources>

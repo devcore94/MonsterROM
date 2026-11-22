@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:settings="http://schemas.android.com/apk/res-auto" android:title="@string/monsterrom_name">
+    <SwitchPreferenceCompat android:persistent="false" android:title="@string/real_time_network_speed_title" android:key="network_speed" settings:controller="com.samsung.android.settings.notification.StatusBarNetworkSpeedController" />
+    <SecPreferenceScreen android:persistent="false" android:title="@string/power_off_lock_title" android:key="power_off_lock" android:summary="@string/power_off_lock_description" android:fragment="com.samsung.android.settings.security.PowerOffLockOptionFragment" settings:controller="com.samsung.android.settings.security.PowerOffLockPreferenceController" settings:keywords="@string/keywords_power_off_lock" />
+    <SecPreference android:title="@string/dual_app_title" android:key="dual_app" settings:controller="com.samsung.android.settings.usefulfeature.dualmessenger.DualMessengerPreferenceController" />
+    <Preference android:icon="@drawable/ic_settings_multiuser" android:title="@string/user_settings_title" android:key="system_multiuser" android:fragment="com.android.settings.users.UserSettings" settings:controller="com.android.settings.users.MultiUserPreferenceController" />
+    <PreferenceScreen android:title="@string/device_info_software_title" android:key="software_info" android:fragment="com.samsung.android.settings.deviceinfo.softwareinfo.SoftwareInfoSettings" settings:controller="com.samsung.android.settings.deviceinfo.softwareinfo.SoftwareInfoPreferenceController" settings:keywords="@string/keywords_device_info_software_settings" />
+    <SecSwitchPreference android:title="@string/unica_games_spoof_title" android:key="unica_games_spoof" settings:controller="io.mesalabs.unica.settings.extra.GamesPropsPreferenceController" />
+    <SecSwitchPreferenceScreen android:persistent="false" android:title="@string/unica_hma_title" android:key="monsterrom_hma" android:fragment="io.mesalabs.unica.settings.hma.HideMyApplistFragment" settings:controller="io.mesalabs.unica.settings.hma.HideMyApplistPreferenceController" />
+    <SecSwitchPreference android:persistent="false" android:title="@string/unica_native_blur_title" android:key="unica_native_blur" android:summary="@string/unica_dialog_reboot_msg" settings:controller="io.mesalabs.unica.settings.ui.LiveBlurPreferenceController" />
+</PreferenceScreen>

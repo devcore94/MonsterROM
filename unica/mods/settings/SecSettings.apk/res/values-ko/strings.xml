@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">변경 사항을 적용하려면 재시작해야 합니다.</string>
+    <string name="unica_dialog_reboot_negative">나중에</string>
+    <string name="unica_dialog_reboot_positive">재부팅</string>
+    <string name="unica_dialog_reboot_title">재부팅 필요</string>
+    <string name="unica_native_blur_title">라이브 블러 효과 활성화</string>
+    <string name="unica_games_spoof_title">게임에서 더 높은 FPS를 잠금 해제</string>
+    <string name="unica_hma_title">설치된 앱 숨기기</string>
+</resources>

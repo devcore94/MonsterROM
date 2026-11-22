@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Për të aplikuar ndryshimet, kërkohet një rinisje.</string>
+    <string name="unica_dialog_reboot_negative">Jo tani</string>
+    <string name="unica_dialog_reboot_positive">Rinisje</string>
+    <string name="unica_dialog_reboot_title">Kërkohet rinisje</string>
+    <string name="unica_native_blur_title">Aktivizo efektin e turbullimit në kohë reale</string>
+    <string name="unica_games_spoof_title">Aktivizo FPS të lartë në lojra</string>
+    <string name="unica_hma_title">Fshih aplikacionet e instaluara</string>
+</resources>

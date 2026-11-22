@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">請重新啟動以套用更改。</string>
+    <string name="unica_dialog_reboot_negative">暫時不要</string>
+    <string name="unica_dialog_reboot_positive">重新啟動</string>
+    <string name="unica_dialog_reboot_title">需要重新啟動</string>
+    <string name="unica_native_blur_title">啟用即時模糊效果</string>
+    <string name="unica_games_spoof_title">解鎖遊戲FPS</string>
+    <string name="unica_hma_title">隱藏已安裝的應用程式</string>
+</resources>

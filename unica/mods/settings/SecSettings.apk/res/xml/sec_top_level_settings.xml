@@ -1,0 +1,2 @@
+/top_level_about_phone/i
+    <com.android.settings.widget.HomepagePreference android:icon="@drawable/sec_ic_settings_monsterrom" android:title="@string/monsterrom_name" android:key="top_level_monsterrom" android:order="350000" android:fragment="com.samsung.android.settings.monsterrom.MonsterRomSettings" />

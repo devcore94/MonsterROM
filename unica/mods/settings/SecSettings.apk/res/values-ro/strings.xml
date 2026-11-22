@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Pentru aplicarea modificărilor, este necesară o repornire.</string>
+    <string name="unica_dialog_reboot_negative">Nu acum</string>
+    <string name="unica_dialog_reboot_positive">Reporniți</string>
+    <string name="unica_dialog_reboot_title">O repornire este necesară</string>
+    <string name="unica_native_blur_title">Activare efect de estompare în timp real</string>
+    <string name="unica_games_spoof_title">Deblocare FPS mai mare în jocuri</string>
+    <string name="unica_hma_title">Ascundeți aplicațiile instalate</string>
+</resources>

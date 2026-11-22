@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Dəyişiklikləri tətbiq etmək üçün yenidən başlatma tələb olunur.</string>
+    <string name="unica_dialog_reboot_negative">İndi yox</string>
+    <string name="unica_dialog_reboot_positive">Yenidən başlat</string>
+    <string name="unica_dialog_reboot_title">Yenidən başlatma tələb olunur</string>
+    <string name="unica_native_blur_title">Canlı blur effektini aktivləşdir</string>
+    <string name="unica_games_spoof_title">Oyunlarda daha yüksək FPS kilidini aç</string>
+    <string name="unica_hma_title">Quraşdırılmış tətbiqləri gizlət</string>
+</resources>

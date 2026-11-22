@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Per applicare le impostazioni, riavvia il dispositivo.</string>
+    <string name="unica_dialog_reboot_negative">Più tardi</string>
+    <string name="unica_dialog_reboot_positive">Riavvia</string>
+    <string name="unica_dialog_reboot_title">Riavvio richiesto</string>
+    <string name="unica_native_blur_title">Abilita effetto sfocatura nativo</string>
+    <string name="unica_games_spoof_title">Sblocca opzioni grafiche extra per giochi</string>
+    <string name="unica_hma_title">Nascondi app installate</string>
+</resources>

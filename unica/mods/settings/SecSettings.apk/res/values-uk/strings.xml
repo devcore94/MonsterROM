@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Для застосування змін потрібне перезавантаження.</string>
+    <string name="unica_dialog_reboot_negative">Не зараз</string>
+    <string name="unica_dialog_reboot_positive">Перезавантажити</string>
+    <string name="unica_dialog_reboot_title">Потрібне перезавантаження</string>
+    <string name="unica_native_blur_title">Увімкнути ефект живого розмиття</string>
+    <string name="unica_games_spoof_title">Розблокувати високий FPS в іграх</string>
+    <string name="unica_hma_title">Приховати встановлені програми</string>
+</resources>

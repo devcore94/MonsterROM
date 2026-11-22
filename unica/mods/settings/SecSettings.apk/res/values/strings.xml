@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">To apply the changes, a restart is required.</string>
+    <string name="unica_dialog_reboot_negative">Not now</string>
+    <string name="unica_dialog_reboot_positive">Restart</string>
+    <string name="unica_dialog_reboot_title">Restart required</string>
+    <string name="unica_native_blur_title">Enable live blur effect</string>
+    <string name="monsterrom_name" translatable="false">MonsterROM_NEXT</string>
+    <string name="unica_games_spoof_title">Unlock higher FPS in games</string>
+    <string name="unica_hma_title">Hide installed apps</string>
+    <string name="monsterrom_hma_hint">Check the personal apps to hide from ordinary app queries when this switch is on. Android services, your launcher, device administrators, installers managing their own apps, and apps with full package inventory access keep their usual visibility.</string>
+    <string name="monsterrom_hma_save_error">Unable to save your app visibility choice.</string>
+    <string name="monsterrom_hma_load_error">Unable to load your installed apps.</string>
+</resources>

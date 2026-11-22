@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Değişikliklerin uygulanabilmesi için cihazın yeniden başlatılması gerekiyor.</string>
+    <string name="unica_dialog_reboot_negative">Şimdi değil</string>
+    <string name="unica_dialog_reboot_positive">Yeniden başlat</string>
+    <string name="unica_dialog_reboot_title">Yeniden başlatma gerekli</string>
+    <string name="unica_native_blur_title">Gerçek zamanlı bulanıklık efektini etkinleştir</string>
+    <string name="unica_games_spoof_title">Oyunlardaki kilitli grafik ayarlarını aç</string>
+    <string name="unica_hma_title">Yüklü uygulamaları gizle</string>
+</resources>

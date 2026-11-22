@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">Es necesario reiniciar tu dispositivo para que se apliquen los cambios.</string>
+    <string name="unica_dialog_reboot_negative">Ahora no</string>
+    <string name="unica_dialog_reboot_positive">Reiniciar</string>
+    <string name="unica_dialog_reboot_title">Se requiere reiniciar</string>
+    <string name="unica_native_blur_title">Activar efecto de desenfoque en tiempo real</string>
+    <string name="unica_games_spoof_title">Desbloquear ajustes gráficos adicionales en juegos</string>
+    <string name="unica_hma_title">Ocultar apps instaladas</string>
+</resources>

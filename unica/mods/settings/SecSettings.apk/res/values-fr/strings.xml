@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">"Pour appliquer les modifications, un redémarrage de l'appareil est requis."</string>
+    <string name="unica_dialog_reboot_negative">Pas maintenant</string>
+    <string name="unica_dialog_reboot_positive">Redémarrer</string>
+    <string name="unica_dialog_reboot_title">Redémarrage requis</string>
+    <string name="unica_native_blur_title">"Activer l'effet de flou en direct"</string>
+    <string name="unica_games_spoof_title">Débloquer des FPS plus élevés dans les jeux</string>
+    <string name="unica_hma_title">Masquer les applications installées</string>
+</resources>

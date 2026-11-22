@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/sec_dashboard_about_phone_color" />
+            <size android:height="@dimen/sec_dashboard_tile_image_size" android:width="@dimen/sec_dashboard_tile_image_size" />
+        </shape>
+    </item>
+    <item android:gravity="center" android:drawable="@drawable/ic_monsterrom_mark" />
+</layer-list>

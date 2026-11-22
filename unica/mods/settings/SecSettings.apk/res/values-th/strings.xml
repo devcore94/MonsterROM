@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unica_dialog_reboot_msg">ต้องรีสตาร์ทเพื่อปรับใช้การตั้งค่านี้</string>
+    <string name="unica_dialog_reboot_negative">ไม่ใช่ตอนนี้</string>
+    <string name="unica_dialog_reboot_positive">รีสตาร์ท</string>
+    <string name="unica_dialog_reboot_title">จำเป็นต้องรีสตาร์ท</string>
+    <string name="unica_native_blur_title">เปิดใช้งาน live blur</string>
+    <string name="unica_games_spoof_title">ปลดล็อค FPS ที่สูงขี้นในเกม</string>
+</resources>
