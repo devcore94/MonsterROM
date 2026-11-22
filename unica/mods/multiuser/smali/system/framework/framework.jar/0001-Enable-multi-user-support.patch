@@ -1,50 +1,44 @@
-From c4061be22ffe1e3c100ed378041d30cfe7f43c56 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Sat, 20 Sep 2025 00:18:19 +0200
-Subject: [PATCH] Enable multi user support
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Enable multi-user support on phones
 
----
- .../multiuser/MultiUserSupportsHelper.smali   | 22 +------------------
- 1 file changed, 1 insertion(+), 21 deletions(-)
-
-diff --git a/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali b/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-index c4045340..89638bdf 100644
---- a/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-+++ b/smali_classes6/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
-@@ -15,32 +15,12 @@
- .method static constructor blacklist <clinit>()V
-     .locals 2
+diff --git a/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali b/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
+--- a/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
++++ b/smali_classes3/com/samsung/android/core/pm/multiuser/MultiUserSupportsHelper.smali
+@@ -49,35 +49,10 @@
  
--    const-string/jumbo v0, "ro.build.characteristics"
--
--    const-string v1, ""
--
--    invoke-static {v0, v1}, Landroid/os/SystemProperties;->get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
--
--    move-result-object v0
--
--    const-string/jumbo v1, "tablet"
--
--    invoke-virtual {v0, v1}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
--
--    move-result v0
-+    const/4 v0, 0x1
+     const/4 v1, 0x1
  
-     sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->IS_TABLET:Z
- 
+-    if-nez v2, :cond_1
+-
 -    if-eqz v0, :cond_0
 -
-     const/16 v1, 0x8
- 
 -    goto :goto_0
 -
 -    :cond_0
--    const/4 v1, 0x1
+-    move v3, v1
 -
+-    goto :goto_1
+-
+-    :cond_1
 -    :goto_0
-     sput v1, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_MAX_USERS:I
+     const/16 v3, 0x8
  
-     sput-boolean v0, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_ENABLE_STATUS:Z
+-    :goto_1
+     sput v3, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_MAX_USERS:I
+ 
+-    if-nez v2, :cond_3
+-
+-    if-eqz v0, :cond_2
+-
+-    goto :goto_2
+-
+-    :cond_2
+-    const/4 v1, 0x0
+-
+-    :cond_3
+-    :goto_2
+     sput-boolean v1, Lcom/samsung/android/core/pm/multiuser/MultiUserSupportsHelper;->DEFAULT_ENABLE_STATUS:Z
+ 
+     return-void
 -- 
 2.51.0
-
