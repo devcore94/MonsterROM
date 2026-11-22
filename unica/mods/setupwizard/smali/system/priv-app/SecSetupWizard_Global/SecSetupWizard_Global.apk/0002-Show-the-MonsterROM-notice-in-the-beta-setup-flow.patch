@@ -1,0 +1,141 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Show the MonsterROM notice in the beta setup flow
+
+diff --git a/smali/k9/e.smali b/smali/k9/e.smali
+--- a/smali/k9/e.smali
++++ b/smali/k9/e.smali
+@@ -715,43 +715,6 @@
+ 
+     if-eqz v14, :cond_16
+ 
+-    const-string v10, "BTSPurple"
+-
+-    invoke-static {v10}, Lk9/s;->m(Ljava/lang/String;)Z
+-
+-    move-result v10
+-
+-    if-nez v10, :cond_15
+-
+-    const-string v10, "ThomBrowne"
+-
+-    invoke-static {v10}, Lk9/s;->m(Ljava/lang/String;)Z
+-
+-    move-result v10
+-
+-    if-nez v10, :cond_15
+-
+-    const-string v10, "blackpink"
+-
+-    invoke-static {v10}, Lk9/s;->m(Ljava/lang/String;)Z
+-
+-    move-result v10
+-
+-    if-nez v10, :cond_15
+-
+-    invoke-static {}, Lk9/e;->d()Z
+-
+-    move-result v10
+-
+-    if-nez v10, :cond_15
+-
+-    invoke-static {}, Lk9/e;->b()I
+-
+-    move-result v10
+-
+-    if-lez v10, :cond_3e
+-
+-    :cond_15
+     invoke-virtual {v7, v9}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z
+ 
+     goto/16 :goto_c
+diff --git a/res/layout/disclaimer_activity.xml b/res/layout/disclaimer_activity.xml
+--- a/res/layout/disclaimer_activity.xml
++++ b/res/layout/disclaimer_activity.xml
+@@ -2,4 +2,5 @@
+ <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent"
+   xmlns:android="http://schemas.android.com/apk/res/android">
+     <TextView android:id="@id/disclaimer_description" android:layout_width="match_parent" android:layout_height="wrap_content" style="@style/ssw_text_description" />
++    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/monsterrom_setup_notice" style="@style/ssw_text_description" />
+ </LinearLayout>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">You are setting up MonsterROM_NEXT for the Galaxy S21+. This community build uses One UI 9.5 beta software from the Galaxy S26+. Some features may work differently on this phone.</string>
+     <string name="I_agree_to_all">I agree to all.</string>
+     <string name="I_agree_to_diag">I agree to the sending of diagnostic data.</string>
+     <string name="I_agree_to_eula">I agree to End User License Agreement.</string>
+diff --git a/res/values-de/strings.xml b/res/values-de/strings.xml
+--- a/res/values-de/strings.xml
++++ b/res/values-de/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Du richtest MonsterROM_NEXT für das Galaxy S21+ ein. Diese Community-Version verwendet die Betasoftware One UI 9.5 des Galaxy S26+. Einige Funktionen können sich auf diesem Smartphone anders verhalten.</string>
+     <string name="I_agree_to_all">Ich stimme allem zu.</string>
+     <string name="I_agree_to_diag">Ich stimme dem Senden von Diagnosedaten zu.</string>
+     <string name="I_agree_to_eula">Ich stimme der Endbenutzer-Lizenzvereinbarung zu.</string>
+diff --git a/res/values-es/strings.xml b/res/values-es/strings.xml
+--- a/res/values-es/strings.xml
++++ b/res/values-es/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Estás configurando MonsterROM_NEXT para el Galaxy S21+. Esta versión de la comunidad usa el software beta One UI 9.5 del Galaxy S26+. Algunas funciones pueden comportarse de forma diferente en este teléfono.</string>
+     <string name="abc_action_bar_home_description">Ir a inicio</string>
+     <string name="abc_action_bar_up_description">Desplazarse hacia arriba</string>
+     <string name="abc_action_menu_overflow_description">Más opciones</string>
+diff --git a/res/values-fr/strings.xml b/res/values-fr/strings.xml
+--- a/res/values-fr/strings.xml
++++ b/res/values-fr/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Vous configurez MonsterROM_NEXT pour le Galaxy S21+. Cette version communautaire utilise le logiciel bêta One UI 9.5 du Galaxy S26+. Certaines fonctions peuvent se comporter différemment sur ce téléphone.</string>
+     <string name="I_agree_to_all">"J'accepte l'ensemble des conditions."</string>
+     <string name="I_agree_to_diag">"J'accepte l'envoi des données de diagnostic."</string>
+     <string name="I_agree_to_eula">"J'accepte le contrat de licence utilisateur final."</string>
+diff --git a/res/values-it/strings.xml b/res/values-it/strings.xml
+--- a/res/values-it/strings.xml
++++ b/res/values-it/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Stai configurando MonsterROM_NEXT per il Galaxy S21+. Questa versione della community usa il software beta One UI 9.5 del Galaxy S26+. Alcune funzioni potrebbero comportarsi diversamente su questo telefono.</string>
+     <string name="I_agree_to_all">Accetto tutti i termini.</string>
+     <string name="I_agree_to_diag">Acconsento all’invio dei dati di diagnostica.</string>
+     <string name="I_agree_to_eula">Accetto il contratto di licenza con l’utente finale.</string>
+diff --git a/res/values-nl/strings.xml b/res/values-nl/strings.xml
+--- a/res/values-nl/strings.xml
++++ b/res/values-nl/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Je stelt MonsterROM_NEXT in voor de Galaxy S21+. Deze communityversie gebruikt de bètasoftware One UI 9.5 van de Galaxy S26+. Sommige functies kunnen op deze telefoon anders werken.</string>
+     <string name="I_agree_to_all">Ik ga akkoord met alles.</string>
+     <string name="I_agree_to_diag">Ik ga akkoord met het verzenden van diagnostische gegevens.</string>
+     <string name="I_agree_to_eula">Ik ga akkoord met de Licentieovereenkomst voor eindgebruikers.</string>
+diff --git a/res/values-pl/strings.xml b/res/values-pl/strings.xml
+--- a/res/values-pl/strings.xml
++++ b/res/values-pl/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Konfigurujesz MonsterROM_NEXT na Galaxy S21+. Ta wersja społecznościowa korzysta z oprogramowania One UI 9.5 beta z Galaxy S26+. Niektóre funkcje mogą działać inaczej na tym telefonie.</string>
+     <string name="I_agree_to_all">Akceptuję wszystko.</string>
+     <string name="I_agree_to_diag">Zgadzam się na wysyłanie danych diagnostycznych.</string>
+     <string name="I_agree_to_eula">Akceptuję Umowę licencyjną użytkownika końcowego.</string>
+diff --git a/res/values-pt/strings.xml b/res/values-pt/strings.xml
+--- a/res/values-pt/strings.xml
++++ b/res/values-pt/strings.xml
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
++    <string name="monsterrom_setup_notice">Você está configurando o MonsterROM_NEXT para o Galaxy S21+. Esta versão da comunidade usa o software beta One UI 9.5 do Galaxy S26+. Alguns recursos podem funcionar de forma diferente neste telefone.</string>
+     <string name="abc_action_bar_home_description">Navegar para a página inicial</string>
+     <string name="abc_action_bar_up_description">Navegar para cima</string>
+     <string name="abc_action_menu_overflow_description">Mais opções</string>
+-- 
+2.51.0
