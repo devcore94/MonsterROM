@@ -1,0 +1,29 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the G996B radio booster thresholds
+
+diff --git a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
+--- a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
++++ b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
+@@ -355,11 +355,15 @@
+ .end method
+ 
+ .method public getBoosterThresholds()[I
+-    .locals 0
+-
+-    const/4 p0, 0x0
+-
+-    filled-new-array {p0, p0, p0}, [I
++    .locals 3
++
++    const v0, 0x12c0000
++
++    const v1, 0xc80000
++
++    const v2, 0x640000
++
++    filled-new-array {v0, v1, v2}, [I
+ 
+     move-result-object p0
+ 
+-- 
+2.51.0
