@@ -59,7 +59,8 @@ while IFS= read -r -d '' FILE; do
 done < <(find apps -type f -name '*.apk' -print0)
 [ "$COUNT" -eq "$EXPECTED" ] || { echo "Unexpected platform APK count in $MODULE: $COUNT" >&2; exit 1; }
 sudo umount "$TMP/mount"
-check_ext4 -fn
+# Record the check after the writable mount before shrinking the image.
+check_ext4 -fp
 resize2fs -M apex_payload.img
 avbtool add_hashtree_footer --image apex_payload.img --do_not_generate_fec --algorithm SHA256_RSA4096 \
     --hash_algorithm sha256 --key "$KEYS/$MODULE.pem" --prop "apex.key:$MODULE" --salt "$SALT"
