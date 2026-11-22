@@ -1,88 +1,27 @@
-<h1 align="center">
-  <img loading="lazy" src="readme-res/banner.png"/>
-</h1>
-<p align="center">
-  <a href="https://github.com/salvogiangri/UN1CA/blob/sixteen/LICENSE"><img loading="lazy" src="https://img.shields.io/github/license/salvogiangri/UN1CA?style=for-the-badge&logo=github"/></a>
-  <a href="https://github.com/salvogiangri/UN1CA/commits/sixteen"><img loading="lazy" src="https://img.shields.io/github/last-commit/salvogiangri/UN1CA/sixteen?style=for-the-badge"/></a>
-  <a href="https://github.com/salvogiangri/UN1CA/stargazers"><img loading="lazy" src="https://img.shields.io/github/stars/salvogiangri/UN1CA?style=for-the-badge"/></a>
-  <a href="https://github.com/salvogiangri/UN1CA/actions/workflows/ci.yml"><img loading="lazy" src="https://img.shields.io/github/actions/workflow/status/salvogiangri/UN1CA/ci.yml?style=for-the-badge"/></a>
-  <a href="https://crowdin.com/project/UN1CA"><img loading="lazy" src="https://img.shields.io/badge/Crowdin-263238?style=for-the-badge&logo=crowdin"/></a>
-</p>
-<p align="center">UN1CA <i>(/ˈu.ni.ka/)</i> is a work-in-progress custom firmware for Samsung Galaxy devices.</p>
+# MonsterROM_NEXT
 
-<p align="center">
-  <a href="https://github.com/salvogiangri/UN1CA/discussions">🚀 Discussions</a>
-  •
-  <a href="https://t.me/unicarom">💬 Telegram</a>
-</p>
+MonsterROM_NEXT brings the Galaxy S26+ One UI 9.5 beta to the Exynos Galaxy S21+ using UN1CA's partition and patch layout. The first target is the international **SM-G996B** (`t2s`).
 
-# What is UN1CA?
-UN1CA is a work-in-progress custom firmware for Samsung Galaxy devices, designed to provide a refined, optimized and more rich One UI experience.
-It is based on the latest and greatest iteration of Samsung's UX and it integrates numerous improvements, optimizations and exclusive features.
+| Input | Device | Build |
+| --- | --- | --- |
+| One UI 9.5 system, system_ext and product | Galaxy S26+ SM-S947B, EUX (`m2s`) | `S947BXXS6BZK1` stock plus the `S947BXXU6ZZKN` incremental OTA |
+| Vendor, ODM and target hardware files | Galaxy S21+ SM-G996B, AUT (`t2s`) | `G996BXXSJHZC2` |
+| ARM32 native libraries for legacy services | Galaxy S21 FE SM-G990E, THL (`r9s`) | `G990EXXSOHZH4` |
 
-The UN1CA build system automatically builds the required tools, downloads and extracts firmware components, applies the required patches and generates a flashable zip for the target device.
+The donor runs Android 17. The S21+ uses its own hardware services, partition sizes and recovery model check. Device-specific patches live under `target/t2s`, with Exynos 2100 changes under `platform/exynos2100`. Framework changes use the upstream smali patch format.
 
-The goal is to deliver a fast, smooth and modern UX while offering additional tools, modifications and system‑level enhancements tailored for power users.
+## Building
 
-Any form of contribution, suggestions, bug report or feature request for the project will be welcome.
+Use a Linux filesystem and UN1CA's build dependencies. The S26+ beta is an incremental update and requires the matching stock images. The build expects the resulting firmware tree under `out/fw/SM-S947B_EUX`. The stock target and native-library donor use `out/fw/SM-G996B_AUT` and `out/fw/SM-G990E_THL`.
 
-# Features
-### Core features:
-- Based on the latest stable Galaxy S22 firmware
-- EROFS powered
-- Galaxy S25 wallpapers/sounds included
-- Galaxy AI support
-  - Audio eraser
-  - Browsing assist
-  - Call assist
-  - Drawing assist
-  - Interpreter
-  - Note assist
-  - Now brief
-  - Photo assist
-  - Semantic search
-  - Transcript assist
-  - Writing assist
-- High end animations
-- Native/live blur support
-- AOD clock transition support
-- Adaptive color tone support
-- Adaptive refresh rate support
-- Extra brightness support
-- Picture remaster support
-- Object, shadow and reflection eraser support
-- Image clipper support
-- Multi user support
-- Samsung DeX support*
-- Camera privacy toggle support
-- Debloated from useless system services/additional apps
-- Dual Messenger available for all apps
-- Custom FlipFont fonts support
-- Outdoor mode support
-- Auto PIN confirm with 4 digits
-- [BluetoothLibraryPatcher](https://github.com/3arthur6/BluetoothLibraryPatcher) integrated
-- [KnoxPatch](https://github.com/salvogiangri/KnoxPatch) integrated
-- Extra CSC features enabled (Call recording, Hiya, Network speed in status bar, AltZLife)
+```bash
+source buildenv.sh t2s
+run_cmd make_rom -z
+```
 
-\* DeX via HDMI not available for devices without USB-C DP support
+## Project history
 
-### UN1CA-exclusive features:
-- Integrated OTA updates app
-- Native/live blur toggle
-- One UI Home animations option
-- Vulkan renderer toggle
-- Key attestation spoof ([TrickyStore](https://github.com/5ec1cff/TrickyStore)) options*
-- Play Integrity Fix integrated
-- Ability to hide installed apps ([Hide My Applist](https://github.com/Dr-TSNG/Hide-My-Applist))
-- Ability to hide developer options
-- Allow app downgrade toggle
-- Allow installing apps with old targetSdk toggle
-- Allow secure screenshot toggle
-- Screenshot/screen recording detection toggle
-- Unlimited backup storage on Google Photos
-- Games FPS unlock toggle
-
-\* Requires a valid keybox
+This fork starts at UN1CA commit `0c2ea1d6` on the `sixteen` branch. The Exynos 2100 work draws on ExtremeROM and the earlier MonsterROM port.
 
 # Licensing
 This project is licensed under the terms of the [GNU General Public License v3.0](LICENSE). External dependencies might be distributed under a different license, such as:
