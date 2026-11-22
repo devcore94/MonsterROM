@@ -40,9 +40,17 @@ fi
 SOURCE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION="$(GET_FLOATING_FEATURE_CONFIG "$FW_DIR/$SOURCE_FIRMWARE_PATH/system/system/etc/floating_feature.xml" "SEC_FLOATING_FEATURE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION")"
 TARGET_GALLERY_CONFIG_IMAGE_TAGGER_VERSION="$(GET_FLOATING_FEATURE_CONFIG "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/etc/floating_feature.xml" "SEC_FLOATING_FEATURE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION")"
 if [[ "$TARGET_CODENAME" == "t2s" ]] && [[ "$SOURCE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION" == "V1102" ]]; then
-    # V1102 ships its S Lens and rectifier models in system; vendor retains the t2s hardware models.
-    DELETE_FROM_WORK_DIR "system" "system/saiv/image_understanding/db"
-    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/saiv/image_understanding/db"
+    # Gallery V1102 and the beta Photo Editor share the S26+ model manifests.
+    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system" "system/saiv"
+    for MODEL in hs_segmenter aic_pet_detector slens_classifier slens_detector doc_rectifier SS_segmenter; do
+        if [ -d "$WORK_DIR/vendor/etc/saiv/image_understanding/db/$MODEL" ]; then
+            DELETE_FROM_WORK_DIR "vendor" "etc/saiv/image_understanding/db/$MODEL"
+        fi
+        ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/saiv/image_understanding/db/$MODEL"
+    done
+    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "saiv/textrecognition/stride"
+    unset MODEL SOURCE_FIRMWARE_PATH TARGET_FIRMWARE_PATH SOURCE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION TARGET_GALLERY_CONFIG_IMAGE_TAGGER_VERSION
+    return 0
 elif [[ "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION")" == "$SOURCE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION" ]]; then
     if [[ "$TARGET_GALLERY_CONFIG_IMAGE_TAGGER_VERSION" != "$SOURCE_GALLERY_CONFIG_IMAGE_TAGGER_VERSION" ]] || \
             [ "$TARGET_PLATFORM_SDK_VERSION" -lt "$SOURCE_PLATFORM_SDK_VERSION" ]; then
