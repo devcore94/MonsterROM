@@ -105,7 +105,10 @@ elif [[ "$SOURCE_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" != "$TARGET_AUDIO_CONFIG_
 fi
 
 # SEC_PRODUCT_FEATURE_AUDIO_CONFIG_HAPTIC
-if $SOURCE_AUDIO_SUPPORT_ACH_RINGTONE; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/framework.jar" \
+        "$MODPATH/m2s/framework.jar/0002-Use-the-t2s-ringtone-haptic-capabilities.patch"
+elif $SOURCE_AUDIO_SUPPORT_ACH_RINGTONE; then
     if ! $TARGET_AUDIO_SUPPORT_ACH_RINGTONE; then
         APPLY_PATCH "system" "system/framework/framework.jar" \
             "$MODPATH/audio/ach/framework.jar/0001-Disable-ACH-ringtone-support.patch"

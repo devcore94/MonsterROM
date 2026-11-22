@@ -1,0 +1,29 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the t2s ringtone haptic capabilities
+
+diff --git a/smali_classes3/com/samsung/android/audio/Rune.smali b/smali_classes3/com/samsung/android/audio/Rune.smali
+--- a/smali_classes3/com/samsung/android/audio/Rune.smali
++++ b/smali_classes3/com/samsung/android/audio/Rune.smali
+@@ -463,7 +463,7 @@
+ 
+     sput-boolean v3, Lcom/samsung/android/audio/Rune;->SEC_AUDIO_PERMISSION_UPDATE_DELAY_FOR_SEP_LITE:Z
+ 
+-    sput-boolean v1, Lcom/samsung/android/audio/Rune;->SEC_AUDIO_SUPPORT_ACH_RINGTONE:Z
++    sput-boolean v3, Lcom/samsung/android/audio/Rune;->SEC_AUDIO_SUPPORT_ACH_RINGTONE:Z
+ 
+     sput-boolean v3, Lcom/samsung/android/audio/Rune;->SEC_AUDIO_EXTRA_RINGTONES_ALGERIA:Z
+ 
+diff --git a/smali_classes3/com/samsung/android/vibrator/VibRune.smali b/smali_classes3/com/samsung/android/vibrator/VibRune.smali
+--- a/smali_classes3/com/samsung/android/vibrator/VibRune.smali
++++ b/smali_classes3/com/samsung/android/vibrator/VibRune.smali
+@@ -8,7 +8,7 @@
+ 
+ .field public static final blacklist SUPPORT_4D_VIBRATION:Z = true
+ 
+-.field public static final blacklist SUPPORT_ACH:Z = true
++.field public static final blacklist SUPPORT_ACH:Z = false
+ 
+ .field public static final blacklist SUPPORT_AIDL_SEH_VIBRATOR:Z = true
+ 
+-- 
+2.51.0
