@@ -1,0 +1,11 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Keep the primary framework dex within its method ID limit
+
+The beta fills all 65536 method IDs in its first framework dex. The game
+launch hook adds a reference there. Move ActivityMonitor unchanged into the
+last framework dex, which has room for the class and its public methods.
+
+diff --git a/smali/android/app/Instrumentation$ActivityMonitor.smali b/smali_classes7/android/app/Instrumentation$ActivityMonitor.smali
+similarity index 100%
+rename from smali/android/app/Instrumentation$ActivityMonitor.smali
+rename to smali_classes7/android/app/Instrumentation$ActivityMonitor.smali
