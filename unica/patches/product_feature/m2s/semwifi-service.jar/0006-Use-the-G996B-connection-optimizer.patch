@@ -1,0 +1,75 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the G996B connection optimizer
+
+diff --git a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
+--- a/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
++++ b/smali/com/samsung/android/server/wifi/SemWifiInjector.smali
+@@ -1883,31 +1883,6 @@
+ 
+     invoke-virtual {v8, v0}, Lcom/samsung/android/server/wifi/SemWifiOptimizer;->setApeController(Lcom/samsung/android/server/wifi/SemApeController;)V
+ 
+-    new-instance v0, Landroid/os/HandlerThread;
+-
+-    const-string v2, "SemApeService"
+-
+-    invoke-direct {v0, v2}, Landroid/os/HandlerThread;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v0}, Landroid/os/HandlerThread;->start()V
+-
+-    const-string v2, "SEP ver=18.5"
+-
+-    invoke-static {v11, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    new-instance v2, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;
+-
+-    invoke-direct {v2, v1, v0, v14}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;-><init>(Landroid/content/Context;Landroid/os/HandlerThread;Lcom/samsung/android/server/wifi/SemClientModeManager;)V
+-
+-    iget-object v0, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mWifiCtlFeatureMediator:Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;
+-
+-    if-eqz v0, :cond_4
+-
+-    invoke-virtual {v2, v0}, Lcom/samsung/android/server/wifi/SemApeServiceImplV2;->setMediator(Lcom/samsung/android/server/wifi/SemWifiCtlFeatureMediator;)V
+-
+-    :cond_4
+-    iput-object v2, v4, Lcom/samsung/android/server/wifi/SemWifiInjector;->mApeService:Lcom/samsung/android/server/wifi/SemApeService;
+-
+     new-instance v0, Lcom/samsung/android/server/wifi/SemQboxController;
+ 
+     invoke-static {}, Landroid/os/Looper;->myLooper()Landroid/os/Looper;
+@@ -1982,7 +1957,7 @@
+ 
+     new-instance v2, Lcom/samsung/android/server/wifi/connection/ConnectionPersonalizer;
+ 
+-    const/4 v3, 0x3
++    const/4 v3, 0x0
+ 
+     invoke-direct {v2, v1, v4, v0, v3}, Lcom/samsung/android/server/wifi/connection/ConnectionPersonalizer;-><init>(Landroid/content/Context;Lcom/samsung/android/server/wifi/SemWifiInjector;Landroid/os/HandlerThread;I)V
+ 
+diff --git a/smali/com/samsung/android/server/wifi/SemWifiResourceManager.smali b/smali/com/samsung/android/server/wifi/SemWifiResourceManager.smali
+--- a/smali/com/samsung/android/server/wifi/SemWifiResourceManager.smali
++++ b/smali/com/samsung/android/server/wifi/SemWifiResourceManager.smali
+@@ -466,11 +466,11 @@
+ 
+     invoke-direct {v0}, Ljava/lang/Object;-><init>()V
+ 
+-    const/16 v2, 0xd
++    const/4 v2, 0x0
+ 
+     iput v2, v0, Lcom/samsung/android/server/wifi/SemWifiResourceManager;->DYNAMIC_SUPPORT:I
+ 
+-    const/16 v3, 0xd
++    const/4 v3, 0x0
+ 
+     const/4 v4, 0x1
+ 
+@@ -490,7 +490,7 @@
+     :goto_0
+     iput-boolean v3, v0, Lcom/samsung/android/server/wifi/SemWifiResourceManager;->isPcieSwitchSupported:Z
+ 
+-    const/16 v3, 0xd
++    const/4 v3, 0x0
+ 
+     const/4 v6, 0x2
+ 
+-- 
+2.51.0
