@@ -1,0 +1,396 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Add the localized per-game FPS switch to MonsterROM settings
+
+diff --git a/res/xml/monsterrom_settings.xml b/res/xml/monsterrom_settings.xml
+--- a/res/xml/monsterrom_settings.xml
++++ b/res/xml/monsterrom_settings.xml
+@@ -6,4 +6,5 @@
+     <SecPreference android:title="@string/dual_app_title" android:key="dual_app" settings:controller="com.samsung.android.settings.usefulfeature.dualmessenger.DualMessengerPreferenceController" />
+     <Preference android:icon="@drawable/ic_settings_multiuser" android:title="@string/user_settings_title" android:key="system_multiuser" android:fragment="com.android.settings.users.UserSettings" settings:controller="com.android.settings.users.MultiUserPreferenceController" />
+     <PreferenceScreen android:title="@string/device_info_software_title" android:key="software_info" android:fragment="com.samsung.android.settings.deviceinfo.softwareinfo.SoftwareInfoSettings" settings:controller="com.samsung.android.settings.deviceinfo.softwareinfo.SoftwareInfoPreferenceController" settings:keywords="@string/keywords_device_info_software_settings" />
++    <SecSwitchPreference android:title="@string/unica_games_spoof_title" android:key="unica_games_spoof" settings:controller="io.mesalabs.unica.settings.extra.GamesPropsPreferenceController" />
+ </PreferenceScreen>
+diff --git a/smali_classes4/io/mesalabs/unica/settings/extra/GamesPropsPreferenceController.smali b/smali_classes4/io/mesalabs/unica/settings/extra/GamesPropsPreferenceController.smali
+new file mode 100644
+--- /dev/null
++++ b/smali_classes4/io/mesalabs/unica/settings/extra/GamesPropsPreferenceController.smali
+@@ -0,0 +1,73 @@
++.class public Lio/mesalabs/unica/settings/extra/GamesPropsPreferenceController;
++.super Lcom/android/settings/core/TogglePreferenceController;
++.source "GamesPropsPreferenceController.java"
++
++
++# direct methods
++.method public constructor <init>(Landroid/content/Context;Ljava/lang/String;)V
++    .locals 0
++
++    invoke-direct {p0, p1, p2}, Lcom/android/settings/core/TogglePreferenceController;-><init>(Landroid/content/Context;Ljava/lang/String;)V
++
++    return-void
++.end method
++
++
++# virtual methods
++.method public getAvailabilityStatus()I
++    .locals 0
++
++    :try_start_0
++    const-string p0, "io.mesalabs.unica.GamesPropsUtils"
++
++    invoke-static {p0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
++    :try_end_0
++    .catch Ljava/lang/ClassNotFoundException; {:try_start_0 .. :try_end_0} :catch_0
++
++    const/4 p0, 0x0
++
++    return p0
++
++    :catch_0
++    const/4 p0, 0x3
++
++    return p0
++.end method
++
++.method public isChecked()Z
++    .locals 1
++
++    const-string p0, "persist.sys.unica.gamehooks"
++
++    const/4 v0, 0x1
++
++    invoke-static {p0, v0}, Landroid/os/SemSystemProperties;->getBoolean(Ljava/lang/String;Z)Z
++
++    move-result p0
++
++    return p0
++.end method
++
++.method public isControllable()Z
++    .locals 0
++
++    const/4 p0, 0x1
++
++    return p0
++.end method
++
++.method public setChecked(Z)Z
++    .locals 0
++
++    const-string p0, "persist.sys.unica.gamehooks"
++
++    invoke-static {p1}, Ljava/lang/Boolean;->toString(Z)Ljava/lang/String;
++
++    move-result-object p1
++
++    invoke-static {p0, p1}, Landroid/os/SemSystemProperties;->set(Ljava/lang/String;Ljava/lang/String;)V
++
++    const/4 p0, 0x1
++
++    return p0
++.end method
+diff --git a/res/values-ar/strings.xml b/res/values-ar/strings.xml
+--- a/res/values-ar/strings.xml
++++ b/res/values-ar/strings.xml
+@@ -8929,4 +8929,5 @@
+     <string name="zone_menu_by_region">تحديد حسب المنطقة</string>
+     <string name="zone_time_type_dst">توقيت الصيفي</string>
+     <string name="zone_time_type_standard">الوقت العادي</string>
++    <string name="unica_games_spoof_title">فتح معدل إطارات أعلى في الألعاب</string>
+ </resources>
+diff --git a/res/values-az-rAZ/strings.xml b/res/values-az-rAZ/strings.xml
+--- a/res/values-az-rAZ/strings.xml
++++ b/res/values-az-rAZ/strings.xml
+@@ -7745,4 +7745,5 @@
+     <string name="zone_menu_by_region">Regiona görə seç</string>
+     <string name="zone_time_type_dst">Gündüz işığa qənaət vaxtı</string>
+     <string name="zone_time_type_standard">Standart vaxt</string>
++    <string name="unica_games_spoof_title">Oyunlarda daha yüksək FPS kilidini aç</string>
+ </resources>
+diff --git a/res/values-b+sr+Latn/strings.xml b/res/values-b+sr+Latn/strings.xml
+--- a/res/values-b+sr+Latn/strings.xml
++++ b/res/values-b+sr+Latn/strings.xml
+@@ -8922,4 +8922,5 @@
+     <string name="zone_menu_by_region">Izaberi prema regionu</string>
+     <string name="zone_time_type_dst">Letnje računanje vremena</string>
+     <string name="zone_time_type_standard">Standardno vreme</string>
++    <string name="unica_games_spoof_title">Otključaj veći FPS u igrama</string>
+ </resources>
+diff --git a/res/values-be-rBY/strings.xml b/res/values-be-rBY/strings.xml
+--- a/res/values-be-rBY/strings.xml
++++ b/res/values-be-rBY/strings.xml
+@@ -7750,4 +7750,5 @@
+     <string name="zone_menu_by_region">Выбраць па рэгіёне</string>
+     <string name="zone_time_type_dst">Летні час</string>
+     <string name="zone_time_type_standard">Стандартны час</string>
++    <string name="unica_games_spoof_title">Разблакаваць настройку высокага FPS у гульнях</string>
+ </resources>
+diff --git a/res/values-bg/strings.xml b/res/values-bg/strings.xml
+--- a/res/values-bg/strings.xml
++++ b/res/values-bg/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Избор по регион</string>
+     <string name="zone_time_type_dst">Лятно часово време</string>
+     <string name="zone_time_type_standard">Стандартно време</string>
++    <string name="unica_games_spoof_title">Отключване на по-висок FPS в игри</string>
+ </resources>
+diff --git a/res/values-bs/strings.xml b/res/values-bs/strings.xml
+--- a/res/values-bs/strings.xml
++++ b/res/values-bs/strings.xml
+@@ -8927,4 +8927,5 @@
+     <string name="zone_menu_by_region">Izaberi po regiji</string>
+     <string name="zone_time_type_dst">Ljetno računanje vremena</string>
+     <string name="zone_time_type_standard">Standardno vrijeme</string>
++    <string name="unica_games_spoof_title">Otključaj veći FPS u igrama</string>
+ </resources>
+diff --git a/res/values-de/strings.xml b/res/values-de/strings.xml
+--- a/res/values-de/strings.xml
++++ b/res/values-de/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Nach Region auswählen</string>
+     <string name="zone_time_type_dst">Sommerzeit</string>
+     <string name="zone_time_type_standard">Standardzeit</string>
++    <string name="unica_games_spoof_title">Höhere FPS in Spielen entsperren</string>
+ </resources>
+diff --git a/res/values-el/strings.xml b/res/values-el/strings.xml
+--- a/res/values-el/strings.xml
++++ b/res/values-el/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Επιλογή βάσει περιοχής</string>
+     <string name="zone_time_type_dst">Θερινή ώρα</string>
+     <string name="zone_time_type_standard">Κανονική ώρα</string>
++    <string name="unica_games_spoof_title">Ξεκλείδωμα υψηλότερου FPS στα παιχνίδια</string>
+ </resources>
+diff --git a/res/values-es-rES/strings.xml b/res/values-es-rES/strings.xml
+--- a/res/values-es-rES/strings.xml
++++ b/res/values-es-rES/strings.xml
+@@ -7743,4 +7743,5 @@
+     <string name="zone_menu_by_region">Seleccionar por región</string>
+     <string name="zone_time_type_dst">Horario de verano</string>
+     <string name="zone_time_type_standard">Hora estándar</string>
++    <string name="unica_games_spoof_title">Desbloquear ajustes gráficos adicionales en juegos</string>
+ </resources>
+diff --git a/res/values-es-rUS/strings.xml b/res/values-es-rUS/strings.xml
+--- a/res/values-es-rUS/strings.xml
++++ b/res/values-es-rUS/strings.xml
+@@ -8927,4 +8927,5 @@
+     <string name="zone_menu_by_region">Seleccionar por región</string>
+     <string name="zone_time_type_dst">Horario de verano</string>
+     <string name="zone_time_type_standard">Hora estándar</string>
++    <string name="unica_games_spoof_title">Desbloquear ajustes de FPS adicionales en juegos</string>
+ </resources>
+diff --git a/res/values-fa/strings.xml b/res/values-fa/strings.xml
+--- a/res/values-fa/strings.xml
++++ b/res/values-fa/strings.xml
+@@ -8927,4 +8927,5 @@
+     <string name="zone_menu_by_region">انتخاب بر اساس منطقه</string>
+     <string name="zone_time_type_dst">زمان ساعت تابستانی</string>
+     <string name="zone_time_type_standard">زمان استاندارد</string>
++    <string name="unica_games_spoof_title">رفع محدودیت فریم در بازی‌ها</string>
+ </resources>
+diff --git a/res/values-fr/strings.xml b/res/values-fr/strings.xml
+--- a/res/values-fr/strings.xml
++++ b/res/values-fr/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Sélectionner par région</string>
+     <string name="zone_time_type_dst">"Heure d'été"</string>
+     <string name="zone_time_type_standard">Heure standard</string>
++    <string name="unica_games_spoof_title">Débloquer des FPS plus élevés dans les jeux</string>
+ </resources>
+diff --git a/res/values-hi/strings.xml b/res/values-hi/strings.xml
+--- a/res/values-hi/strings.xml
++++ b/res/values-hi/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">क्षेत्र के अनुसार चुनें</string>
+     <string name="zone_time_type_dst">डेलाईट बचत समय</string>
+     <string name="zone_time_type_standard">मानक समय</string>
++    <string name="unica_games_spoof_title">गेम्स में ज़्यादा FPS अनलॉक करें</string>
+ </resources>
+diff --git a/res/values-hu/strings.xml b/res/values-hu/strings.xml
+--- a/res/values-hu/strings.xml
++++ b/res/values-hu/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Kiválasztás régió szerint</string>
+     <string name="zone_time_type_dst">Nyári időszámítás</string>
+     <string name="zone_time_type_standard">Normál idő</string>
++    <string name="unica_games_spoof_title">Magasabb FPS feloldása a játékokban</string>
+ </resources>
+diff --git a/res/values-in/strings.xml b/res/values-in/strings.xml
+--- a/res/values-in/strings.xml
++++ b/res/values-in/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Pilih menurut wilayah</string>
+     <string name="zone_time_type_dst">Waktu musim panas</string>
+     <string name="zone_time_type_standard">Waktu standar</string>
++    <string name="unica_games_spoof_title">Buka FPS lebih tinggi dalam gim</string>
+ </resources>
+diff --git a/res/values-it/strings.xml b/res/values-it/strings.xml
+--- a/res/values-it/strings.xml
++++ b/res/values-it/strings.xml
+@@ -8927,4 +8927,5 @@
+     <string name="zone_menu_by_region">Seleziona per regione</string>
+     <string name="zone_time_type_dst">Ora legale</string>
+     <string name="zone_time_type_standard">Fuso orario standard</string>
++    <string name="unica_games_spoof_title">Sblocca opzioni grafiche extra per giochi</string>
+ </resources>
+diff --git a/res/values-ko/strings.xml b/res/values-ko/strings.xml
+--- a/res/values-ko/strings.xml
++++ b/res/values-ko/strings.xml
+@@ -8994,4 +8994,5 @@
+     <string name="zone_menu_by_region">지역으로 선택</string>
+     <string name="zone_time_type_dst">서머타임</string>
+     <string name="zone_time_type_standard">기준시간</string>
++    <string name="unica_games_spoof_title">게임에서 더 높은 FPS를 잠금 해제</string>
+ </resources>
+diff --git a/res/values-mk-rMK/strings.xml b/res/values-mk-rMK/strings.xml
+--- a/res/values-mk-rMK/strings.xml
++++ b/res/values-mk-rMK/strings.xml
+@@ -7745,4 +7745,5 @@
+     <string name="zone_menu_by_region">Избери според регион</string>
+     <string name="zone_time_type_dst">Летно и зимско сметање на времето</string>
+     <string name="zone_time_type_standard">Стандардно време</string>
++    <string name="unica_games_spoof_title">Отклучи повисок FPS во игрите</string>
+ </resources>
+diff --git a/res/values-mr-rIN/strings.xml b/res/values-mr-rIN/strings.xml
+--- a/res/values-mr-rIN/strings.xml
++++ b/res/values-mr-rIN/strings.xml
+@@ -7745,4 +7745,5 @@
+     <string name="zone_menu_by_region">प्रदेशा नुसार निवडा</string>
+     <string name="zone_time_type_dst">डेलाइट सेव्हिंग वेळ</string>
+     <string name="zone_time_type_standard">मानक वेळ</string>
++    <string name="unica_games_spoof_title">गेम्समध्ये उच्च FPS अनलॉक करा</string>
+ </resources>
+diff --git a/res/values-pl/strings.xml b/res/values-pl/strings.xml
+--- a/res/values-pl/strings.xml
++++ b/res/values-pl/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Wybierz wg regionu</string>
+     <string name="zone_time_type_dst">Zmiana czasu</string>
+     <string name="zone_time_type_standard">Czas standardowy</string>
++    <string name="unica_games_spoof_title">Odblokuj więcej FPS w grach</string>
+ </resources>
+diff --git a/res/values-pt-rBR/strings.xml b/res/values-pt-rBR/strings.xml
+--- a/res/values-pt-rBR/strings.xml
++++ b/res/values-pt-rBR/strings.xml
+@@ -8929,4 +8929,5 @@
+     <string name="zone_menu_by_region">Selecionar por região</string>
+     <string name="zone_time_type_dst">Horário de verão</string>
+     <string name="zone_time_type_standard">Horário padrão</string>
++    <string name="unica_games_spoof_title">Desbloquear FPS em jogos</string>
+ </resources>
+diff --git a/res/values-pt-rPT/strings.xml b/res/values-pt-rPT/strings.xml
+--- a/res/values-pt-rPT/strings.xml
++++ b/res/values-pt-rPT/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Selecionar por região</string>
+     <string name="zone_time_type_dst">Horário de Verão</string>
+     <string name="zone_time_type_standard">Hora padrão</string>
++    <string name="unica_games_spoof_title">Desbloquear FPS em jogos</string>
+ </resources>
+diff --git a/res/values-ro/strings.xml b/res/values-ro/strings.xml
+--- a/res/values-ro/strings.xml
++++ b/res/values-ro/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Selectare după regiune</string>
+     <string name="zone_time_type_dst">Oră de vară</string>
+     <string name="zone_time_type_standard">Oră standard</string>
++    <string name="unica_games_spoof_title">Deblocare FPS mai mare în jocuri</string>
+ </resources>
+diff --git a/res/values-ru/strings.xml b/res/values-ru/strings.xml
+--- a/res/values-ru/strings.xml
++++ b/res/values-ru/strings.xml
+@@ -8928,4 +8928,5 @@
+     <string name="zone_menu_by_region">Выбрать по региону</string>
+     <string name="zone_time_type_dst">Летнее время</string>
+     <string name="zone_time_type_standard">Стандартное время</string>
++    <string name="unica_games_spoof_title">Разблокировка более высокого FPS в играх</string>
+ </resources>
+diff --git a/res/values-sq-rAL/strings.xml b/res/values-sq-rAL/strings.xml
+--- a/res/values-sq-rAL/strings.xml
++++ b/res/values-sq-rAL/strings.xml
+@@ -7773,4 +7773,5 @@
+     <string name="zone_menu_by_region">Sipas rajonit</string>
+     <string name="zone_time_type_dst">Ora verore</string>
+     <string name="zone_time_type_standard">Ora standard</string>
++    <string name="unica_games_spoof_title">Aktivizo FPS të lartë në lojra</string>
+ </resources>
+diff --git a/res/values-sr/strings.xml b/res/values-sr/strings.xml
+--- a/res/values-sr/strings.xml
++++ b/res/values-sr/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Изабери према региону</string>
+     <string name="zone_time_type_dst">Летње рачунање времена</string>
+     <string name="zone_time_type_standard">Стандардно време</string>
++    <string name="unica_games_spoof_title">Откључај већи FPS у играма</string>
+ </resources>
+diff --git a/res/values-th/strings.xml b/res/values-th/strings.xml
+--- a/res/values-th/strings.xml
++++ b/res/values-th/strings.xml
+@@ -8932,4 +8932,5 @@
+     <string name="zone_menu_by_region">เลือกตามภูมิภาค</string>
+     <string name="zone_time_type_dst">การชดเชยเวลากลางวัน</string>
+     <string name="zone_time_type_standard">เวลามาตรฐาน</string>
++    <string name="unica_games_spoof_title">ปลดล็อค FPS ที่สูงขี้นในเกม</string>
+ </resources>
+diff --git a/res/values-tr/strings.xml b/res/values-tr/strings.xml
+--- a/res/values-tr/strings.xml
++++ b/res/values-tr/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Bölgeye göre seç</string>
+     <string name="zone_time_type_dst">Gün ışığından yararlanma</string>
+     <string name="zone_time_type_standard">Standart saat</string>
++    <string name="unica_games_spoof_title">Oyunlardaki kilitli grafik ayarlarını aç</string>
+ </resources>
+diff --git a/res/values-uk/strings.xml b/res/values-uk/strings.xml
+--- a/res/values-uk/strings.xml
++++ b/res/values-uk/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Вибрати за регіоном</string>
+     <string name="zone_time_type_dst">Літній час</string>
+     <string name="zone_time_type_standard">Стандартний час</string>
++    <string name="unica_games_spoof_title">Розблокувати високий FPS в іграх</string>
+ </resources>
+diff --git a/res/values-uz-rUZ/strings.xml b/res/values-uz-rUZ/strings.xml
+--- a/res/values-uz-rUZ/strings.xml
++++ b/res/values-uz-rUZ/strings.xml
+@@ -7744,4 +7744,5 @@
+     <string name="zone_menu_by_region">Mintaqa bo‘yicha tanlash</string>
+     <string name="zone_time_type_dst">Yozgi vaqt</string>
+     <string name="zone_time_type_standard">Standart vaqt</string>
++    <string name="unica_games_spoof_title">"O'yinlarda yuqori FPS ni ochish"</string>
+ </resources>
+diff --git a/res/values-vi/strings.xml b/res/values-vi/strings.xml
+--- a/res/values-vi/strings.xml
++++ b/res/values-vi/strings.xml
+@@ -8926,4 +8926,5 @@
+     <string name="zone_menu_by_region">Chọn theo vùng</string>
+     <string name="zone_time_type_dst">Giờ theo mùa</string>
+     <string name="zone_time_type_standard">Giờ tiêu chuẩn</string>
++    <string name="unica_games_spoof_title">Mở khóa lựa chọn FPS cao trong trò chơi</string>
+ </resources>
+diff --git a/res/values-zh-rCN/strings.xml b/res/values-zh-rCN/strings.xml
+--- a/res/values-zh-rCN/strings.xml
++++ b/res/values-zh-rCN/strings.xml
+@@ -8929,4 +8929,5 @@
+     <string name="zone_menu_by_region">按地区选择</string>
+     <string name="zone_time_type_dst">夏令时</string>
+     <string name="zone_time_type_standard">标准时间</string>
++    <string name="unica_games_spoof_title">解锁游戏FPS</string>
+ </resources>
+diff --git a/res/values-zh-rTW/strings.xml b/res/values-zh-rTW/strings.xml
+--- a/res/values-zh-rTW/strings.xml
++++ b/res/values-zh-rTW/strings.xml
+@@ -8925,4 +8925,5 @@
+     <string name="zone_menu_by_region">依照地區選擇</string>
+     <string name="zone_time_type_dst">日光節約時間</string>
+     <string name="zone_time_type_standard">標準時間</string>
++    <string name="unica_games_spoof_title">解鎖遊戲FPS</string>
+ </resources>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -19846,4 +19846,5 @@
+     <string name="zzz_lgt_password_wrong_pin_code1">The PIN was entered incorrectly %d time.</string>
+     <string name="zzz_lgt_password_wrong_pin_code2">After 3 incorrect PIN attempts, you have to enter the personal unlocking key (PUK).</string>
+     <string name="monsterrom_name" translatable="false">MonsterROM_NEXT</string>
++    <string name="unica_games_spoof_title">Unlock higher FPS in games</string>
+ </resources>
