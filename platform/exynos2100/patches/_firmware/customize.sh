@@ -26,6 +26,9 @@ for PARTITION in vendor odm; do
     CHECK_FW_PROP "$PARTITION" "ro.$PARTITION.build.version.incremental" "G996BXXSJHZC2"
 done
 
+# Android keeps an explicit ro.product.device ahead of the partition fallback order.
+SET_PROP "system" "ro.product.device" "$(GET_PROP "odm" "ro.product.odm.device")"
+
 # The shared staging step installs the S22 flags when system_ext is folded into system.
 ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system_ext" "etc/build_flags.json" 0 0 644 "u:object_r:system_file:s0" || ABORT
 ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "system_ext" "etc/NOTICE.xml.gz" 0 0 644 "u:object_r:system_file:s0" || ABORT
