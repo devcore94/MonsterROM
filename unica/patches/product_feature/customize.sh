@@ -138,7 +138,16 @@ else
 fi
 
 # SEC_PRODUCT_FEATURE_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND
-if $SOURCE_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/framework.jar" \
+        "$MODPATH/m2s/framework.jar/0003-Match-the-G996B-physical-vibrator.patch"
+    APPLY_PATCH "system" "system/framework/services.jar" \
+        "$MODPATH/m2s/services.jar/0003-Match-the-G996B-physical-vibrator.patch"
+    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "$MODPATH/m2s/SecSettings.apk/0003-Match-the-G996B-physical-vibrator.patch"
+    APPLY_PATCH "system" "system/priv-app/SettingsProvider/SettingsProvider.apk" \
+        "$MODPATH/m2s/SettingsProvider.apk/0003-Match-the-G996B-physical-vibrator.patch"
+elif $SOURCE_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
     if ! $TARGET_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND; then
         APPLY_PATCH "system" "system/framework/framework.jar" \
             "$MODPATH/audio/virtual_vib/framework.jar/0001-Disable-virtual-vibration-support.patch"

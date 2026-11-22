@@ -1,0 +1,105 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Match the G996B physical vibrator
+
+diff --git a/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali b/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
+--- a/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
++++ b/smali_classes2/com/android/server/vibrator/VibratorManagerService.smali
+@@ -1728,95 +1728,7 @@
+ .end method
+ 
+ .method public final bootCompleteReady()V
+-    .locals 5
+-
+-    iget-object v0, p0, Lcom/android/server/vibrator/VibratorManagerService;->mVibrationSettings:Lcom/android/server/vibrator/VibrationSettings;
+-
+-    iget-object v0, v0, Lcom/android/server/vibrator/VibrationSettings;->mCustomSettings:Lcom/android/server/vibrator/VibrationCustomSettings;
+-
+-    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
+-
+-    new-instance v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;
+-
+-    iget-object v1, p0, Lcom/android/server/vibrator/VibratorManagerService;->mContext:Landroid/content/Context;
+-
+-    iget-object v2, p0, Lcom/android/server/vibrator/VibratorManagerService;->mVibrationSettings:Lcom/android/server/vibrator/VibrationSettings;
+-
+-    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
+-
+-    iput-object v2, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSettings:Lcom/android/server/vibrator/VibrationSettings;
+-
+-    invoke-static {v1}, Lcom/samsung/android/server/audio/AudioSettingsHelper;->getInstance(Landroid/content/Context;)Lcom/samsung/android/server/audio/AudioSettingsHelper;
+-
+-    move-result-object v1
+-
+-    iput-object v1, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mAudioSettingsHelper:Lcom/samsung/android/server/audio/AudioSettingsHelper;
+-
+-    new-instance v1, Landroid/media/SoundPool$Builder;
+-
+-    invoke-direct {v1}, Landroid/media/SoundPool$Builder;-><init>()V
+-
+-    const/4 v2, 0x1
+-
+-    invoke-virtual {v1, v2}, Landroid/media/SoundPool$Builder;->setMaxStreams(I)Landroid/media/SoundPool$Builder;
+-
+-    move-result-object v1
+-
+-    new-instance v3, Landroid/media/AudioAttributes$Builder;
+-
+-    invoke-direct {v3}, Landroid/media/AudioAttributes$Builder;-><init>()V
+-
+-    const/16 v4, 0xd
+-
+-    invoke-virtual {v3, v4}, Landroid/media/AudioAttributes$Builder;->setUsage(I)Landroid/media/AudioAttributes$Builder;
+-
+-    move-result-object v3
+-
+-    invoke-virtual {v3, v2}, Landroid/media/AudioAttributes$Builder;->setFlags(I)Landroid/media/AudioAttributes$Builder;
+-
+-    move-result-object v2
+-
+-    const/4 v3, 0x4
+-
+-    invoke-virtual {v2, v3}, Landroid/media/AudioAttributes$Builder;->setContentType(I)Landroid/media/AudioAttributes$Builder;
+-
+-    move-result-object v2
+-
+-    const-string/jumbo v3, "VIRTUAL_VIB_SOUND"
+-
+-    invoke-virtual {v2, v3}, Landroid/media/AudioAttributes$Builder;->semAddAudioTag(Ljava/lang/String;)Landroid/media/AudioAttributes$Builder;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {v2}, Landroid/media/AudioAttributes$Builder;->build()Landroid/media/AudioAttributes;
+-
+-    move-result-object v2
+-
+-    invoke-virtual {v1, v2}, Landroid/media/SoundPool$Builder;->setAudioAttributes(Landroid/media/AudioAttributes;)Landroid/media/SoundPool$Builder;
+-
+-    move-result-object v1
+-
+-    invoke-virtual {v1}, Landroid/media/SoundPool$Builder;->build()Landroid/media/SoundPool;
+-
+-    move-result-object v1
+-
+-    iput-object v1, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mSoundPool:Landroid/media/SoundPool;
+-
+-    const/4 v2, 0x0
+-
+-    iput-boolean v2, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mIsVirtualSoundPlaying:Z
+-
+-    const-string v3, "/system/media/audio/ui/VIB_Vibration_Call.ogg"
+-
+-    invoke-virtual {v1, v3, v2}, Landroid/media/SoundPool;->load(Ljava/lang/String;I)I
+-
+-    move-result v1
+-
+-    iput v1, v0, Lcom/android/server/vibrator/VirtualVibSoundHelper;->mVirtualSoundId:I
+-
+-    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
+-
+-    iput-object v0, p0, Lcom/android/server/vibrator/VibratorManagerService;->mVirtualVibSoundHelper:Lcom/android/server/vibrator/VirtualVibSoundHelper;
++    .locals 0
+ 
+     invoke-virtual {p0}, Lcom/android/server/vibrator/VibratorManagerService;->registerFoldStateListener()V
+ 
+-- 
+2.51.0

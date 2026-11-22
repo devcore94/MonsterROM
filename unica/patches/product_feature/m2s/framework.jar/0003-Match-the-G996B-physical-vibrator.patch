@@ -1,0 +1,29 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Match the G996B physical vibrator
+
+diff --git a/smali_classes3/com/samsung/android/audio/Rune.smali b/smali_classes3/com/samsung/android/audio/Rune.smali
+--- a/smali_classes3/com/samsung/android/audio/Rune.smali
++++ b/smali_classes3/com/samsung/android/audio/Rune.smali
+@@ -332,7 +332,7 @@
+ 
+ .field public static final blacklist SEC_AUDIO_SUPPORT_SOUND_THEME:Z
+ 
+-.field public static final blacklist SEC_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND:Z = true
++.field public static final blacklist SEC_AUDIO_SUPPORT_VIRTUAL_VIBRATION_SOUND:Z = false
+ 
+ .field public static final blacklist SEC_AUDIO_SUPPORT_VOIP_ANTI_HOWLING:Z
+ 
+diff --git a/smali_classes3/com/samsung/android/vibrator/VibRune.smali b/smali_classes3/com/samsung/android/vibrator/VibRune.smali
+--- a/smali_classes3/com/samsung/android/vibrator/VibRune.smali
++++ b/smali_classes3/com/samsung/android/vibrator/VibRune.smali
+@@ -64,7 +64,7 @@
+ 
+ .field public static final blacklist SUPPORT_VIBRATION_TAG:Z = true
+ 
+-.field public static final blacklist SUPPORT_VIRTUAL_VIBRATION_SOUND:Z = true
++.field public static final blacklist SUPPORT_VIRTUAL_VIBRATION_SOUND:Z = false
+ 
+ .field private static blacklist mIsHapticEngineIndexSupported:Z = false
+ 
+-- 
+2.51.0

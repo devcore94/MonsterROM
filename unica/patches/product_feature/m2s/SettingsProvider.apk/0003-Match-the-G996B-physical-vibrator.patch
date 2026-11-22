@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Match the G996B physical vibrator
+
+diff --git a/smali/com/android/providers/settings/DatabaseHelper$1.smali b/smali/com/android/providers/settings/DatabaseHelper$1.smali
+--- a/smali/com/android/providers/settings/DatabaseHelper$1.smali
++++ b/smali/com/android/providers/settings/DatabaseHelper$1.smali
+@@ -453,6 +453,8 @@
+ 
+     const-string v1, "vibration_sound_enabled"
+ 
++    const/4 v8, 0x0
++
+     invoke-static {v0, v1, v8, p0}, Landroid/provider/Settings$System;->putIntForUser(Landroid/content/ContentResolver;Ljava/lang/String;II)Z
+ 
+     return-void
+-- 
+2.51.0
