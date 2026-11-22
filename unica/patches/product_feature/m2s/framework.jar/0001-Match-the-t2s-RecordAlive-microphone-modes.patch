@@ -1,0 +1,26 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Match the t2s RecordAlive microphone modes
+
+diff --git a/smali_classes3/com/samsung/android/camera/mic/SemMultiMicManager.smali b/smali_classes3/com/samsung/android/camera/mic/SemMultiMicManager.smali
+--- a/smali_classes3/com/samsung/android/camera/mic/SemMultiMicManager.smali
++++ b/smali_classes3/com/samsung/android/camera/mic/SemMultiMicManager.smali
+@@ -84,7 +84,7 @@
+ 
+ .field public static final whitelist MODE_ADJUSTING_ZOOM_LEVEL:I = 0x0
+ 
+-.field private static final blacklist MODE_MAX:I = 0x4
++.field private static final blacklist MODE_MAX:I = 0x2
+ 
+ .field private static final blacklist MODE_MIN:I = 0x0
+ 
+@@ -279,7 +279,7 @@
+ 
+     if-ltz p0, :cond_1
+ 
+-    const/4 v0, 0x4
++    const/4 v0, 0x2
+ 
+     if-le p0, v0, :cond_0
+ 
+-- 
+2.51.0

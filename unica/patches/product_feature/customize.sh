@@ -83,7 +83,10 @@ elif [[ "$SOURCE_PRODUCT_SHIPPING_API_LEVEL" != "$TARGET_PRODUCT_SHIPPING_API_LE
 fi
 
 # SEC_PRODUCT_FEATURE_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION
-if [[ "$SOURCE_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" != "$TARGET_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" ]]; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/framework.jar" \
+        "$MODPATH/m2s/framework.jar/0001-Match-the-t2s-RecordAlive-microphone-modes.patch"
+elif [[ "$SOURCE_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" != "$TARGET_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" ]]; then
     if [[ "$SOURCE_AUDIO_CONFIG_RECORDALIVE_LIB_VERSION" != "none" ]]; then
         SMALI_PATCH "system" "system/framework/framework.jar" \
             "smali_classes6/com/samsung/android/camera/mic/SemMultiMicManager.smali" "replace" \
