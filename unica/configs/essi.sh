@@ -3,6 +3,11 @@
 
 # UN1CA configuration file for Exynos devices (essi)
 
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    source "$SRC_DIR/unica/configs/m1s.sh" || return 1
+    return 0
+fi
+
 # Galaxy S22 (Exynos) (One UI 8.0)
 SOURCE_FIRMWARE="SM-S901B/EUX/350330051234562"
 SOURCE_EXTRA_FIRMWARES=()
