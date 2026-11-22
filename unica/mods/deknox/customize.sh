@@ -16,4 +16,12 @@ for PACKAGE in com.samsung.android.coldwalletservice com.samsung.android.hdmapp 
     done
 done
 
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_BLOCKCHAIN_SERVICE" --delete
+    APPLY_PATCH "system" "system/framework/framework.jar" \
+        "$MODPATH/blockchain/framework.jar/0001-Remove-the-BlockchainBasicKit-feature-flag.patch"
+    APPLY_PATCH "system" "system/framework/services.jar" \
+        "$MODPATH/blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
+fi
+
 unset APP PACKAGE FILE

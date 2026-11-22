@@ -1,0 +1,46 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Remove the optional BlockchainBasicKit service from system server
+
+diff --git a/smali/com/android/server/SystemServer$$ExternalSyntheticLambda11.smali b/smali/com/android/server/SystemServer$$ExternalSyntheticLambda11.smali
+--- a/smali/com/android/server/SystemServer$$ExternalSyntheticLambda11.smali
++++ b/smali/com/android/server/SystemServer$$ExternalSyntheticLambda11.smali
+@@ -53,37 +53,6 @@
+     :goto_0
+     invoke-virtual {v1}, Landroid/util/TimingsTraceLog;->traceEnd()V
+ 
+-    const-string v2, "Blockchain Service"
+-
+-    invoke-virtual {v1, v2}, Lcom/android/server/utils/TimingsTraceAndSlog;->traceBegin(Ljava/lang/String;)V
+-
+-    :try_start_1
+-    invoke-static {v0, v2}, Landroid/util/Slog;->i(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const-string/jumbo v2, "blockchain"
+-
+-    new-instance v3, Lcom/android/server/SystemServer$5;
+-
+-    const/4 v4, 0x6
+-
+-    invoke-direct {v3, v4}, Lcom/android/server/SystemServer$5;-><init>(B)V
+-
+-    invoke-static {v2, v3}, Landroid/os/ServiceManager;->addService(Ljava/lang/String;Landroid/os/IServiceCreator;)V
+-    :try_end_1
+-    .catchall {:try_start_1 .. :try_end_1} :catchall_1
+-
+-    goto :goto_1
+-
+-    :catchall_1
+-    move-exception v2
+-
+-    const-string v3, "Failure starting Blockchain TZ Service"
+-
+-    invoke-static {v0, v3, v2}, Landroid/util/Slog;->e(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)I
+-
+-    :goto_1
+-    invoke-virtual {v1}, Landroid/util/TimingsTraceLog;->traceEnd()V
+-
+     const-string/jumbo v2, "SemAuthnrService"
+ 
+     invoke-virtual {v1, v2}, Lcom/android/server/utils/TimingsTraceAndSlog;->traceBegin(Ljava/lang/String;)V
+-- 
+2.51.0

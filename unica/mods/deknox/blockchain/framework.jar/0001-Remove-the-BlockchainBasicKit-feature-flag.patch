@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Remove the BlockchainBasicKit feature flag
+
+diff --git a/smali_classes6/com/samsung/android/ProductPackagesRune.smali b/smali_classes6/com/samsung/android/ProductPackagesRune.smali
+--- a/smali_classes6/com/samsung/android/ProductPackagesRune.smali
++++ b/smali_classes6/com/samsung/android/ProductPackagesRune.smali
+@@ -16,7 +16,7 @@
+ 
+ .field public static final blacklist SEM_DAEMON:Z = true
+ 
+-.field public static final blacklist SERVICE_SAMSUNG_BLOCKCHAIN:Z = true
++.field public static final blacklist SERVICE_SAMSUNG_BLOCKCHAIN:Z = false
+ 
+ .field public static final blacklist SERVICE_SAMSUNG_DESKTOPMODE:Z = false
+ 
+-- 
+2.51.0
