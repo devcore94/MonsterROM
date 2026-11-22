@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Gerçek zamanlı bulanıklık efektini etkinleştir</string>
     <string name="unica_games_spoof_title">Oyunlardaki kilitli grafik ayarlarını aç</string>
     <string name="unica_hma_title">Yüklü uygulamaları gizle</string>
+    <string name="unica_boot_sound_title">Cihaz açılış sesini etkinleştir</string>
 </resources>

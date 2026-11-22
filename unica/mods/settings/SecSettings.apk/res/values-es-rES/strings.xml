@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Activar efecto de desenfoque en tiempo real</string>
     <string name="unica_games_spoof_title">Desbloquear ajustes gráficos adicionales en juegos</string>
     <string name="unica_hma_title">Ocultar apps instaladas</string>
+    <string name="unica_boot_sound_title">Reproducir sonido de encendido</string>
 </resources>

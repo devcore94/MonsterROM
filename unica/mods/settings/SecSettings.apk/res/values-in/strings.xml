@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Aktifkan efek live blur</string>
     <string name="unica_games_spoof_title">Buka FPS lebih tinggi dalam gim</string>
     <string name="unica_hma_title">Sembunyikan aplikasi terpasang</string>
+    <string name="unica_boot_sound_title">Aktifkan suara saat dihidupkan</string>
 </resources>

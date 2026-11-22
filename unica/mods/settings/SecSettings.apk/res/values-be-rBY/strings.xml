@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Уключыць эфект жывога блюру</string>
     <string name="unica_games_spoof_title">Разблакаваць настройку высокага FPS у гульнях</string>
     <string name="unica_hma_title">Схаваць устаноўленыя прыкладанні</string>
+    <string name="unica_boot_sound_title">Гук уключэння прылады</string>
 </resources>

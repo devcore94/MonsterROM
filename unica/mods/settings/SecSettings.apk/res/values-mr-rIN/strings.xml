@@ -2,4 +2,5 @@
 <resources>
     <string name="unica_dialog_reboot_msg">बदल लागू करण्यासाठी, रीस्टार्ट करणे आवश्यक आहे.</string>
     <string name="unica_games_spoof_title">गेम्समध्ये उच्च FPS अनलॉक करा</string>
+    <string name="unica_boot_sound_title">पॉवर ऑन साउंड इफेक्ट प्ले करा</string>
 </resources>

@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Włącz efekt rozmycia na żywo</string>
     <string name="unica_games_spoof_title">Odblokuj więcej FPS w grach</string>
     <string name="unica_hma_title">Ukryj zainstalowane aplikacje</string>
+    <string name="unica_boot_sound_title">Odtwórz dźwięk uruchamiania</string>
 </resources>

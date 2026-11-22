@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Включване на blur ефект</string>
     <string name="unica_games_spoof_title">Отключване на по-висок FPS в игри</string>
     <string name="unica_hma_title">Скриване на инсталирани приложения</string>
+    <string name="unica_boot_sound_title">Пускане на звуков ефект при включване</string>
 </resources>

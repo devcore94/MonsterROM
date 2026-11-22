@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Live blur effektini yoqish</string>
     <string name="unica_games_spoof_title">"O'yinlarda yuqori FPS ni ochish"</string>
     <string name="unica_hma_title">"O'rnatilgan ilovalarni yashirish"</string>
+    <string name="unica_boot_sound_title">Yoqilayotganda ovoz effektini yoqish</string>
 </resources>

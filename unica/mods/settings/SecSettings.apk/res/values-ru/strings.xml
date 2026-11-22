@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Включить эффект живого размытия</string>
     <string name="unica_games_spoof_title">Разблокировка более высокого FPS в играх</string>
     <string name="unica_hma_title">Скрыть установленные приложения</string>
+    <string name="unica_boot_sound_title">Звук включения устройства</string>
 </resources>

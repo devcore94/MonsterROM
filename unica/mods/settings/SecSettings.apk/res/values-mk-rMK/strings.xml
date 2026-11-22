@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Овозможи ефект на замаглување во живо</string>
     <string name="unica_games_spoof_title">Отклучи повисок FPS во игрите</string>
     <string name="unica_hma_title">Скриј инсталирани апликации</string>
+    <string name="unica_boot_sound_title">Пушти звучен ефект при вклучување</string>
 </resources>

@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Abilita effetto sfocatura nativo</string>
     <string name="unica_games_spoof_title">Sblocca opzioni grafiche extra per giochi</string>
     <string name="unica_hma_title">Nascondi app installate</string>
+    <string name="unica_boot_sound_title">Riproduci suono di avvio</string>
 </resources>

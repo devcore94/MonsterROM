@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Укључи ефекат замућења уживо</string>
     <string name="unica_games_spoof_title">Откључај већи FPS у играма</string>
     <string name="unica_hma_title">Сакриј инсталиране апликације</string>
+    <string name="unica_boot_sound_title">Пусти звук током покретања уређаја</string>
 </resources>

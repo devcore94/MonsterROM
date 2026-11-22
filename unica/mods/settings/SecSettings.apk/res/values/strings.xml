@@ -11,4 +11,5 @@
     <string name="monsterrom_hma_hint">Check the personal apps to hide from ordinary app queries when this switch is on. Android services, your launcher, device administrators, installers managing their own apps, and apps with full package inventory access keep their usual visibility.</string>
     <string name="monsterrom_hma_save_error">Unable to save your app visibility choice.</string>
     <string name="monsterrom_hma_load_error">Unable to load your installed apps.</string>
+    <string name="unica_boot_sound_title">Play boot sound effect</string>
 </resources>

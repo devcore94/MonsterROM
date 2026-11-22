@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Canlı blur effektini aktivləşdir</string>
     <string name="unica_games_spoof_title">Oyunlarda daha yüksək FPS kilidini aç</string>
     <string name="unica_hma_title">Quraşdırılmış tətbiqləri gizlət</string>
+    <string name="unica_boot_sound_title">Telefonu başladarkən səs effektini çal</string>
 </resources>

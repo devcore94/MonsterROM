@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">लाइव ब्लर प्रभाव सक्षम करें</string>
     <string name="unica_games_spoof_title">गेम्स में ज़्यादा FPS अनलॉक करें</string>
     <string name="unica_hma_title">इंस्टॉल किए गए ऐप्स छिपाएँ</string>
+    <string name="unica_boot_sound_title">पावर ऑन करते समय आवाज़ चालू करें</string>
 </resources>

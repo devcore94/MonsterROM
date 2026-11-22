@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Ativar desfoque em tempo real</string>
     <string name="unica_games_spoof_title">Desbloquear FPS em jogos</string>
     <string name="unica_hma_title">Esconder aplicações instaladas</string>
+    <string name="unica_boot_sound_title">Reproduzir som de arranque</string>
 </resources>

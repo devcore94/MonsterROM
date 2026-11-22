@@ -9,4 +9,5 @@
     <SecSwitchPreference android:title="@string/unica_games_spoof_title" android:key="unica_games_spoof" settings:controller="io.mesalabs.unica.settings.extra.GamesPropsPreferenceController" />
     <SecSwitchPreferenceScreen android:persistent="false" android:title="@string/unica_hma_title" android:key="monsterrom_hma" android:fragment="io.mesalabs.unica.settings.hma.HideMyApplistFragment" settings:controller="io.mesalabs.unica.settings.hma.HideMyApplistPreferenceController" />
     <SecSwitchPreference android:persistent="false" android:title="@string/unica_native_blur_title" android:key="unica_native_blur" android:summary="@string/unica_dialog_reboot_msg" settings:controller="io.mesalabs.unica.settings.ui.LiveBlurPreferenceController" />
+    <SecSwitchPreference android:persistent="false" android:title="@string/unica_boot_sound_title" android:key="unica_boot_sound" settings:controller="io.mesalabs.unica.settings.ui.BootSoundPreferenceController" />
 </PreferenceScreen>

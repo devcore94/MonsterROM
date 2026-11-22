@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">"Activer l'effet de flou en direct"</string>
     <string name="unica_games_spoof_title">Débloquer des FPS plus élevés dans les jeux</string>
     <string name="unica_hma_title">Masquer les applications installées</string>
+    <string name="unica_boot_sound_title">"Jouer l'effet sonore au démarrage"</string>
 </resources>

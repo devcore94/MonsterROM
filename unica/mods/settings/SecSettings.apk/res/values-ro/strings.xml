@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Activare efect de estompare în timp real</string>
     <string name="unica_games_spoof_title">Deblocare FPS mai mare în jocuri</string>
     <string name="unica_hma_title">Ascundeți aplicațiile instalate</string>
+    <string name="unica_boot_sound_title">Redare sunet de pornire</string>
 </resources>

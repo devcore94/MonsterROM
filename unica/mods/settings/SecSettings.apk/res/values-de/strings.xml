@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Live-Blur-Effekt aktivieren</string>
     <string name="unica_games_spoof_title">Höhere FPS in Spielen entsperren</string>
     <string name="unica_hma_title">Installierte Apps verstecken</string>
+    <string name="unica_boot_sound_title">Soundeffekt beim Hochfahren abspielen</string>
 </resources>

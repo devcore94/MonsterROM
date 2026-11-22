@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Bật hiệu ứng làm mờ trực tiếp</string>
     <string name="unica_games_spoof_title">Mở khóa lựa chọn FPS cao trong trò chơi</string>
     <string name="unica_hma_title">Ẩn các ứng dụng đã cài đặt</string>
+    <string name="unica_boot_sound_title">Phát âm thanh khi bật nguồn</string>
 </resources>

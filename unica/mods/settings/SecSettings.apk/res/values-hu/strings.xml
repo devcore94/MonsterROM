@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Élő elmosódás effekt engedélyezése</string>
     <string name="unica_games_spoof_title">Magasabb FPS feloldása a játékokban</string>
     <string name="unica_hma_title">Telepített alkalmazások elrejtése</string>
+    <string name="unica_boot_sound_title">Hangeffekt lejátszása bekapcsoláskor</string>
 </resources>

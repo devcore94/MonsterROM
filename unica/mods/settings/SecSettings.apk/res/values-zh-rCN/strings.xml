@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">启用实时模糊</string>
     <string name="unica_games_spoof_title">解锁游戏FPS</string>
     <string name="unica_hma_title">隐藏已安装的应用</string>
+    <string name="unica_boot_sound_title">开机音效</string>
 </resources>

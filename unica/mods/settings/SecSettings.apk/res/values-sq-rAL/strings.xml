@@ -7,4 +7,5 @@
     <string name="unica_native_blur_title">Aktivizo efektin e turbullimit në kohë reale</string>
     <string name="unica_games_spoof_title">Aktivizo FPS të lartë në lojra</string>
     <string name="unica_hma_title">Fshih aplikacionet e instaluara</string>
+    <string name="unica_boot_sound_title">Luaj zërin e ndezjes</string>
 </resources>

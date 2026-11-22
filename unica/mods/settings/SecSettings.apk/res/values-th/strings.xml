@@ -6,4 +6,5 @@
     <string name="unica_dialog_reboot_title">จำเป็นต้องรีสตาร์ท</string>
     <string name="unica_native_blur_title">เปิดใช้งาน live blur</string>
     <string name="unica_games_spoof_title">ปลดล็อค FPS ที่สูงขี้นในเกม</string>
+    <string name="unica_boot_sound_title">เล่นเสียงขณะบูตเครื่อง</string>
 </resources>
