@@ -3,7 +3,6 @@ From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Mon, 6 Oct 2025 14:23:19 +0200
 Subject: [PATCH] Introduce GamesPropsUtils
 
-UN1CA: this patch is not complete! Please check unica/mods/gamesprops/customize.sh for more info.
 ---
  .../io/mesalabs/unica/GamesPropsUtils.smali   | 979 ++++++++++++++++++
  1 file changed, 979 insertions(+)

@@ -1,0 +1,24 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Apply UN1CA game refresh profiles when the beta attaches an application
+
+diff --git a/smali/android/app/Instrumentation.smali b/smali/android/app/Instrumentation.smali
+--- a/smali/android/app/Instrumentation.smali
++++ b/smali/android/app/Instrumentation.smali
+@@ -822,6 +822,8 @@
+     check-cast p0, Landroid/app/Application;
+ 
+     invoke-virtual {p0, p1}, Landroid/app/Application;->attach(Landroid/content/Context;)V
++
++    invoke-static {p1}, Lio/mesalabs/unica/GamesPropsUtils;->setProps(Landroid/content/Context;)V
+ 
+     return-object p0
+ .end method
+@@ -4339,6 +4341,8 @@
+ 
+     invoke-virtual {p0, p3}, Landroid/app/Application;->attach(Landroid/content/Context;)V
+ 
++    invoke-static {p3}, Lio/mesalabs/unica/GamesPropsUtils;->setProps(Landroid/content/Context;)V
++
+     return-object p0
+ .end method
+ 
