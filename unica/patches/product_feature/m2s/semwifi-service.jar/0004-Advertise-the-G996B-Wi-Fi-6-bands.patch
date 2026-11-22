@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Advertise the G996B Wi-Fi 6 bands
+
+diff --git a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
+--- a/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
++++ b/smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali
+@@ -1587,7 +1587,7 @@
+ .method public isSupported6Ghz()Z
+     .locals 0
+ 
+-    const/4 p0, 0x1
++    const/4 p0, 0x0
+ 
+     return p0
+ .end method
+-- 
+2.51.0

@@ -707,7 +707,10 @@ fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_80211AX
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_80211AX_6GHZ
-if $SOURCE_WLAN_SUPPORT_80211AX; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
+        "$MODPATH/m2s/semwifi-service.jar/0004-Advertise-the-G996B-Wi-Fi-6-bands.patch"
+elif $SOURCE_WLAN_SUPPORT_80211AX; then
     if $TARGET_WLAN_SUPPORT_80211AX; then
         if ! $SOURCE_WLAN_SUPPORT_80211AX_6GHZ; then
             if $TARGET_WLAN_SUPPORT_80211AX_6GHZ; then
