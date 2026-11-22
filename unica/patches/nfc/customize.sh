@@ -15,6 +15,17 @@ else
     DELETE_FROM_WORK_DIR "system" "system/etc/libnfc-nci_temp.conf"
 fi
 
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    # The beta NFC APEX contains its own JNI and the HIDL 1.2 client.
+    if [ ! -f "$WORK_DIR/system/system/apex/com.android.nfcservices.capex" ] || \
+            ! grep -Fq '<name>INfc</name>' "$WORK_DIR/vendor/etc/vintf/manifest/nxp.android.hardware.nfc@1.2-service.xml"; then
+        ABORT "Expected the beta NFC module and G996B HIDL service"
+    fi
+    unset TARGET_FIRMWARE_PATH
+    unset -f _LOG
+    return 0
+fi
+
 if [ "$(GET_PROP "vendor" "ro.vendor.nfc.feature.chipname")" ]; then
     if [[ "$(GET_PROP "vendor" "ro.vendor.nfc.feature.chipname")" == "NXP_PN553" ]]; then
         SET_PROP "vendor" "ro.vendor.nfc.feature.chipname" "NXP_SN100U"
