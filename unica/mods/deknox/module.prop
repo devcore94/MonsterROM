@@ -1,4 +1,4 @@
 id=deknox
 name=Nuke Knox
 author=salvogiangri
-description=Removes Knox bloat (DualDAR, HDM).
+description=Removes optional Knox enterprise agents and their package declarations from the beta.
