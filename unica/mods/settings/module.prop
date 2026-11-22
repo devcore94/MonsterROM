@@ -1,4 +1,4 @@
 id=settings
-name=Settings app mods
+name=MonsterROM_NEXT Settings
 author=salvogiangri
-description=Adds UN1CA Settings and additional mods.
+description=Integrates MonsterROM_NEXT controls and Software information into the beta Settings app.
