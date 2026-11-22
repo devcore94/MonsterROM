@@ -1,0 +1,31 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Require declared chip support for 5 GHz hotspot
+
+diff --git a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
+--- a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
++++ b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
+@@ -14774,9 +14774,7 @@
+ 
+     :cond_4
+     :goto_0
+-    invoke-virtual {p0}, Lcom/samsung/android/server/wifi/ap/SemWifiApServiceImpl;->isRegionFor5GCountry()Z
+-
+-    move-result v1
++    move v1, v2
+     :try_end_0
+     .catchall {:try_start_0 .. :try_end_0} :catchall_0
+ 
+diff --git a/smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali b/smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali
+--- a/smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali
++++ b/smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali
+@@ -1976,7 +1976,7 @@
+ 
+     new-instance v0, Ljava/lang/StringBuffer;
+ 
+-    const-string v1, "SPF info \nSPF_BackOff=true\nSPF_SAR_BackOff=false\nSPF_5G_BASEDON_COUNTRY=true\nSPF_POWER_SAVEMODE=true\n"
++    const-string v1, "SPF info \nSPF_BackOff=true\nSPF_SAR_BackOff=false\nSPF_5G_BASEDON_COUNTRY=false\nSPF_POWER_SAVEMODE=true\n"
+ 
+     invoke-direct {v0, v1}, Ljava/lang/StringBuffer;-><init>(Ljava/lang/String;)V
+ 
+-- 
+2.51.0

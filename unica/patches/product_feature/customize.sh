@@ -860,7 +860,10 @@ else
 fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_MOBILEAP_5G_BASEDON_COUNTRY
-if ! $SOURCE_WLAN_SUPPORT_MOBILEAP_5G_BASEDON_COUNTRY; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
+        "$MODPATH/m2s/semwifi-service.jar/0002-Require-declared-chip-support-for-5-GHz-hotspot.patch"
+elif ! $SOURCE_WLAN_SUPPORT_MOBILEAP_5G_BASEDON_COUNTRY; then
     if $TARGET_WLAN_SUPPORT_MOBILEAP_5G_BASEDON_COUNTRY; then
         APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
             "$MODPATH/wifi/5g_basedon_country/semwifi-service.jar/0001-Enable-MOBILEAP_5G_BASEDON_COUNTRY-support.patch"
