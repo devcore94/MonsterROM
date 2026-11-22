@@ -1,0 +1,115 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Identify MonsterROM_NEXT on the beta welcome screens
+
+diff --git a/res/layout/welcome_activity.xml b/res/layout/welcome_activity.xml
+--- a/res/layout/welcome_activity.xml
++++ b/res/layout/welcome_activity.xml
+@@ -7,6 +7,7 @@
+     <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/root_layout" android:background="@color/ssw_background_color" android:paddingTop="@dimen/ssw_welcome_page_layout_margin_top" android:clipChildren="false" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:baselineAligned="false">
+         <RelativeLayout android:layout_gravity="center_horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="24.0dp" android:layout_marginEnd="24.0dp">
+             <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:textColor="@color/color_ffffff_nodark" android:gravity="center" android:id="@id/title_text" android:layout_width="match_parent" android:layout_height="126.0dp" android:text="@string/intro_upper_title" android:lineSpacingExtra="5.0dp" style="@style/ssw_intro_title_text_style" />
++            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/title_text" android:gravity="center" android:layout_marginTop="4dp" android:text="@string/monsterrom_setup_name" android:textColor="?android:attr/textColorSecondary" android:textSize="16sp" />
+         </RelativeLayout>
+         <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0" />
+         <LinearLayout android:layout_gravity="center_horizontal" android:orientation="vertical" android:id="@id/user_warning" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/ssw_welcome_page_sub_user_important_text_margin_bottom" android:layout_marginStart="@dimen/ssw_content_padding" android:layout_marginEnd="@dimen/ssw_content_padding">
+diff --git a/res/layout-sw600dp/welcome_activity.xml b/res/layout-sw600dp/welcome_activity.xml
+--- a/res/layout-sw600dp/welcome_activity.xml
++++ b/res/layout-sw600dp/welcome_activity.xml
+@@ -9,6 +9,7 @@
+         <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="@integer/ssw_oobe_intro_lower_weight">
+             <RelativeLayout android:layout_gravity="center_horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="24.0dp" android:layout_marginEnd="24.0dp">
+                 <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:textColor="@color/color_fafaff_nodark" android:gravity="center" android:id="@id/title_text" android:layout_width="match_parent" android:layout_height="126.0dp" android:text="@string/intro_upper_title" android:lineSpacingExtra="5.0dp" style="@style/ssw_intro_title_text_style" />
++                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/title_text" android:gravity="center" android:layout_marginTop="4dp" android:text="@string/monsterrom_setup_name" android:textColor="?android:attr/textColorSecondary" android:textSize="16sp" />
+             </RelativeLayout>
+             <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0" />
+             <LinearLayout android:layout_gravity="center_horizontal" android:orientation="vertical" android:id="@id/user_warning" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/ssw_welcome_page_sub_user_important_text_margin_bottom" android:layout_marginStart="@dimen/ssw_content_padding" android:layout_marginEnd="@dimen/ssw_content_padding">
+diff --git a/res/layout/intro_spinner_activity.xml b/res/layout/intro_spinner_activity.xml
+--- a/res/layout/intro_spinner_activity.xml
++++ b/res/layout/intro_spinner_activity.xml
+@@ -6,6 +6,7 @@
+     </LinearLayout>
+     <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/root_layout" android:paddingTop="@dimen/ssw_welcome_page_layout_margin_top" android:clipChildren="false" android:clipToPadding="false" android:layout_width="match_parent" android:layout_height="match_parent" android:baselineAligned="false">
+         <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:textColor="@color/color_ffffff_nodark" android:gravity="center" android:id="@id/title_text" android:layout_width="match_parent" android:layout_height="122.0dp" android:text="@string/intro_upper_title" android:layout_marginStart="20.0dp" android:layout_marginEnd="20.0dp" style="@style/ssw_intro_title_text_style" />
++        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="4dp" android:text="@string/monsterrom_setup_name" android:textColor="?android:attr/textColorSecondary" android:textSize="16sp" />
+         <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0" />
+         <LinearLayout android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="horizontal" android:id="@id/select_locale" android:background="@drawable/ripple_text_button" android:clipChildren="false" android:clipToPadding="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/ssw_start_button_margin_top" android:layout_marginStart="74.0dp" android:layout_marginEnd="71.0dp">
+             <TextView android:textSize="@dimen/ssw_welcome_page_language_spinner_text_size" android:textColor="@color/color_fafaff_nodark" android:ellipsize="end" android:gravity="center" android:layout_gravity="center_vertical" android:id="@id/main_locale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:singleLine="true" android:layout_marginEnd="6.0dp" style="@style/NewSEC600" />
+diff --git a/res/layout-sw600dp/intro_spinner_activity.xml b/res/layout-sw600dp/intro_spinner_activity.xml
+--- a/res/layout-sw600dp/intro_spinner_activity.xml
++++ b/res/layout-sw600dp/intro_spinner_activity.xml
+@@ -8,6 +8,7 @@
+         <LinearLayout android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="@integer/ssw_oobe_intro_upper_weight" />
+         <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="@integer/ssw_oobe_intro_lower_weight">
+             <com.samsung.android.vanillavibes.motion.text.view.MotionTextView android:textColor="@color/color_ffffff_nodark" android:gravity="center" android:layout_gravity="center_horizontal" android:id="@id/title_text" android:layout_width="@dimen/ssw_outro_page_title_width" android:layout_height="wrap_content" android:text="@string/intro_upper_title" android:lineSpacingExtra="5.0dp" style="@style/ssw_intro_title_text_style" />
++            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:layout_marginTop="4dp" android:text="@string/monsterrom_setup_name" android:textColor="?android:attr/textColorSecondary" android:textSize="16sp" />
+             <View android:layout_width="match_parent" android:layout_height="0.0dp" android:layout_weight="1.0" />
+             <LinearLayout android:gravity="center" android:layout_gravity="center_horizontal" android:orientation="horizontal" android:id="@id/select_locale" android:background="@drawable/ripple_text_button" android:clipChildren="false" android:clipToPadding="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="@dimen/ssw_start_button_margin_top" android:layout_marginStart="74.0dp" android:layout_marginEnd="71.0dp">
+                 <TextView android:textSize="@dimen/ssw_welcome_page_language_spinner_text_size" android:textColor="@color/color_fafaff_nodark" android:ellipsize="end" android:gravity="center" android:layout_gravity="center_vertical" android:id="@id/main_locale" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:layout_marginEnd="6.0dp" style="@style/NewSEC600" />
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -740,4 +740,5 @@
+     <string name="xos_qr_module_style">@string/qs_qr_module_style</string>
+     <string name="yes_agree_baidu">Allow Baidu location services to collect anonymous location data. This will occur even when no applications are running.</string>
+     <string name="your_choice">Your Choices</string>
++    <string name="monsterrom_setup_name" translatable="false">MonsterROM_NEXT</string>
+ </resources>
+diff --git a/res/values/arrays.xml b/res/values/arrays.xml
+--- a/res/values/arrays.xml
++++ b/res/values/arrays.xml
+@@ -62,7 +62,6 @@
+         <item>@string/sequenceitem_skt_account</item>
+         <item>@string/sequenceitem_carrier_location_notice</item>
+         <item>@string/sequenceitem_darkmode_setup</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+         <item>@string/sequenceitem_osmosis_message_app_data_notice</item>
+         <item>@string/sequenceitem_notice</item>
+         <item>@string/sequenceitem_disclaimer</item>
+@@ -107,7 +106,6 @@
+         <item>@string/sequenceitem_sec_account_setup</item>
+         <item>@string/sequenceitem_sec_account_ai_agreement</item>
+         <item>@string/sequenceitem_sec_account_for_fota</item>
+-        <item>@string/sequenceitem_omcagent_setup_for_fota</item>
+     </string-array>
+     <string-array name="sequence_list_for_subuser">
+         <item>@string/sequenceitem_sec_account_setup</item>
+@@ -118,7 +116,6 @@
+         <item>@string/sequenceitem_ntt_home_selection</item>
+         <item>dcm_initonce;action;com.samsung.japan.initonce.START_INITONCE</item>
+         <item>@string/sequenceitem_darkmode_setup</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+         <item>@string/sequenceitem_osmosis_message_app_data_notice</item>
+         <item>@string/sequenceitem_notice</item>
+         <item>@string/sequenceitem_disclaimer</item>
+@@ -131,7 +128,6 @@
+     <string-array name="sequence_list_tss">
+         <item>@string/sequenceitem_skt_tphone</item>
+         <item>@string/sequenceitem_skt_account</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+     </string-array>
+     <string-array name="sequence_list_usa_att_aio">
+         <item>@string/sequenceitem_att_personal_cloud</item>
+@@ -141,7 +137,6 @@
+         <item>@string/sequenceitem_cdpa_restriction_screen_wrapper</item>
+         <item>@string/sequenceitem_tvmode_setup</item>
+         <item>@string/sequenceitem_darkmode_setup</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+         <item>@string/sequenceitem_osmosis_message_app_data_notice</item>
+         <item>@string/sequenceitem_notice</item>
+         <item>@string/sequenceitem_disclaimer</item>
+@@ -154,7 +149,6 @@
+         <item>@string/sequenceitem_cdpa_restriction_screen_wrapper</item>
+         <item>@string/sequenceitem_usa_carrier_setup</item>
+         <item>@string/sequenceitem_darkmode_setup</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+         <item>@string/sequenceitem_osmosis_message_app_data_notice</item>
+         <item>@string/sequenceitem_notice</item>
+         <item>@string/sequenceitem_disclaimer</item>
+@@ -165,7 +159,6 @@
+         <item>@string/sequenceitem_cdpa_dob_screen_wrapper</item>
+         <item>@string/sequenceitem_cdpa_restriction_screen_wrapper</item>
+         <item>@string/sequenceitem_darkmode_setup</item>
+-        <item>@string/sequenceitem_omcagent_setup</item>
+         <item>@string/sequenceitem_osmosis_message_app_data_notice</item>
+         <item>@string/sequenceitem_notice</item>
+         <item>@string/sequenceitem_disclaimer</item>
