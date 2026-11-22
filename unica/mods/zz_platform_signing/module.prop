@@ -1,0 +1,4 @@
+id=platform_signing
+name=MonsterROM platform packages
+author=MonsterROM_NEXT
+description=Signs verified Samsung platform packages with the local MonsterROM key.

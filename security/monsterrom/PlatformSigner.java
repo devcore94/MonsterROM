@@ -1,0 +1,108 @@
+import com.android.apksig.ApkSigner;
+import com.android.apksig.ApkVerifier;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Stream;
+
+public class PlatformSigner {
+    // S947B ZZKN and G996B HZC2 use the same Samsung platform certificate.
+    private static final String SAMSUNG = "34df0e7a9f1cf1892e45c056b4973cd81ccf148a4050d11aea4ac5a65f900a42";
+    private static final HexFormat HEX = HexFormat.of();
+
+    private static List<X509Certificate> verify(Path apk) throws Exception {
+        ApkVerifier.Result result = new ApkVerifier.Builder(apk.toFile())
+                .setMinCheckedPlatformVersion(37).setMaxCheckedPlatformVersion(37).build().verify();
+        if (!result.isVerified()) {
+            throw new IllegalArgumentException("Signature verification failed for " + apk + " " + result.getErrors());
+        }
+        return result.getSignerCertificates();
+    }
+
+    private static boolean resign(Path apk, X509Certificate donor, X509Certificate local,
+                                  ApkSigner.SignerConfig signer) throws Exception {
+        if (!verify(apk).equals(List.of(donor))) {
+            return false;
+        }
+        Path output = Files.createTempFile(apk.getParent(), ".monsterrom-", ".tmp");
+        try {
+            new ApkSigner.Builder(List.of(signer))
+                    .setInputApk(apk.toFile()).setOutputApk(output.toFile())
+                    .setV1SigningEnabled(true).setV2SigningEnabled(true).setV3SigningEnabled(true)
+                    .setV4SigningEnabled(false).setOtherSignersSignaturesPreserved(false)
+                    .setAlignmentPreserved(true).setLibraryPageAlignmentBytes(16384).build().sign();
+            if (!verify(output).equals(List.of(local))) {
+                throw new IllegalStateException("Unexpected output signer for " + apk);
+            }
+            Files.setPosixFilePermissions(output, Files.getPosixFilePermissions(apk));
+            Files.move(output, apk, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        } finally {
+            Files.deleteIfExists(output);
+        }
+    }
+
+    private static void updateMacPolicy(Path file, String oldCert, String newCert) throws Exception {
+        String xml = Files.readString(file);
+        String updated = xml.replace("signature=\"" + oldCert + "\"", "signature=\"" + newCert + "\"")
+                .replace("signature=\"" + oldCert.toUpperCase(Locale.ROOT) + "\"", "signature=\"" + newCert + "\"");
+        if (!updated.equals(xml)) {
+            Path tmp = Files.createTempFile(file.getParent(), ".monsterrom-", ".tmp");
+            try {
+                Files.writeString(tmp, updated);
+                Files.setPosixFilePermissions(tmp, Files.getPosixFilePermissions(file));
+                Files.move(tmp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } finally {
+                Files.deleteIfExists(tmp);
+            }
+            System.out.println("Updated " + file);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        if (args.length != 4) {
+            throw new IllegalArgumentException("Expected stock framework-res.apk, local certificate, PKCS8 key and partition tree");
+        }
+        List<X509Certificate> original = verify(Path.of(args[0]));
+        if (original.size() != 1 || !HEX.formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(original.get(0).getEncoded())).equals(SAMSUNG)) {
+            throw new IllegalArgumentException("Unexpected stock platform signer");
+        }
+        X509Certificate donor = original.get(0);
+        X509Certificate local;
+        try (InputStream in = Files.newInputStream(Path.of(args[1]))) {
+            local = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
+        }
+        PrivateKey key = KeyFactory.getInstance("RSA").generatePrivate(
+                new PKCS8EncodedKeySpec(Files.readAllBytes(Path.of(args[2]))));
+        ApkSigner.SignerConfig signer = new ApkSigner.SignerConfig.Builder("MONSTERROM", key, List.of(local)).build();
+        Path root = Path.of(args[3]);
+        List<Path> files;
+        try (Stream<Path> paths = Files.walk(root)) {
+            files = paths.filter(file -> Files.isRegularFile(file, LinkOption.NOFOLLOW_LINKS))
+                    .filter(file -> file.toString().endsWith(".apk") || file.toString().endsWith("_mac_permissions.xml"))
+                    .sorted().toList();
+        }
+        int signed = 0;
+        for (Path file : files) {
+            if (file.toString().endsWith("_mac_permissions.xml")) {
+                updateMacPolicy(file, HEX.formatHex(donor.getEncoded()), HEX.formatHex(local.getEncoded()));
+            } else if (resign(file, donor, local, signer)) {
+                System.out.println("Signed " + root.relativize(file));
+                signed++;
+            }
+        }
+        System.out.println("Signed " + signed + " platform APKs in " + root);
+    }
+}
