@@ -1056,7 +1056,10 @@ fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_TWT_CONTROL
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_LOWLATENCY
-if $SOURCE_WLAN_SUPPORT_TWT_CONTROL && $SOURCE_WLAN_SUPPORT_LOWLATENCY; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
+        "$MODPATH/m2s/semwifi-service.jar/0005-Use-the-G996B-Wi-Fi-driver-feature-defaults.patch"
+elif $SOURCE_WLAN_SUPPORT_TWT_CONTROL && $SOURCE_WLAN_SUPPORT_LOWLATENCY; then
     if ! $TARGET_WLAN_SUPPORT_TWT_CONTROL; then
         APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
             "$MODPATH/wifi/twt_control/semwifi-service.jar/0001-Disable-TWT_CONTROL-support.patch"

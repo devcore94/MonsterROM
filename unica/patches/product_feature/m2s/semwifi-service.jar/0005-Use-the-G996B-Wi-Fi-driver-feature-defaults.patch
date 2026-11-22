@@ -1,0 +1,33 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the G996B Wi-Fi driver feature defaults
+
+diff --git a/smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali b/smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali
+--- a/smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali
++++ b/smali/com/samsung/android/server/wifi/driver/WifiDriverFeatureProvider.smali
+@@ -129,7 +129,23 @@
+ 
+ # virtual methods
+ .method public final configDefaultFeatureSet()V
+-    .locals 2
++    .locals 3
++
++    iget-object v0, p0, Lcom/samsung/android/server/wifi/driver/WifiDriverFeatureProvider;->mSwFeatureInteger:Ljava/util/HashMap;
++
++    const/4 v1, 0x3
++
++    invoke-static {v1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++
++    move-result-object v1
++
++    const/4 v2, 0x1
++
++    invoke-static {v2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
++
++    move-result-object v2
++
++    invoke-virtual {v0, v1, v2}, Ljava/util/HashMap;->put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+ 
+     iget v0, p0, Lcom/samsung/android/server/wifi/driver/WifiDriverFeatureProvider;->mVendorBuildVersion:I
+ 
+-- 
+2.51.0
