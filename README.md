@@ -16,8 +16,11 @@ Use a Linux filesystem and UN1CA's build dependencies. The S26+ beta is an incre
 
 ```bash
 source buildenv.sh t2s
+prebuilts/samsung/m2sxxx/import-ota.sh /path/to/BZK1-stock.zip /path/to/BZK1-to-ZZKN.zip
 run_cmd make_rom -z
 ```
+
+The importer uses the UN1CA host tools and LineageOS `ota_extractor` on `PATH`. It verifies the payload and ten partition hashes, then exports the original file modes, capabilities and SELinux labels. A directory containing the five reconstructed `.img` files can also be passed directly. On a fresh checkout, initialize the submodules and build the host tools with `./external/make.sh` first. [LineageOS extraction tools](https://github.com/LineageOS/android_prebuilts_extract-tools/tree/aaeb969a477321411279c03799f45ae9f94f770b)
 
 ## Project history
 
