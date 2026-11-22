@@ -10,3 +10,9 @@
 SYSTEM_DEBLOAT+="
 system/app/WifiRROverlayAppH2E
 "
+
+# S26 product overlays for Wi-Fi features absent on the S21+.
+PRODUCT_DEBLOAT+="
+overlay/WifiRROverlayAppH2E.apk
+overlay/WifiRROverlayAppLls.apk
+"
