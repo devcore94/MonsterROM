@@ -1,0 +1,38 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the G996B coexistence configuration
+
+diff --git a/smali/com/samsung/android/server/wifi/SemWifiCoexManager.smali b/smali/com/samsung/android/server/wifi/SemWifiCoexManager.smali
+--- a/smali/com/samsung/android/server/wifi/SemWifiCoexManager.smali
++++ b/smali/com/samsung/android/server/wifi/SemWifiCoexManager.smali
+@@ -12,7 +12,7 @@
+ 
+ .field public static final BAND_UNKNOWN:B = -0x1t
+ 
+-.field public static final CUSTOM_BACKOFF_TYPE:Ljava/lang/String; = "CAM_BACK -1 -1 -1 -1 14 13 UWB_5G_CX 36 177 UWB_6G_CX 1 233 UWB_CX_CH 2 5 9 UWB_CX_TYPE 1 1"
++.field public static final CUSTOM_BACKOFF_TYPE:Ljava/lang/String; = ""
+ 
+ .field public static final DBG:Z
+ 
+@@ -383,12 +383,18 @@
+ 
+     if-eqz p2, :cond_0
+ 
+-    const-string p2, "CUSTOM_BACKOFF_TYPE = CAM_BACK -1 -1 -1 -1 14 13 UWB_5G_CX 36 177 UWB_6G_CX 1 233 UWB_CX_CH 2 5 9 UWB_CX_TYPE 1 1"
++    const-string p2, "CUSTOM_BACKOFF_TYPE = "
+ 
+     invoke-static {v1, p2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+     :cond_0
+-    const-string p2, "CAM_BACK -1 -1 -1 -1 14 13 UWB_5G_CX 36 177 UWB_6G_CX 1 233 UWB_CX_CH 2 5 9 UWB_CX_TYPE 1 1"
++    const-string p2, ""
++
++    invoke-static {p2}, Landroid/text/TextUtils;->isEmpty(Ljava/lang/CharSequence;)Z
++
++    move-result p3
++
++    if-nez p3, :cond_17
+ 
+     const-string p3, " "
+ 
+-- 
+2.51.0

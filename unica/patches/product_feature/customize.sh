@@ -662,7 +662,10 @@ elif [[ "$SOURCE_WLAN_CONFIG_CPU_CSTATE_DISABLE_THRESHOLD" != "$TARGET_WLAN_CONF
 fi
 
 # SEC_PRODUCT_FEATURE_WLAN_CONFIG_CUSTOM_BACKOFF
-if [[ "$SOURCE_WLAN_CONFIG_CUSTOM_BACKOFF" != "$TARGET_WLAN_CONFIG_CUSTOM_BACKOFF" ]]; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
+        "$MODPATH/m2s/semwifi-service.jar/0003-Use-the-G996B-coexistence-configuration.patch"
+elif [[ "$SOURCE_WLAN_CONFIG_CUSTOM_BACKOFF" != "$TARGET_WLAN_CONFIG_CUSTOM_BACKOFF" ]]; then
     if [[ "$SOURCE_WLAN_CONFIG_CUSTOM_BACKOFF" != "none" ]] && [[ "$TARGET_WLAN_CONFIG_CUSTOM_BACKOFF" != "none" ]]; then
         SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
             "smali/com/samsung/android/server/wifi/SemWifiCoexManager.smali" "replaceall" \
