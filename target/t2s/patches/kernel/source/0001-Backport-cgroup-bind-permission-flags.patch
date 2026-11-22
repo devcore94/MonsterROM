@@ -1,0 +1,251 @@
+From: Stanislav Fomichev <sdf@google.com>
+Subject: [PATCH] bpf: backport cgroup bind permission flags for One UI 9 netd
+
+Based on upstream Linux commit 772412176fb9 (BPF bind return flags).
+Adapt to Floppy 5.4 without changing the exported four-argument sockaddr
+runner ABI. Add a flag-aware runner; retain the old wrapper. Preserve the
+Samsung local-port restriction and reserve a new internal bind flag bit
+without colliding with BIND_FROM_BPF. Only bind4/bind6 accept return 0..3;
+all pointer, memory, other attach-type and capability checks stay in place.
+
+Upstream: https://github.com/torvalds/linux/commit/772412176fb9
+
+diff --git a/include/linux/bpf-cgroup.h b/include/linux/bpf-cgroup.h
+--- a/include/linux/bpf-cgroup.h
++++ b/include/linux/bpf-cgroup.h
+@@ -138,6 +138,11 @@
+ 				      enum bpf_attach_type type,
+ 				      void *t_ctx);
+ 
++int __cgroup_bpf_run_filter_sock_addr_flags(struct sock *sk,
++					    struct sockaddr *uaddr,
++					    enum bpf_attach_type type,
++					    void *t_ctx, u32 *flags);
++
+ int __cgroup_bpf_run_filter_sock_ops(struct sock *sk,
+ 				     struct bpf_sock_ops_kern *sock_ops,
+ 				     enum bpf_attach_type type);
+@@ -284,6 +289,22 @@
+ 		release_sock(sk);					       \
+ 	}								       \
+ 	__ret;								       \
++})
++
++/* Only bind programs may request the privileged-port capability override. */
++#define BPF_CGROUP_RUN_PROG_INET_BIND_LOCK(sk, uaddr, type, bind_flags) \
++({ \
++	u32 __flags = 0; \
++	int __ret = 0; \
++	if (cgroup_bpf_enabled) { \
++		lock_sock(sk); \
++		__ret = __cgroup_bpf_run_filter_sock_addr_flags(sk, uaddr, \
++							     type, NULL, &__flags); \
++		release_sock(sk); \
++		if (__flags & BPF_RET_BIND_NO_CAP_NET_BIND_SERVICE) \
++			*(bind_flags) |= BIND_NO_CAP_NET_BIND_SERVICE; \
++	} \
++	__ret; \
+ })
+ 
+ #define BPF_CGROUP_RUN_PROG_INET4_BIND(sk, uaddr)			       \
+@@ -475,6 +496,7 @@
+ #define BPF_CGROUP_RUN_PROG_INET_EGRESS(sk,skb) ({ 0; })
+ #define BPF_CGROUP_RUN_PROG_INET_SOCK(sk) ({ 0; })
+ #define BPF_CGROUP_RUN_PROG_INET_SOCK_RELEASE(sk) ({ 0; })
++#define BPF_CGROUP_RUN_PROG_INET_BIND_LOCK(sk, uaddr, type, flags) ({ 0; })
+ #define BPF_CGROUP_RUN_PROG_INET4_BIND(sk, uaddr) ({ 0; })
+ #define BPF_CGROUP_RUN_PROG_INET6_BIND(sk, uaddr) ({ 0; })
+ #define BPF_CGROUP_RUN_PROG_INET4_POST_BIND(sk) ({ 0; })
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1091,6 +1091,34 @@
+ 			struct bpf_prog *include_prog,
+ 			struct bpf_prog_array **new_array);
+ 
++/* BPF bind hooks return permission in bit 0 and optional flags above it. */
++#define BPF_RET_BIND_NO_CAP_NET_BIND_SERVICE (1 << 0)
++
++#define BPF_PROG_RUN_ARRAY_FLAGS(array, ctx, func, ret_flags) \
++({ \
++	struct bpf_prog_array_item *_item; \
++	struct bpf_prog *_prog; \
++	struct bpf_prog_array *_array; \
++	u32 _ret = 1; \
++	u32 _func_ret; \
++	migrate_disable(); \
++	rcu_read_lock(); \
++	_array = rcu_dereference(array); \
++	_item = &_array->items[0]; \
++	while ((_prog = READ_ONCE(_item->prog))) { \
++		if (unlikely(bpf_cgroup_storage_set(_item->cgroup_storage))) \
++			break; \
++		_func_ret = func(_prog, ctx); \
++		bpf_cgroup_storage_unset(); \
++		_ret &= (_func_ret & 1); \
++		*(ret_flags) |= _func_ret >> 1; \
++		_item++; \
++	} \
++	rcu_read_unlock(); \
++	migrate_enable(); \
++	_ret; \
++})
++
+ #define __BPF_PROG_RUN_ARRAY(array, ctx, func, check_non_null, set_cg_storage) \
+ 	({						\
+ 		struct bpf_prog_array_item *_item;	\
+diff --git a/include/net/inet_common.h b/include/net/inet_common.h
+--- a/include/net/inet_common.h
++++ b/include/net/inet_common.h
+@@ -48,6 +48,8 @@
+ #define BIND_WITH_LOCK			(1 << 1)
+ /* Called from BPF program. */
+ #define BIND_FROM_BPF			(1 << 2)
++/* Explicitly requested by a privileged cgroup bind BPF program. */
++#define BIND_NO_CAP_NET_BIND_SERVICE	(1 << 3)
+ int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
+ 		u32 flags);
+ int inet_getname(struct socket *sock, struct sockaddr *uaddr,
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -1101,22 +1101,23 @@
+ EXPORT_SYMBOL(__cgroup_bpf_run_filter_sk);
+ 
+ /**
+- * __cgroup_bpf_run_filter_sock_addr() - Run a program on a sock and
++ * __cgroup_bpf_run_filter_sock_addr_flags() - Run a program on a sock and
+  *                                       provided by user sockaddr
+  * @sk: sock struct that will use sockaddr
+  * @uaddr: sockaddr struct provided by user
+  * @type: The type of program to be exectuted
+  * @t_ctx: Pointer to attach type specific context
++ * @flags: Initialized accumulator for the flags in return bits above bit 0
+  *
+  * socket is expected to be of type INET or INET6.
+  *
+  * This function will return %-EPERM if an attached program is found and
+- * returned value != 1 during execution. In all other cases, 0 is returned.
++ * returned permission bit is zero. In all other cases, 0 is returned.
+  */
+-int __cgroup_bpf_run_filter_sock_addr(struct sock *sk,
+-				      struct sockaddr *uaddr,
+-				      enum bpf_attach_type type,
+-				      void *t_ctx)
++int __cgroup_bpf_run_filter_sock_addr_flags(struct sock *sk,
++					    struct sockaddr *uaddr,
++					    enum bpf_attach_type type,
++					    void *t_ctx, u32 *flags)
+ {
+ 	struct bpf_sock_addr_kern ctx = {
+ 		.sk = sk,
+@@ -1139,9 +1140,23 @@
+ 	}
+ 
+ 	cgrp = sock_cgroup_ptr(&sk->sk_cgrp_data);
+-	ret = BPF_PROG_RUN_ARRAY(cgrp->bpf.effective[type], &ctx, BPF_PROG_RUN);
++	ret = BPF_PROG_RUN_ARRAY_FLAGS(cgrp->bpf.effective[type], &ctx,
++				       BPF_PROG_RUN, flags);
+ 
+ 	return ret == 1 ? 0 : -EPERM;
++}
++EXPORT_SYMBOL(__cgroup_bpf_run_filter_sock_addr_flags);
++
++/* Keep the original exported four-argument ABI for retained vendor modules. */
++int __cgroup_bpf_run_filter_sock_addr(struct sock *sk,
++				      struct sockaddr *uaddr,
++				      enum bpf_attach_type type,
++				      void *t_ctx)
++{
++	u32 flags = 0;
++
++	return __cgroup_bpf_run_filter_sock_addr_flags(sk, uaddr, type,
++						     t_ctx, &flags);
+ }
+ EXPORT_SYMBOL(__cgroup_bpf_run_filter_sock_addr);
+ 
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -8609,6 +8609,9 @@
+ 		    env->prog->expected_attach_type == BPF_CGROUP_INET4_GETSOCKNAME ||
+ 		    env->prog->expected_attach_type == BPF_CGROUP_INET6_GETSOCKNAME)
+ 			range = tnum_range(1, 1);
++		if (env->prog->expected_attach_type == BPF_CGROUP_INET4_BIND ||
++		    env->prog->expected_attach_type == BPF_CGROUP_INET6_BIND)
++			range = tnum_range(0, 3);
+ 		break;
+ 	case BPF_PROG_TYPE_CGROUP_SKB:
+ 		if (env->prog->expected_attach_type == BPF_CGROUP_INET_EGRESS) {
+diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+--- a/net/ipv4/af_inet.c
++++ b/net/ipv4/af_inet.c
+@@ -449,6 +449,7 @@
+ int inet_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
+ {
+ 	struct sock *sk = sock->sk;
++	u32 flags = BIND_WITH_LOCK;
+ 	int err;
+ 
+ 	/* If the socket has its own bind function then use it. (RAW) */
+@@ -461,11 +462,12 @@
+ 	/* BPF prog is run before any checks are done so that if the prog
+ 	 * changes context in a wrong way it will be caught.
+ 	 */
+-	err = BPF_CGROUP_RUN_PROG_INET4_BIND(sk, uaddr);
++	err = BPF_CGROUP_RUN_PROG_INET_BIND_LOCK(sk, uaddr,
++						 BPF_CGROUP_INET4_BIND, &flags);
+ 	if (err)
+ 		return err;
+ 
+-	return __inet_bind(sk, uaddr, addr_len, BIND_WITH_LOCK);
++	return __inet_bind(sk, uaddr, addr_len, flags);
+ }
+ EXPORT_SYMBOL(inet_bind);
+ 
+@@ -514,7 +516,8 @@
+ 		goto out;
+ 
+ 	err = -EACCES;
+-	if (snum && snum < inet_prot_sock(net) &&
++	if (!(flags & BIND_NO_CAP_NET_BIND_SERVICE) &&
++	    snum && snum < inet_prot_sock(net) &&
+ 	    !ns_capable(net->user_ns, CAP_NET_BIND_SERVICE))
+ 		goto out;
+ 
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -302,7 +302,8 @@
+ 	snum = ntohs(addr->sin6_port);
+ 	if (snum && inet_is_local_unbindable_port(net, snum))
+ 		return -EPERM;
+-	if (snum && snum < inet_prot_sock(net) &&
++	if (!(flags & BIND_NO_CAP_NET_BIND_SERVICE) &&
++	    snum && snum < inet_prot_sock(net) &&
+ 	    !ns_capable(net->user_ns, CAP_NET_BIND_SERVICE))
+ 		return -EACCES;
+ 
+@@ -447,6 +448,7 @@
+ {
+ 	struct sock *sk = sock->sk;
+ 	const struct proto *prot;
++	u32 flags = BIND_WITH_LOCK;
+ 	int err = 0;
+ 
+ 	/* IPV6_ADDRFORM can change sk->sk_prot under us. */
+@@ -461,11 +463,12 @@
+ 	/* BPF prog is run before any checks are done so that if the prog
+ 	 * changes context in a wrong way it will be caught.
+ 	 */
+-	err = BPF_CGROUP_RUN_PROG_INET6_BIND(sk, uaddr);
++	err = BPF_CGROUP_RUN_PROG_INET_BIND_LOCK(sk, uaddr,
++						 BPF_CGROUP_INET6_BIND, &flags);
+ 	if (err)
+ 		return err;
+ 
+-	return __inet6_bind(sk, uaddr, addr_len, BIND_WITH_LOCK);
++	return __inet6_bind(sk, uaddr, addr_len, flags);
+ }
+ EXPORT_SYMBOL(inet6_bind);
+ 
