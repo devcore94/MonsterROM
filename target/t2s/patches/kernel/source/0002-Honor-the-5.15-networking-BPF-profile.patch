@@ -1,0 +1,26 @@
+Subject: [PATCH] arm64: honor the networking BPF ABI selected for t2s
+
+Chiclet hardcodes 5.10 for every enabled BPF compatibility profile.
+Use the 5.15 profile for the root networking processes that select
+Android BPF objects, keeping ordinary uname and module vermagic intact.
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 5b4b15b11..273de64f3 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1260,7 +1260,14 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
+ 	susfs_spoof_uname(&tmp);
+ #endif
+ 
+-#ifndef CONFIG_FAKE_UNAME_NONE
++#if defined(CONFIG_FAKE_UNAME_5_15)
++	/* The networking stack selects its BPF programs by kernel ABI. */
++	if (uid_eq(current_euid(), GLOBAL_ROOT_UID) &&
++	    (!strcmp(current->comm, "netbpfload") ||
++	     !strcmp(current->comm, "bpfloader") ||
++	     !strcmp(current->comm, "netd")))
++		strscpy(tmp.release, "5.15.206", sizeof(tmp.release));
++#elif !defined(CONFIG_FAKE_UNAME_NONE)
+ 	if (!strncmp(current->comm, "bpfloader", 9) ||
+ 	    !strncmp(current->comm, "netbpfload", 10) ||
+ 	    !strncmp(current->comm, "netd", 4)) {
