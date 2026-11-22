@@ -1,0 +1,19 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Restore PM haptic feedback on the beta DC motor path
+
+diff --git a/smali_classes2/com/android/server/vibrator/HapticFeedbackVibrationProvider.smali b/smali_classes2/com/android/server/vibrator/HapticFeedbackVibrationProvider.smali
+--- a/smali_classes2/com/android/server/vibrator/HapticFeedbackVibrationProvider.smali
++++ b/smali_classes2/com/android/server/vibrator/HapticFeedbackVibrationProvider.smali
+@@ -257,6 +257,10 @@
+     :cond_0
+     if-eqz p0, :cond_2
+ 
++    const/16 v0, 0x2713
++
++    if-eq p0, v0, :cond_2
++
+     const v0, 0xc3d4
+ 
+     if-ne p0, v0, :cond_1
+-- 
+2.51.0
