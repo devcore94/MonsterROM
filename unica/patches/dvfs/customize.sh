@@ -4,6 +4,16 @@ if [[ "$SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME" == "$TARGET_DVFSAPP_CONFIG_D
     return 0
 fi
 
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    DVFS_CONFIG_CLASS="smali/d4/c.smali"
+    DVFS_READER_CLASS="smali/l4/e.smali"
+    SIOP_CONFIG_CLASS="smali/o5/i0.smali"
+else
+    DVFS_CONFIG_CLASS="smali/r1/c.smali"
+    DVFS_READER_CLASS="smali/z1/e.smali"
+    SIOP_CONFIG_CLASS="smali/U1/w.smali"
+fi
+
 _LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
 
 # SEC_PRODUCT_FEATURE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME
@@ -25,13 +35,13 @@ if [[ "$SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME" != "$TARGET_DVFSAPP_CONFIG_D
 
     # com/sec/android/sdhms/performance/PerformanceFeature
     SMALI_PATCH "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" \
-        "smali/r1/c.smali" "replace" \
+        "$DVFS_CONFIG_CLASS" "replace" \
         "<clinit>()V" \
         "$SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME" \
         "$TARGET_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME"
     # com/sec/android/sdhms/performance/settings/PerformanceProperties
     SMALI_PATCH "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" \
-        "smali/z1/e.smali" "replace" \
+        "$DVFS_READER_CLASS" "replace" \
         "<init>(Landroid/content/Context;)V" \
         "$SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME" \
         "$TARGET_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME"
@@ -65,7 +75,7 @@ if [[ "$SOURCE_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME" != "$TARGET_DVFSAPP_CONFIG_S
 
     # com/sec/android/sdhms/util/Feature
     SMALI_PATCH "system" "system/priv-app/SamsungDeviceHealthManagerService/SamsungDeviceHealthManagerService.apk" \
-        "smali/U1/w.smali" "replace" \
+        "$SIOP_CONFIG_CLASS" "replace" \
         "<clinit>()V" \
         "$SOURCE_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME" \
         "$TARGET_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME"
@@ -95,3 +105,4 @@ else
 fi
 
 unset -f _LOG
+unset DVFS_CONFIG_CLASS DVFS_READER_CLASS SIOP_CONFIG_CLASS
