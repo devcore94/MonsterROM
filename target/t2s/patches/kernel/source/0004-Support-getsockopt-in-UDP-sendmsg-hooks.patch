@@ -1,0 +1,17 @@
+Subject: [PATCH] bpf: support getsockopt in UDP sendmsg hooks
+
+Allow Samsung's network socket accounting program to read socket options at
+the IPv4 and IPv6 sendmsg hooks, as in upstream Linux v5.15. Both use the
+existing sock_addr getsockopt implementation and argument validation.
+
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -7113,6 +7113,8 @@
+ 		switch (prog->expected_attach_type) {
+ 		case BPF_CGROUP_INET4_CONNECT:
+ 		case BPF_CGROUP_INET6_CONNECT:
++		case BPF_CGROUP_UDP4_SENDMSG:
++		case BPF_CGROUP_UDP6_SENDMSG:
+ 			return &bpf_sock_addr_getsockopt_proto;
+ 		default:
+ 			return NULL;
