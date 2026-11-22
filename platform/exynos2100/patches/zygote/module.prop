@@ -1,0 +1,4 @@
+id=zygote_cap
+name=Exynos 2100 zygote capabilities
+author=MonsterROM
+description=Handles capability queries for bits introduced after the t2s kernel.
