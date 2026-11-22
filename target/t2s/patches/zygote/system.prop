@@ -1,0 +1,3 @@
+ro.product.cpu.abilist=arm64-v8a
+ro.product.cpu.abilist64=arm64-v8a
+ro.product.cpu.abilist32=
