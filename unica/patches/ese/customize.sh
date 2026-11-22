@@ -1,5 +1,9 @@
+SYSTEM_CONFIG_DEX="smali"
+CREDENTIAL_MANAGER_DEX="smali_classes2"
 SEM_SERVICE_MANAGER="smali_classes6/com/samsung/android/service/SemService/SemServiceManager.smali"
 if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    SYSTEM_CONFIG_DEX="smali_classes2"
+    CREDENTIAL_MANAGER_DEX="smali_classes3"
     SEM_SERVICE_MANAGER="smali_classes7/com/samsung/android/service/SemService/SemServiceManager.smali"
 fi
 
@@ -129,14 +133,14 @@ if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "none" ]] && [[ "$SOURCE_SECU
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" != "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" ]]; then
         SMALI_PATCH "system" "system/framework/services.jar" \
-            "smali/com/android/server/SystemConfig.smali" "replace" \
+            "$SYSTEM_CONFIG_DEX/com/android/server/SystemConfig.smali" "replace" \
             "readAllPermissions()V" \
             "eSE_COS: $SOURCE_SECURITY_CONFIG_ESE_COS_NAME" \
             "eSE_COS: ${TARGET_SECURITY_CONFIG_ESE_COS_NAME//none/}"
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" ]]; then
         SMALI_PATCH "system" "system/framework/services.jar" \
-            "smali_classes2/com/samsung/ucm/ucmservice/CredentialManagerService.smali" "replaceall" \
+            "$CREDENTIAL_MANAGER_DEX/com/samsung/ucm/ucmservice/CredentialManagerService.smali" "replaceall" \
             "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" \
             "${TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR//none/}"
     fi
@@ -157,3 +161,4 @@ fi
 unset -f LOG_MISSING_PATCHES
 
 unset SEM_SERVICE_MANAGER
+unset SYSTEM_CONFIG_DEX CREDENTIAL_MANAGER_DEX
