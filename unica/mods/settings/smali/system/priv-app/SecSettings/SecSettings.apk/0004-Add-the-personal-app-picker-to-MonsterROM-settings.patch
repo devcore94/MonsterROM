@@ -319,7 +319,7 @@ diff --git a/res/values/strings.xml b/res/values/strings.xml
      <string name="monsterrom_name" translatable="false">MonsterROM_NEXT</string>
      <string name="unica_games_spoof_title">Unlock higher FPS in games</string>
 +    <string name="unica_hma_title">Hide installed apps</string>
-+    <string name="monsterrom_hma_hint">When this switch is on, checked personal apps are hidden from other apps, including those with full package visibility. Android services, your launcher, device administrators, and installers managing their own apps keep their usual access.</string>
++    <string name="monsterrom_hma_hint">Check the personal apps to hide from ordinary app queries when this switch is on. Android services, your launcher, device administrators, installers managing their own apps, and apps with full package inventory access keep their usual visibility.</string>
 +    <string name="monsterrom_hma_save_error">Unable to save your app visibility choice.</string>
 +    <string name="monsterrom_hma_load_error">Unable to load your installed apps.</string>
  </resources>
@@ -606,7 +606,7 @@ diff --git a/smali_classes4/io/mesalabs/unica/settings/hma/HideMyApplistFragment
 new file mode 100644
 --- /dev/null
 +++ b/smali_classes4/io/mesalabs/unica/settings/hma/HideMyApplistFragment.smali
-@@ -0,0 +1,938 @@
+@@ -0,0 +1,930 @@
 +.class public final Lio/mesalabs/unica/settings/hma/HideMyApplistFragment;
 +.super Lcom/android/settings/core/InstrumentedFragment;
 +.source "HideMyApplistFragment.java"
@@ -1088,14 +1088,6 @@ new file mode 100644
 +    iget-object v5, v4, Landroid/content/pm/PackageInfo;->applicationInfo:Landroid/content/pm/ApplicationInfo;
 +
 +    if-eqz v5, :cond_0
-+
-+    iget-object v6, v4, Landroid/content/pm/PackageInfo;->packageName:Ljava/lang/String;
-+
-+    invoke-static {v6}, Lio/mesalabs/unica/HideAppListUtils;->isPersonalPackage(Ljava/lang/String;)Z
-+
-+    move-result v6
-+
-+    if-eqz v6, :cond_0
 +
 +    iget v6, v5, Landroid/content/pm/ApplicationInfo;->flags:I
 +
