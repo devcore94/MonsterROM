@@ -2,6 +2,8 @@ if [[ "$TARGET_CODENAME" != "t2s" ]]; then
     return 0
 fi
 
+"$SRC_DIR/security/monsterrom/prepare-platform-key.sh" || ABORT "Unable to prepare the MonsterROM platform key"
+
 CHECK_FW_PROP()
 {
     local VALUE

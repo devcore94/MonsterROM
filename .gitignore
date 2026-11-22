@@ -1,6 +1,7 @@
 out/
 
 # Cert
+security/local
 security/unica_ota.x509.pem
 security/unica_ota.pk8
 security/unica_platform.x509.pem

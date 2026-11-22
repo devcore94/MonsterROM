@@ -12,6 +12,8 @@ The donor runs Android 17. The S21+ uses its own hardware services, partition si
 
 ## Building
 
+The build creates a private test platform key on first use under `~/.local/share/MonsterROM_NEXT/keys/platform`. Set `MONSTERROM_KEY_DIR` before the first build to choose a different persistent directory. Back up that directory privately and reuse it for subsequent builds and app updates.
+
 Use a Linux filesystem and UN1CA's build dependencies. The S26+ beta is an incremental update and requires the matching stock images. The build expects the resulting firmware tree under `out/fw/SM-S947B_EUX`. The stock target and native-library donor use `out/fw/SM-G996B_AUT` and `out/fw/SM-G990E_THL`.
 
 ```bash
