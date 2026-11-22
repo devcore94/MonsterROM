@@ -914,7 +914,15 @@ elif $SOURCE_WLAN_SUPPORT_MOBILEAP_6G && ! $TARGET_WLAN_SUPPORT_MOBILEAP_6G; the
 fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_MOBILEAP_DUALAP
-if ! $SOURCE_WLAN_SUPPORT_MOBILEAP_DUALAP; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    APPLY_PATCH "system" "system/framework/semwifi-service.jar" \
+        "$MODPATH/m2s/semwifi-service.jar/0007-Expose-the-hotspot-modes-supported-by-t2s.patch"
+    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "$MODPATH/m2s/SecSettings.apk/0007-Expose-the-hotspot-modes-supported-by-t2s.patch"
+    SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
+        "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
+        "SPF_DualAp=true" "SPF_DualAp=false"
+elif ! $SOURCE_WLAN_SUPPORT_MOBILEAP_DUALAP; then
     if $TARGET_WLAN_SUPPORT_MOBILEAP_DUALAP; then
         ADD_TO_WORK_DIR "dm1qxxx" "product" "overlay/SoftapOverlayDualAp/SoftapOverlayDualAp.apk" 0 0 644 "u:object_r:system_file:s0"
 
@@ -948,7 +956,11 @@ else
 fi
 
 # SEC_PRODUCT_FEATURE_WLAN_SUPPORT_MOBILEAP_OWE
-if ! $SOURCE_WLAN_SUPPORT_MOBILEAP_OWE; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
+        "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
+        "SPF_OWE=true" "SPF_OWE=false"
+elif ! $SOURCE_WLAN_SUPPORT_MOBILEAP_OWE; then
     if $TARGET_WLAN_SUPPORT_MOBILEAP_OWE; then
         ADD_TO_WORK_DIR "dm1qxxx" "product" "overlay/SoftapOverlayOWE/SoftapOverlayOWE.apk" 0 0 644 "u:object_r:system_file:s0"
 

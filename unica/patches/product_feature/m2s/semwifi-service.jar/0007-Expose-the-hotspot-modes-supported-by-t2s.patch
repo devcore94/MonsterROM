@@ -1,0 +1,160 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Expose the hotspot modes supported by t2s
+
+diff --git a/smali/com/samsung/android/server/wifi/ap/SemWifiApConfigStore.smali b/smali/com/samsung/android/server/wifi/ap/SemWifiApConfigStore.smali
+--- a/smali/com/samsung/android/server/wifi/ap/SemWifiApConfigStore.smali
++++ b/smali/com/samsung/android/server/wifi/ap/SemWifiApConfigStore.smali
+@@ -7393,6 +7393,40 @@
+ .method public declared-synchronized setApConfiguration(Landroid/net/wifi/SoftApConfiguration;Ljava/lang/String;Ljava/lang/String;)V
+     .locals 8
+ 
++    if-eqz p1, :supported_config
++
++    invoke-virtual {p1}, Landroid/net/wifi/SoftApConfiguration;->getBands()[I
++
++    move-result-object v0
++
++    array-length v0, v0
++
++    const/4 v1, 0x1
++
++    if-gt v0, v1, :unsupported_config
++
++    invoke-virtual {p1}, Landroid/net/wifi/SoftApConfiguration;->getSecurityType()I
++
++    move-result v0
++
++    const/4 v1, 0x4
++
++    if-eq v0, v1, :unsupported_config
++
++    const/4 v1, 0x5
++
++    if-ne v0, v1, :supported_config
++
++    :unsupported_config
++    const-string v0, "SemWifiApConfigStore"
++
++    const-string v1, "Unsupported hotspot configuration on t2s"
++
++    invoke-static {v0, v1}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
++
++    return-void
++
++    :supported_config
+     const-string v0, " setApConfiguration() "
+ 
+     const-string v1, " setMacRandomizationSetting exception :"
+diff --git a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
+--- a/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
++++ b/smali/com/samsung/android/server/wifi/ap/SemWifiApServiceImpl.smali
+@@ -14557,102 +14557,11 @@
+ .end method
+ 
+ .method public supportBridgedApStaConcurrency()Z
+-    .locals 5
+-
+-    sget-boolean v0, Lcom/samsung/android/wifi/SemWifiApCust;->DBG:Z
+-
+-    const/4 v1, 0x1
+-
+-    const/4 v2, 0x0
+-
+-    if-eqz v0, :cond_0
+-
+-    const-string v0, "vendor.wifiap.debug.BridgedApSta"
+-
+-    invoke-static {v0, v2}, Landroid/os/SystemProperties;->getInt(Ljava/lang/String;I)I
+-
+-    move-result v0
+-
+-    if-ne v0, v1, :cond_0
+-
+-    move v2, v1
+-
+-    :cond_0
+-    iget-object v0, p0, Lcom/samsung/android/server/wifi/ap/SemWifiApServiceImpl;->mFacade:Lcom/samsung/android/server/wifi/SemFrameworkFacade;
+-
+-    const-string v3, "ro.product.first_api_level"
+-
+-    const/4 v4, -0x1
+-
+-    invoke-virtual {v0, v3, v4}, Lcom/samsung/android/server/wifi/SemFrameworkFacade;->getSystemProperties(Ljava/lang/String;I)I
+-
+-    move-result v0
+-
+-    invoke-virtual {p0}, Lcom/samsung/android/server/wifi/ap/SemWifiApServiceImpl;->getAospWifiManager()Landroid/net/wifi/WifiManager;
+-
+-    move-result-object p0
+-
+-    invoke-virtual {p0}, Landroid/net/wifi/WifiManager;->isStaBridgedApConcurrencySupported()Z
+-
+-    move-result p0
+-
+-    invoke-static {}, Lcom/samsung/android/server/wifi/SemWifiInjector;->getInstance()Lcom/samsung/android/server/wifi/SemWifiInjector;
+-
+-    move-result-object v3
+-
+-    invoke-virtual {v3}, Lcom/samsung/android/server/wifi/SemWifiInjector;->getWifiVersionProvider()Lcom/samsung/android/server/wifi/driver/WifiDriverVersionProvider;
+-
+-    move-result-object v3
+-
+-    invoke-virtual {v3}, Lcom/samsung/android/server/wifi/driver/WifiDriverVersionProvider;->getWifiChipVendor()Lcom/samsung/android/server/wifi/driver/WifiChipVendor;
+-
+-    move-result-object v3
+-
+-    invoke-virtual {v3}, Ljava/lang/Enum;->name()Ljava/lang/String;
+-
+-    move-result-object v3
+-
+-    const/16 v4, 0x24
+-
+-    if-lt v0, v4, :cond_1
+-
+-    if-eqz p0, :cond_1
+-
+-    goto :goto_0
+-
+-    :cond_1
+-    move v1, v2
+-
+-    :goto_0
+-    new-instance v0, Ljava/lang/StringBuilder;
+-
+-    const-string v2, "supportBridgedApStaConcurrency() "
+-
+-    invoke-direct {v0, v2}, Ljava/lang/StringBuilder;-><init>(Ljava/lang/String;)V
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+-
+-    const-string v2, ",mWifichip:"
+-
+-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    const-string v2, ",overlay:"
+-
+-    invoke-virtual {v0, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    const-string v0, "SemWifiApServiceImpl"
+-
+-    invoke-static {v0, p0}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    return v1
++    .locals 1
++
++    const/4 v0, 0x0
++
++    return v0
+ .end method
+ 
+ .method public supportWifiAp5GBasedOnCountry()Z
+-- 
+2.51.0

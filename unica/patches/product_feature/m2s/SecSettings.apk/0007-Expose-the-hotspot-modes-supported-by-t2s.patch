@@ -1,0 +1,74 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Expose the hotspot modes supported by t2s
+
+diff --git a/smali_classes2/com/android/settings/Utils.smali b/smali_classes2/com/android/settings/Utils.smali
+--- a/smali_classes2/com/android/settings/Utils.smali
++++ b/smali_classes2/com/android/settings/Utils.smali
+@@ -111,7 +111,7 @@
+ 
+     sput-boolean v2, Lcom/android/settings/Utils;->SPF_SupportMobileApEnhanced:Z
+ 
+-    sput-boolean v2, Lcom/android/settings/Utils;->SPF_SupportMobileApDualAp:Z
++    sput-boolean v1, Lcom/android/settings/Utils;->SPF_SupportMobileApDualAp:Z
+ 
+     sput-boolean v2, Lcom/android/settings/Utils;->SPF_SupportInstantHotspot:Z
+ 
+diff --git a/smali_classes4/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureSecurityDropDownController.smali b/smali_classes4/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureSecurityDropDownController.smali
+--- a/smali_classes4/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureSecurityDropDownController.smali
++++ b/smali_classes4/com/samsung/android/settings/wifi/mobileap/configure/WifiApConfigureSecurityDropDownController.smali
+@@ -261,7 +261,7 @@
+ 
+     if-eqz p1, :cond_0
+ 
+-    const-string/jumbo p1, "setSecurityEntryArray() : EnhancedOpen/wpa3"
++    const-string/jumbo p1, "setSecurityEntryArray() : wpa3"
+ 
+     invoke-static {v0, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+ 
+@@ -271,7 +271,7 @@
+ 
+     move-result-object p1
+ 
+-    const v0, 0x7f030219
++    const v0, 0x7f03021a
+ 
+     invoke-virtual {p1, v0}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
+ 
+@@ -282,7 +282,7 @@
+     goto :goto_0
+ 
+     :cond_0
+-    const-string/jumbo p1, "setSecurityEntryArray() : open/EnhancedOpen/wpa2/wpa2_wpa3/wpa3"
++    const-string/jumbo p1, "setSecurityEntryArray() : open/wpa2/wpa2_wpa3/wpa3"
+ 
+     invoke-static {v0, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+ 
+@@ -292,7 +292,7 @@
+ 
+     move-result-object p1
+ 
+-    const v0, 0x7f030225
++    const v0, 0x7f03022d
+ 
+     invoke-virtual {p1, v0}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
+ 
+@@ -303,7 +303,7 @@
+     goto :goto_0
+ 
+     :cond_1
+-    const-string/jumbo p1, "setSecurityEntryArray() : open/EnhancedOpen/wpa2"
++    const-string/jumbo p1, "setSecurityEntryArray() : open/wpa2"
+ 
+     invoke-static {v0, p1}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
+ 
+@@ -313,7 +313,7 @@
+ 
+     move-result-object p1
+ 
+-    const v0, 0x7f030224
++    const v0, 0x7f030227
+ 
+     invoke-virtual {p1, v0}, Landroid/content/res/Resources;->getStringArray(I)[Ljava/lang/String;
+ 
+-- 
+2.51.0
