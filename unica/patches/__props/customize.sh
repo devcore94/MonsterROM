@@ -15,7 +15,11 @@ EVAL "echo \"ro.unica.device u:object_r:build_prop:s0 exact string\" >> \"$WORK_
 # unica/<ro.unica.device>:<MAJOR.MINOR.PATCH from ro.unica.version>/<8-digit commit hash from ro.unica.version><.dirty>/<ro.unica.timestamp>:<user/userdebug>/<release/test>-keys
 
 # unica header + the target codename
-FINGERPRINT="unica/${TARGET_CODENAME}:"
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    FINGERPRINT="monsterrom_next/${TARGET_CODENAME}:"
+else
+    FINGERPRINT="unica/${TARGET_CODENAME}:"
+fi
 
 # version value is UN1CA version
 FINGERPRINT+="$(grep -o "^[0-9]\+\.[0-9]\+\.[0-9]\+" <<< "$ROM_VERSION")/"
