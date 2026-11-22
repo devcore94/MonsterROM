@@ -4,7 +4,7 @@
 # UN1CA configuration file for Exynos devices (essi)
 
 if [[ "$TARGET_CODENAME" == "t2s" ]]; then
-    source "$SRC_DIR/unica/configs/m1s.sh" || return 1
+    source "$SRC_DIR/unica/configs/m2s.sh" || return 1
     return 0
 fi
 

@@ -12,10 +12,10 @@ CHECK_FW_PROP()
 }
 
 # create_work_dir sets ro.product.device from the source ODM before staging target ODM.
-CHECK_FW_PROP "system" "ro.product.device" "m1s"
+CHECK_FW_PROP "system" "ro.product.device" "m2s"
 CHECK_FW_PROP "system" "ro.build.version.oneui" "90500"
 for PARTITION in system system_ext product; do
-    CHECK_FW_PROP "$PARTITION" "ro.$PARTITION.build.version.incremental" "S942BXXU6ZZKN"
+    CHECK_FW_PROP "$PARTITION" "ro.$PARTITION.build.version.incremental" "S947BXXU6ZZKN"
 done
 
 for PARTITION in vendor odm; do
