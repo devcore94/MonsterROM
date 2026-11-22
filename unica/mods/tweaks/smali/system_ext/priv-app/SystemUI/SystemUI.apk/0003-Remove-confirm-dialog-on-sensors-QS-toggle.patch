@@ -1,61 +1,22 @@
-From 37f6925c881b952426a14e05b833eea85e0d5203 Mon Sep 17 00:00:00 2001
-From: Salvo Giangreco <giangrecosalvo9@gmail.com>
-Date: Fri, 31 Oct 2025 09:46:00 +0100
-Subject: [PATCH] Remove confirm dialog on sensors QS toggle
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Apply the selected sensor privacy tile action directly
 
----
- .../qs/tiles/SensorPrivacyToggleTile.smali    | 153 +-----------------
- 1 file changed, 8 insertions(+), 145 deletions(-)
-
-diff --git a/smali_classes2/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali b/smali_classes2/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
-index b77b9fc656..9119a2dae0 100644
---- a/smali_classes2/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
-+++ b/smali_classes2/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
-@@ -262,166 +262,29 @@
- .end method
+diff --git a/smali_classes3/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali b/smali_classes3/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
+--- a/smali_classes3/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
++++ b/smali_classes3/com/android/systemui/qs/tiles/SensorPrivacyToggleTile.smali
+@@ -304,8 +304,6 @@
  
- .method public final toggleTileState()V
--    .locals 7
-+    .locals 3
- 
--    invoke-virtual {p0}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->getSensorId()I
--
--    move-result v0
--
--    iget-object v1, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mSensorPrivacyController:Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyController;
--
--    check-cast v1, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;
--
--    invoke-virtual {v1, v0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->isSensorBlocked(I)Z
--
--    move-result v0
-+    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mSensorPrivacyController:Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyController;
- 
--    const/4 v2, 0x1
-+    check-cast v0, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;
+     const/4 v2, 0x1
  
 -    if-eqz v0, :cond_0
-+    const/4 v1, 0x1
- 
+-
      invoke-virtual {p0}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->getSensorId()I
  
--    move-result v0
-+    move-result v2
+     move-result v0
+@@ -323,111 +321,4 @@
+     invoke-virtual {v1, v2, v0, p0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->setSensorBlocked(IIZ)V
  
-     invoke-virtual {p0}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->getSensorId()I
- 
-     move-result p0
- 
--    invoke-virtual {v1, p0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->isSensorBlocked(I)Z
-+    invoke-virtual {v0, p0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->isSensorBlocked(I)Z
- 
-     move-result p0
- 
--    xor-int/2addr p0, v2
--
--    invoke-virtual {v1, v2, v0, p0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->setSensorBlocked(IIZ)V
--
--    return-void
+     return-void
 -
 -    :cond_0
 -    invoke-virtual {p0}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->getSensorId()I
@@ -70,7 +31,7 @@ index b77b9fc656..9119a2dae0 100644
 -
 -    iget-object v0, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mContext:Landroid/content/Context;
 -
--    const v1, 0x7f130288
+-    const v1, 0x7e13035a
 -
 -    invoke-virtual {v0, v1}, Landroid/content/Context;->getString(I)Ljava/lang/String;
 -
@@ -78,9 +39,9 @@ index b77b9fc656..9119a2dae0 100644
 -
 -    iget-object v1, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mContext:Landroid/content/Context;
 -
--    const v2, 0x7f131604
+-    const v4, 0x7e131a14
 -
--    invoke-virtual {v1, v2}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+-    invoke-virtual {v1, v4}, Landroid/content/Context;->getString(I)Ljava/lang/String;
 -
 -    move-result-object v1
 -
@@ -95,7 +56,7 @@ index b77b9fc656..9119a2dae0 100644
 -
 -    iget-object v0, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mContext:Landroid/content/Context;
 -
--    const v1, 0x7f130289
+-    const v1, 0x7e13035b
 -
 -    invoke-virtual {v0, v1}, Landroid/content/Context;->getString(I)Ljava/lang/String;
 -
@@ -103,9 +64,9 @@ index b77b9fc656..9119a2dae0 100644
 -
 -    iget-object v1, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mContext:Landroid/content/Context;
 -
--    const v2, 0x7f131605
+-    const v4, 0x7e131a15
 -
--    invoke-virtual {v1, v2}, Landroid/content/Context;->getString(I)Ljava/lang/String;
+-    invoke-virtual {v1, v4}, Landroid/content/Context;->getString(I)Ljava/lang/String;
 -
 -    move-result-object v1
 -
@@ -119,73 +80,49 @@ index b77b9fc656..9119a2dae0 100644
 -    :goto_0
 -    invoke-virtual {v0, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
 -
--    move-result v2
+-    move-result v3
 -
--    if-nez v2, :cond_3
--
--    new-instance v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;
--
--    const/4 v3, 0x0
--
--    invoke-direct {v2, p0, v3}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;-><init>(Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;I)V
+-    if-nez v3, :cond_3
 -
 -    new-instance v3, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;
 -
--    const/4 v4, 0x1
+-    const/4 v4, 0x0
 -
--    invoke-direct {v3, p0, v4}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;-><init>(Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;I)V
+-    invoke-direct {v3, v4}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;-><init>(B)V
 -
--    new-instance v4, Lcom/android/systemui/statusbar/phone/SystemUIDialog;
+-    iput-object p0, v3, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;->f$0:Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;
 -
--    iget-object v5, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mContext:Landroid/content/Context;
+-    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
 -
--    const v6, 0x7f1406f7
+-    new-instance v4, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;
 -
--    invoke-direct {v4, v5, v6}, Lcom/android/systemui/statusbar/phone/SystemUIDialog;-><init>(Landroid/content/Context;I)V
+-    invoke-direct {v4, v2}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;-><init>(B)V
 -
--    iput-object v4, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
+-    iput-object p0, v4, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;->f$0:Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;
 -
--    invoke-virtual {v4, v0}, Landroid/app/AlertDialog;->setTitle(Ljava/lang/CharSequence;)V
+-    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
 -
--    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
+-    new-instance v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;
 -
--    invoke-virtual {v0, v1}, Landroid/app/AlertDialog;->setMessage(Ljava/lang/CharSequence;)V
+-    invoke-direct {v2}, Ljava/lang/Object;-><init>()V
 -
--    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
+-    iput-object p0, v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;->f$0:Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;
 -
--    const v1, 0x7f13028a
+-    iput-object v0, v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;->f$1:Ljava/lang/CharSequence;
 -
--    invoke-virtual {v0, v1, v2}, Lcom/android/systemui/statusbar/phone/SystemUIDialog;->setPositiveButton(ILandroid/content/DialogInterface$OnClickListener;)V
+-    iput-object v1, v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;->f$2:Ljava/lang/CharSequence;
 -
--    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
+-    iput-object v3, v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;->f$4:Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;
 -
--    const v1, 0x7f13100b
+-    iput-object v4, v2, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;->f$6:Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda1;
 -
--    invoke-virtual {v0, v1, v3}, Lcom/android/systemui/statusbar/phone/SystemUIDialog;->setNegativeButton(ILandroid/content/DialogInterface$OnClickListener;)V
+-    invoke-static {}, Ljava/lang/invoke/VarHandle;->storeStoreFence()V
 -
--    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mPanelInteractor:Lcom/android/systemui/qs/pipeline/domain/interactor/PanelInteractor;
+-    iget-object p0, p0, Lcom/android/systemui/qs/tileimpl/QSTileImpl;->mUiHandler:Landroid/os/Handler;
 -
--    check-cast v0, Lcom/android/systemui/qs/pipeline/domain/interactor/PanelInteractorImpl;
+-    invoke-virtual {p0, v2}, Landroid/os/Handler;->post(Ljava/lang/Runnable;)Z
 -
--    invoke-virtual {v0}, Lcom/android/systemui/qs/pipeline/domain/interactor/PanelInteractorImpl;->collapsePanels()V
--
--    iget-object v0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
--
--    new-instance v1, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;
--
--    invoke-direct {v1, p0}, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile$$ExternalSyntheticLambda3;-><init>(Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;)V
--
--    invoke-virtual {v0, v1}, Landroid/app/AlertDialog;->setOnDismissListener(Landroid/content/DialogInterface$OnDismissListener;)V
--
--    iget-object p0, p0, Lcom/android/systemui/qs/tiles/SensorPrivacyToggleTile;->mDialog:Lcom/android/systemui/statusbar/phone/SystemUIDialog;
-+    xor-int/2addr p0, v1
- 
--    invoke-virtual {p0}, Landroid/app/AlertDialog;->show()V
-+    invoke-virtual {v0, v1, v2, p0}, Lcom/android/systemui/statusbar/policy/IndividualSensorPrivacyControllerImpl;->setSensorBlocked(IIZ)V
- 
 -    :cond_3
-     return-void
- .end method
--- 
-2.51.1
-
+-    return-void
+-.end method
++.end method
