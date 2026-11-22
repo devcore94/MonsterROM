@@ -1,0 +1,34 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the t2s HIDL secure element client
+
+diff --git a/smali/com/sec/esecomm/EsecommAdapter.smali b/smali/com/sec/esecomm/EsecommAdapter.smali
+--- a/smali/com/sec/esecomm/EsecommAdapter.smali
++++ b/smali/com/sec/esecomm/EsecommAdapter.smali
+@@ -21,13 +21,15 @@
+ 
+ # direct methods
+ .method static constructor <clinit>()V
+-    .locals 2
++    .locals 3
+ 
+     const-string v0, "gta4xls"
+ 
+     const-string v1, "gta4xlswifi"
+ 
+-    filled-new-array {v0, v1}, [Ljava/lang/String;
++    const-string v2, "t2s"
++
++    filled-new-array {v0, v1, v2}, [Ljava/lang/String;
+ 
+     move-result-object v0
+ 
+@@ -41,7 +43,7 @@
+ 
+     invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+ 
+-    const-string v0, "ro.product.system.name"
++    const-string v0, "ro.product.vendor.device"
+ 
+     invoke-static {v0}, Landroid/os/SystemProperties;->get(Ljava/lang/String;)Ljava/lang/String;
+ 
+--

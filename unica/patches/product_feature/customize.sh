@@ -25,7 +25,21 @@ LOG_MISSING_PATCHES()
 # ]
 
 # SEC_PRODUCT_FEATURE_BUILD_MAINLINE_API_LEVEL
-if [[ "$SOURCE_PRODUCT_SHIPPING_API_LEVEL" != "$TARGET_PRODUCT_SHIPPING_API_LEVEL" ]]; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    # The beta probes HDM and DDAR through ServiceManager. Its UCM adapter still needs
+    # the matching vendor transport and JNI library.
+    APPLY_PATCH "system" "system/framework/esecomm.jar" \
+        "$MODPATH/m2s/esecomm.jar/0001-Use-the-t2s-HIDL-secure-element-client.patch"
+    for LIB in libucm_esecomm_adapter.so libucm_tlc_hidl_api.so vendor.samsung.hardware.tlc.ucm@2.0.so; do
+        ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/lib64/$LIB" 0 0 644 "u:object_r:system_lib_file:s0"
+    done
+    unset LIB
+    SMALI_PATCH "system" "system/framework/services.jar" \
+        "smali/com/android/server/SystemServer.smali" "replace" \
+        "startOtherServices(Lcom/android/server/utils/TimingsTraceAndSlog;)V" \
+        "MAINLINE_API_LEVEL: $SOURCE_PRODUCT_SHIPPING_API_LEVEL" \
+        "MAINLINE_API_LEVEL: $TARGET_PRODUCT_SHIPPING_API_LEVEL"
+elif [[ "$SOURCE_PRODUCT_SHIPPING_API_LEVEL" != "$TARGET_PRODUCT_SHIPPING_API_LEVEL" ]]; then
     SMALI_PATCH "system" "system/framework/esecomm.jar" \
         "smali/com/sec/esecomm/EsecommAdapter.smali" "replace" \
         "<clinit>()V" \
