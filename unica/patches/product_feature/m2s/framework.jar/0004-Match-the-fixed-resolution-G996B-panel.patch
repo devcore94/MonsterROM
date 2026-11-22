@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Match the fixed resolution G996B panel
+
+diff --git a/smali_classes5/com/samsung/android/rune/CoreRune.smali b/smali_classes5/com/samsung/android/rune/CoreRune.smali
+--- a/smali_classes5/com/samsung/android/rune/CoreRune.smali
++++ b/smali_classes5/com/samsung/android/rune/CoreRune.smali
+@@ -3205,7 +3205,7 @@
+     :goto_c
+     sput-boolean v5, Lcom/samsung/android/rune/CoreRune;->FW_TSP_DEADZONE_LARGE_FLIP_COVER:Z
+ 
+-    sput-boolean v3, Lcom/samsung/android/rune/CoreRune;->FW_SUPPORT_MULTI_RESOLUTION:Z
++    sput-boolean v4, Lcom/samsung/android/rune/CoreRune;->FW_SUPPORT_MULTI_RESOLUTION:Z
+ 
+     sput-boolean v4, Lcom/samsung/android/rune/CoreRune;->FW_DYNAMIC_RESOLUTION_CONTROL:Z
+ 
+-- 
+2.51.0

@@ -184,7 +184,20 @@ if [[ "$SOURCE_COMMON_CONFIG_MDNIE_MODE" != "$TARGET_COMMON_CONFIG_MDNIE_MODE" ]
 fi
 
 # SEC_PRODUCT_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL
-if ! $SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_COMMON_CONFIG_DYN_RESOLUTION_CONTROL" --delete
+
+    APPLY_PATCH "system" "system/framework/framework.jar" \
+        "$MODPATH/m2s/framework.jar/0004-Match-the-fixed-resolution-G996B-panel.patch"
+    APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "$MODPATH/m2s/SecSettings.apk/0004-Match-the-fixed-resolution-G996B-panel.patch"
+
+    TARGET_FIRMWARE_PATH="$(cut -d "/" -f 1 -s <<< "$TARGET_FIRMWARE")_$(cut -d "/" -f 2 -s <<< "$TARGET_FIRMWARE")"
+    for FILE in "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/media/"*.spi "$FW_DIR/$TARGET_FIRMWARE_PATH/system/system/media/lcd_density.txt"; do
+        ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/media/$(basename "$FILE")" 0 0 644 "u:object_r:system_file:s0"
+    done
+    unset FILE TARGET_FIRMWARE_PATH
+elif ! $SOURCE_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
     if $TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
         if [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" == "optical" ]]; then
             ABORT "TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL is not supported on targets with an optical fingerprint sensor"
