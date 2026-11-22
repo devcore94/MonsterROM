@@ -1,3 +1,8 @@
+SEM_SERVICE_MANAGER="smali_classes6/com/samsung/android/service/SemService/SemServiceManager.smali"
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    SEM_SERVICE_MANAGER="smali_classes7/com/samsung/android/service/SemService/SemServiceManager.smali"
+fi
+
 # [
 LOG_MISSING_PATCHES()
 {
@@ -89,11 +94,14 @@ if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "none" ]] && [[ "$SOURCE_SECU
             "eSE_Vendor: ${TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR//none/}"
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" != "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" ]]; then
+        ESE_COS_PREFIX=""
+        [[ "$TARGET_CODENAME" != "t2s" ]] || ESE_COS_PREFIX=", eSE_COS: "
         SMALI_PATCH "system" "system/app/SecureElement/SecureElement.apk" \
             "smali/com/android/se/internal/UtilExtension.smali" "replace" \
             "supportEseHal()Z" \
-            "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" \
-            "${TARGET_SECURITY_CONFIG_ESE_COS_NAME//none/}"
+            "$ESE_COS_PREFIX$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" \
+            "$ESE_COS_PREFIX${TARGET_SECURITY_CONFIG_ESE_COS_NAME//none/}"
+        unset ESE_COS_PREFIX
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" ]]; then
         SMALI_PATCH "system" "system/framework/framework.jar" \
@@ -109,13 +117,13 @@ if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "none" ]] && [[ "$SOURCE_SECU
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" != "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" ]]; then
         SMALI_PATCH "system" "system/framework/framework.jar" \
-            "smali_classes6/com/samsung/android/service/SemService/SemServiceManager.smali" "replaceall" \
+            "$SEM_SERVICE_MANAGER" "replaceall" \
             "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" \
             "${TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR//none/}"
     fi
     if [[ "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" != "$TARGET_SECURITY_CONFIG_ESE_COS_NAME" ]]; then
         SMALI_PATCH "system" "system/framework/framework.jar" \
-            "smali_classes6/com/samsung/android/service/SemService/SemServiceManager.smali" "replaceall" \
+            "$SEM_SERVICE_MANAGER" "replaceall" \
             "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" \
             "${TARGET_SECURITY_CONFIG_ESE_COS_NAME//none/}"
     fi
@@ -147,3 +155,5 @@ elif $SOURCE_SECURITY_SUPPORT_ESEK && ! $TARGET_SECURITY_SUPPORT_ESEK; then
 fi
 
 unset -f LOG_MISSING_PATCHES
+
+unset SEM_SERVICE_MANAGER
