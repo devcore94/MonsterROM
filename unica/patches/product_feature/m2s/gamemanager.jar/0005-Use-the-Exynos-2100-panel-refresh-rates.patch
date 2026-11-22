@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the Exynos 2100 panel refresh rates
+
+diff --git a/smali/com/samsung/android/game/VrrManager.smali b/smali/com/samsung/android/game/VrrManager.smali
+--- a/smali/com/samsung/android/game/VrrManager.smali
++++ b/smali/com/samsung/android/game/VrrManager.smali
+@@ -70,7 +70,7 @@
+ 
+     iput-object p4, p0, Lcom/samsung/android/game/VrrManager;->mDisabledVrrControlList:Ljava/util/List;
+ 
+-    const-string v0, "4"
++    const-string v0, "2"
+ 
+     invoke-static {v0}, Ljava/lang/Integer;->parseInt(Ljava/lang/String;)I
+ 
+-- 
+2.51.0

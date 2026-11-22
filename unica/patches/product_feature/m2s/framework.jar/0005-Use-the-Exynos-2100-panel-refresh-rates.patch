@@ -1,0 +1,119 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the Exynos 2100 panel refresh rates
+
+diff --git a/smali_classes5/com/samsung/android/hardware/display/RefreshRateConfig.smali b/smali_classes5/com/samsung/android/hardware/display/RefreshRateConfig.smali
+--- a/smali_classes5/com/samsung/android/hardware/display/RefreshRateConfig.smali
++++ b/smali_classes5/com/samsung/android/hardware/display/RefreshRateConfig.smali
+@@ -128,7 +128,9 @@
+ .end method
+ 
+ .method public static blacklist dumpProductFeature(Ljava/io/PrintWriter;Ljava/lang/String;Z)V
+-    .locals 2
++    .locals 3
++
++    move v2, p2
+ 
+     new-instance v0, Ljava/lang/StringBuilder;
+ 
+@@ -189,7 +191,7 @@
+ 
+     if-eqz p2, :cond_1
+ 
+-    const-string v1, "4"
++    const-string v1, "2"
+ 
+     goto :goto_0
+ 
+@@ -219,7 +221,7 @@
+ 
+     if-eqz p2, :cond_2
+ 
+-    const-string p2, "1,60,120"
++    const-string p2, "60,48,96,120"
+ 
+     goto :goto_1
+ 
+@@ -245,6 +247,11 @@
+ 
+     invoke-virtual {p2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
++    if-eqz v2, :hfr_supported_refresh_rate_ns
++
++    const-string v1, "60"
++
++    :hfr_supported_refresh_rate_ns
+     invoke-virtual {p2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
+     invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+@@ -263,6 +270,11 @@
+ 
+     invoke-virtual {p2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
++    if-eqz v2, :seamless_brt
++
++    const-string v1, "108,110"
++
++    :seamless_brt
+     invoke-virtual {p2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
+     invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+@@ -281,6 +293,11 @@
+ 
+     invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
++    if-eqz v2, :seamless_lux
++
++    const-string v1, "200,2500"
++
++    :seamless_lux
+     invoke-virtual {p2, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+ 
+     invoke-virtual {p2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+@@ -469,7 +486,7 @@
+ .end method
+ 
+ .method public static blacklist getMainInstance()Lcom/samsung/android/hardware/display/RefreshRateConfig;
+-    .locals 4
++    .locals 5
+ 
+     sget-object v0, Lcom/samsung/android/hardware/display/RefreshRateConfig;->sInstance:Lcom/samsung/android/hardware/display/RefreshRateConfig;
+ 
+@@ -481,13 +498,17 @@
+ 
+     const-string/jumbo v2, "persist.dm.passive.ambient_brightness"
+ 
+-    const-string v3, ""
+-
+-    invoke-direct {v0, v3, v3, v1, v2}, Lcom/samsung/android/hardware/display/RefreshRateConfig$BrightnessThreshold;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+-
+-    const-string v1, "4"
+-
+-    const-string v2, "1,60,120"
++    const-string v3, "108,110"
++
++    const-string v4, "200,2500"
++
++    invoke-direct {v0, v3, v4, v1, v2}, Lcom/samsung/android/hardware/display/RefreshRateConfig$BrightnessThreshold;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
++
++    const-string v1, "2"
++
++    const-string v2, "60,48,96,120"
++
++    const-string v3, "60"
+ 
+     invoke-static {v1, v2, v3, v0}, Lcom/samsung/android/hardware/display/RefreshRateConfig;->createRefreshRateConfig(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lcom/samsung/android/hardware/display/RefreshRateConfig$BrightnessThreshold;)Lcom/samsung/android/hardware/display/RefreshRateConfig;
+ 
+diff --git a/smali_classes3/android/inputmethodservice/SemImsRune.smali b/smali_classes3/android/inputmethodservice/SemImsRune.smali
+--- a/smali_classes3/android/inputmethodservice/SemImsRune.smali
++++ b/smali_classes3/android/inputmethodservice/SemImsRune.smali
+@@ -18,7 +18,7 @@
+ 
+ .field public static final blacklist enableSepNaviIcon:Z = true
+ 
+-.field static final blacklist supportPreferredMinDisplayRefreshRate:Z = false
++.field static final blacklist supportPreferredMinDisplayRefreshRate:Z = true
+ 
+ 
+ # direct methods
+-- 
+2.51.0

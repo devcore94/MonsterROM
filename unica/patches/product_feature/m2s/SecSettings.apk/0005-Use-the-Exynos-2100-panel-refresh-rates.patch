@@ -1,0 +1,35 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the Exynos 2100 panel refresh rates
+
+diff --git a/smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali b/smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali
+--- a/smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali
++++ b/smali_classes3/com/samsung/android/settings/display/SecDisplayUtils.smali
+@@ -2023,7 +2023,7 @@
+ 
+     if-eq p0, v0, :cond_0
+ 
+-    const/4 p0, 0x4
++    const/4 p0, 0x2
+ 
+     return p0
+ 
+@@ -2057,7 +2057,7 @@
+ 
+     if-eq p0, v0, :cond_0
+ 
+-    const-string p0, "1,60,120"
++    const-string p0, "60,48,96,120"
+ 
+     invoke-virtual {p0, v1}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+ 
+@@ -6160,7 +6160,7 @@
+ 
+     if-eq p0, v2, :cond_0
+ 
+-    const-string p0, "1,60,120"
++    const-string p0, "60,48,96,120"
+ 
+     const-string v2, ","
+ 
+-- 
+2.51.0

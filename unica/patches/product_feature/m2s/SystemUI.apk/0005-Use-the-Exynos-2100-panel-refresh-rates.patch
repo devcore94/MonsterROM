@@ -1,0 +1,17 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the Exynos 2100 panel refresh rates
+
+diff --git a/smali_classes2/com/android/systemui/keyguard/KeyguardViewMediatorHelperImpl$$ExternalSyntheticLambda0.smali b/smali_classes2/com/android/systemui/keyguard/KeyguardViewMediatorHelperImpl$$ExternalSyntheticLambda0.smali
+--- a/smali_classes2/com/android/systemui/keyguard/KeyguardViewMediatorHelperImpl$$ExternalSyntheticLambda0.smali
++++ b/smali_classes2/com/android/systemui/keyguard/KeyguardViewMediatorHelperImpl$$ExternalSyntheticLambda0.smali
+@@ -687,7 +687,7 @@
+     return-object p0
+ 
+     :pswitch_19
+-    const-string p0, "1,60,120"
++    const-string p0, "60,48,96,120"
+ 
+     invoke-static {p0, v4, v6}, Lkotlin/text/StringsKt__StringsKt;->contains(Ljava/lang/CharSequence;Ljava/lang/CharSequence;Z)Z
+ 
+-- 
+2.51.0

@@ -1,0 +1,29 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the Exynos 2100 panel refresh rates
+
+diff --git a/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeatures.smali b/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeatures.smali
+--- a/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeatures.smali
++++ b/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeatures.smali
+@@ -18,7 +18,7 @@
+ 
+ .field public static final IS_WEAROS:Z
+ 
+-.field public static final LCD_CONFIG_HFR_MODE:Ljava/lang/String; = "4"
++.field public static final LCD_CONFIG_HFR_MODE:Ljava/lang/String; = "2"
+ 
+ .field public static final SUPPORT_AIVF:Z
+ 
+diff --git a/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeaturesExtra.smali b/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeaturesExtra.smali
+--- a/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeaturesExtra.smali
++++ b/smali/com/samsung/android/hardware/secinputdev/utils/SemInputFeaturesExtra.smali
+@@ -4,7 +4,7 @@
+ 
+ 
+ # static fields
+-.field public static final LCD_CONFIG_HFR_MODE:Ljava/lang/String; = "4"
++.field public static final LCD_CONFIG_HFR_MODE:Ljava/lang/String; = "2"
+ 
+ .field public static final SUPPORT_DEX:Z = false
+ 
+-- 
+2.51.0
