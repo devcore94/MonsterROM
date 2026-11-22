@@ -1,0 +1,4 @@
+id=t2s_vintf
+name=Galaxy S21+ framework compatibility matrices
+author=MonsterROM_NEXT
+description=Installs the G996B framework matrices for its vendor HALs and kernel.
