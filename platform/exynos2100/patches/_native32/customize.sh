@@ -23,3 +23,9 @@ for FILE in system/bin/bootstrap/linker system/bin/linker system/bin/boringssl_s
 done
 
 unset ENTRY FILE NATIVE32_FW
+
+# These ZZKN APEXs retain the S26+ ARM64 providers and add the G990E ARM32 providers.
+for APEX in com.android.runtime.apex com.android.i18n.apex; do
+    ADD_TO_WORK_DIR "m2sxxx" "system" "system/apex/$APEX" 0 0 644 "u:object_r:system_file:s0" || ABORT
+done
+unset APEX
