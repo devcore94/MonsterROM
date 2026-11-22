@@ -1,0 +1,27 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Expose the native status bar network speed setting
+
+diff --git a/smali_classes4/com/samsung/android/settings/notification/StatusBarNetworkSpeedController.smali b/smali_classes4/com/samsung/android/settings/notification/StatusBarNetworkSpeedController.smali
+--- a/smali_classes4/com/samsung/android/settings/notification/StatusBarNetworkSpeedController.smali
++++ b/smali_classes4/com/samsung/android/settings/notification/StatusBarNetworkSpeedController.smali
+@@ -24,17 +24,7 @@
+ .method static constructor <clinit>()V
+     .locals 3
+ 
+-    invoke-static {}, Lcom/samsung/android/feature/SemCscFeature;->getInstance()Lcom/samsung/android/feature/SemCscFeature;
+-
+-    move-result-object v0
+-
+-    const-string v1, "CscFeature_Common_SupportZProjectFunctionInGlobal"
+-
+-    const/4 v2, 0x0
+-
+-    invoke-virtual {v0, v1, v2}, Lcom/samsung/android/feature/SemCscFeature;->getBoolean(Ljava/lang/String;Z)Z
+-
+-    move-result v0
++    const/4 v0, 0x1
+ 
+     sput-boolean v0, Lcom/samsung/android/settings/notification/StatusBarNetworkSpeedController;->SUPPORT_NETWORK_SPEED:Z
+ 
+-- 
+2.51.0
