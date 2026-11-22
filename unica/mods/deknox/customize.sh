@@ -14,6 +14,19 @@ for PACKAGE in com.samsung.android.coldwalletservice com.samsung.android.hdmapp 
             DELETE_FROM_WORK_DIR "system" "system/$FILE"
         fi
     done
+
+    if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+        # ZZKN also merges per-package declarations into shared system XML files.
+        PACKAGE_PATTERN="${PACKAGE//./[.]}"
+        sed -i "\@<install-in-user-type package=\"$PACKAGE_PATTERN\">@,\@</install-in-user-type>@d" \
+            "$WORK_DIR/system/system/etc/sysconfig/preinstalled-packages-merged-system.xml"
+        sed -i -E "\@<(allowed-system-preload|reviewed-in-power-save|allow-in-power-save-except-idle) package=\"$PACKAGE_PATTERN\"[[:space:]]*/>@d" \
+            "$WORK_DIR/system/system/etc/sysconfig/allowed-system-preload-apps.xml" \
+            "$WORK_DIR/system/system/etc/deviceidle/reviewed_allowlist.xml" \
+            "$WORK_DIR/system/system/etc/permissions/platform.xml"
+        sed -i "\@<package name=\"$PACKAGE_PATTERN\"[[:space:]]*/>@d" \
+            "$WORK_DIR/system/system/etc/broadcast_allowlist.xml"
+    fi
 done
 
 if [[ "$TARGET_CODENAME" == "t2s" ]]; then
@@ -24,4 +37,4 @@ if [[ "$TARGET_CODENAME" == "t2s" ]]; then
         "$MODPATH/blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
 fi
 
-unset APP PACKAGE FILE
+unset APP PACKAGE PACKAGE_PATTERN FILE
