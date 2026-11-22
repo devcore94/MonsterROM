@@ -1,0 +1,4 @@
+id=firmware
+name=Galaxy S21+ firmware check
+author=devcore94
+description=Checks the staged Galaxy S26 beta and Galaxy S21+ hardware partitions.
