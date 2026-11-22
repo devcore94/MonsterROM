@@ -1,0 +1,4 @@
+id=codec2
+name=Samsung Codec2 compatibility
+author=devcore94
+description=Updates the Samsung codec service policy for movable buffer mappings.
