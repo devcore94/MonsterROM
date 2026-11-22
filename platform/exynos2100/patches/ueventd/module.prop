@@ -1,0 +1,4 @@
+id=ueventd
+name=Vendor device permissions
+author=devcore94
+description=Installs the Exynos 2100 device rules at the path imported by ueventd.
