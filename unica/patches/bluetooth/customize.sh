@@ -251,12 +251,29 @@ else
     fi
 fi
 
-# Disable VaultKeeper support
-# Before: [tbnz w8, #0, #0xXXXXXX]
-# After: [b #0xXXXXXX]
-LOG "- Patching \"28f7773948050037\" to \"28f777392a000014\" in apex_payload/lib64/libbluetooth_jni.so"
-HEX_PATCH "$TMP_DIR/unknown/apex_payload/lib64/libbluetooth_jni.so" \
-    "28f7773948050037" "28f777392a000014" > /dev/null
+if [[ "$TARGET_CODENAME" == "t2s" ]]; then
+    # The S21+ exposes ISehVaultKeeper through HIDL 2.0. Keep the beta Bluetooth JNI.
+    TARGET_LIB64="$FW_DIR/${TARGET_FIRMWARE%%/*}_$(cut -d / -f 2 <<< "$TARGET_FIRMWARE")/system/system/lib64"
+    PAYLOAD="$TMP_DIR/unknown/apex_payload"
+    cp --remove-destination "$TARGET_LIB64/libvkmanager.so" "$PAYLOAD/lib64/libvkmanager.so"
+    for LIB in vendor.samsung.hardware.security.vaultkeeper@2.0.so libhidlbase.so libvndksupport.so; do
+        if [[ "$LIB" == vendor.* ]]; then
+            cp "$TARGET_LIB64/$LIB" "$PAYLOAD/lib64/$LIB"
+        else
+            cp "$FW_DIR/$SOURCE_FIRMWARE_PATH/system/system/lib64/$LIB" "$PAYLOAD/lib64/$LIB"
+        fi
+        echo "lib64/$LIB 1000 1000 644 capabilities=0x0" >> "$TMP_DIR/unknown/fs_config-apex_payload"
+        echo "/lib64/${LIB//./\\.} u:object_r:system_lib_file:s0" >> "$TMP_DIR/unknown/file_context-apex_payload"
+    done
+    unset LIB PAYLOAD TARGET_LIB64
+else
+    # Disable VaultKeeper support
+    # Before: [tbnz w8, #0, #0xXXXXXX]
+    # After: [b #0xXXXXXX]
+    LOG "- Patching \"28f7773948050037\" to \"28f777392a000014\" in apex_payload/lib64/libbluetooth_jni.so"
+    HEX_PATCH "$TMP_DIR/unknown/apex_payload/lib64/libbluetooth_jni.so" \
+        "28f7773948050037" "28f777392a000014" > /dev/null
+fi
 
 BUILD_APK_IN_APEX "$TMP_DIR/unknown/apex_payload/app/$BLUETOOTH_APP"
 BUILD_APK_IN_APEX "$TMP_DIR/unknown/apex_payload/javalib/framework-bluetooth.jar"
