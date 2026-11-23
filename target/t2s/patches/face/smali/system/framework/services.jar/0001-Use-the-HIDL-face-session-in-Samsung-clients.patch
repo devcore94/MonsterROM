@@ -1,0 +1,156 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the t2s HIDL face session in Samsung clients
+
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/AidlSession.smali b/smali/com/android/server/biometrics/sensors/face/aidl/AidlSession.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/AidlSession.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/AidlSession.smali
+@@ -8,6 +8,25 @@
+ 
+ .field public mHalInterfaceVersion:I
+ 
++.field public mHidlSessionWrapper:Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
+ .field public mSession:Landroid/hardware/biometrics/face/ISession;
+ 
+ .field public mUserId:I
++
++
++# virtual methods
++.method public final getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    .locals 1
++
++    iget-object v0, p0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mHidlSessionWrapper:Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    if-nez v0, :return_wrapper
++
++    iget-object v0, p0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
++
++    check-cast v0, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    :return_wrapper
++    return-object v0
++.end method
+diff --git a/smali/com/android/server/biometrics/sensors/face/hidl/HidlToAidlSensorAdapter$$ExternalSyntheticLambda0.smali b/smali/com/android/server/biometrics/sensors/face/hidl/HidlToAidlSensorAdapter$$ExternalSyntheticLambda0.smali
+--- a/smali/com/android/server/biometrics/sensors/face/hidl/HidlToAidlSensorAdapter$$ExternalSyntheticLambda0.smali
++++ b/smali/com/android/server/biometrics/sensors/face/hidl/HidlToAidlSensorAdapter$$ExternalSyntheticLambda0.smali
+@@ -189,6 +189,16 @@
+ 
+     :goto_2
+     iput-object v5, v0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
++
++    new-instance v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    invoke-direct {v1}, Ljava/lang/Object;-><init>()V
++
++    iput-object v5, v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->mISession:Landroid/hardware/biometrics/face/ISession;
++
++    iput-object v4, v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->mCallback:Landroid/hardware/biometrics/face/ISessionCallback;
++
++    iput-object v1, v0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mHidlSessionWrapper:Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
+ 
+     const/4 v1, 0x0
+ 
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceEnrollClient.smali b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceEnrollClient.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceEnrollClient.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceEnrollClient.smali
+@@ -367,9 +367,9 @@
+ 
+     move-result-wide v7
+ 
+-    iget-object v3, v2, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
+-
+-    check-cast v3, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    invoke-virtual {v2}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    move-result-object v3
+ 
+     iget-object v3, v3, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->mISehSession:Lvendor/samsung/hardware/biometrics/face/ISehSession;
+ 
+@@ -537,9 +537,9 @@
+ 
+     invoke-static {v4, v1}, Landroid/util/Slog;->w(Ljava/lang/String;Ljava/lang/String;)I
+ 
+-    iget-object v1, v2, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
+-
+-    check-cast v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    invoke-virtual {v2}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    move-result-object v1
+ 
+     iget-boolean v1, v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->mIsTestHal:Z
+ 
+@@ -682,9 +682,9 @@
+ 
+     if-eqz p0, :cond_0
+ 
+-    iget-object p0, p0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
+-
+-    check-cast p0, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    invoke-virtual {p0}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    move-result-object p0
+ 
+     return-object p0
+ 
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceAuthenticationClient.smali b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceAuthenticationClient.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceAuthenticationClient.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceAuthenticationClient.smali
+@@ -1678,9 +1678,9 @@
+ 
+     if-eqz p0, :cond_0
+ 
+-    iget-object p0, p0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
+-
+-    check-cast p0, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    invoke-virtual {p0}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    move-result-object p0
+ 
+     return-object p0
+ 
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTALoadClient.smali b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTALoadClient.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTALoadClient.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTALoadClient.smali
+@@ -37,9 +37,9 @@
+ 
+     if-eqz v0, :cond_0
+ 
+-    iget-object v0, v0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
++    invoke-virtual {v0}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
+ 
+-    check-cast v0, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    move-result-object v0
+ 
+     invoke-virtual {v0}, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->loadTA()I
+ 
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTAUnloadClient.smali b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTAUnloadClient.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTAUnloadClient.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/SemFaceTAUnloadClient.smali
+@@ -37,9 +37,9 @@
+ 
+     if-eqz v0, :cond_0
+ 
+-    iget-object v0, v0, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
++    invoke-virtual {v0}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
+ 
+-    check-cast v0, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    move-result-object v0
+ 
+     invoke-virtual {v0}, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->unloadTA()I
+ 
+diff --git a/smali/com/android/server/biometrics/sensors/face/aidl/FaceProvider$$ExternalSyntheticLambda6.smali b/smali/com/android/server/biometrics/sensors/face/aidl/FaceProvider$$ExternalSyntheticLambda6.smali
+--- a/smali/com/android/server/biometrics/sensors/face/aidl/FaceProvider$$ExternalSyntheticLambda6.smali
++++ b/smali/com/android/server/biometrics/sensors/face/aidl/FaceProvider$$ExternalSyntheticLambda6.smali
+@@ -482,9 +482,9 @@
+     if-eqz v1, :cond_f
+ 
+     :try_start_0
+-    iget-object v1, v1, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->mSession:Landroid/hardware/biometrics/face/ISession;
+-
+-    check-cast v1, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++    invoke-virtual {v1}, Lcom/android/server/biometrics/sensors/face/aidl/AidlSession;->getSamsungSession()Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;
++
++    move-result-object v1
+ 
+     invoke-virtual {v1}, Lcom/android/server/biometrics/sensors/face/aidl/ISessionWrapper;->close()V
+     :try_end_0

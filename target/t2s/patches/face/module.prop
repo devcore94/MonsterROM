@@ -1,0 +1,4 @@
+id=face
+name=Galaxy S21+ face HAL
+author=MonsterROM_NEXT
+description=Adapts Samsung face clients to the t2s HIDL session.
