@@ -1,4 +1,4 @@
 id=zygote
 name=Galaxy S21+ app ABI
 author=MonsterROM_NEXT
-description=Selects the Galaxy S26+ ARM64 app runtime on t2s.
+description=Selects the S26+ ARM64 runtime and preloads its device policy metadata on t2s.
