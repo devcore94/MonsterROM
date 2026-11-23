@@ -1,0 +1,2 @@
+# The S26+ shader warm-up aborts on its scratch render target with t2s gralloc.
+service.sf.prime_shader_cache=false
