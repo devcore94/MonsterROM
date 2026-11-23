@@ -1,4 +1,4 @@
 id=sepolicy
 name=Exynos 2100 vendor policy mappings
 author=MonsterROM_NEXT
-description=Installs the API 30 policy mappings and updates the G996B app-signing policy for Android 17.
+description=Restores G996B policy mappings and device labels and updates the app-signing policy for Android 17.

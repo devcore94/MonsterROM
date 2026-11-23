@@ -8,6 +8,12 @@ for FILE in 30.0.cil 30.0.compat.cil; do
 done
 unset FILE
 
+# The S26+ platform omits the ION device label used by the t2s graphics HALs.
+LOG "- Restoring the stock /dev/ion label"
+sed -i -e '$a/dev/ion\t\tu:object_r:ion_device:s0' \
+    -e '\|^[[:blank:]]*/dev/ion[[:blank:]]|d' \
+    "$WORK_DIR/vendor/etc/selinux/vendor_file_contexts"
+
 # Android 17 reads the AT&T IQI label from the signer, as in the S26+ vendor policy.
 sed -i 's|<package name="com\.att\.iqi"><seinfo value="attiqi"/></package>|<seinfo value="attiqi"/>|' \
     "$WORK_DIR/vendor/etc/selinux/vendor_mac_permissions.xml"
