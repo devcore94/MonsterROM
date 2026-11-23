@@ -1,0 +1,21 @@
+From: MonsterROM_NEXT <monsterrom@localhost>
+Subject: [PATCH] Use the default contact relations when the provider declines access
+
+diff --git a/smali_classes16/com/samsung/android/smartsuggestions/search/data/collector/contacts/o.smali b/smali_classes16/com/samsung/android/smartsuggestions/search/data/collector/contacts/o.smali
+--- a/smali_classes16/com/samsung/android/smartsuggestions/search/data/collector/contacts/o.smali
++++ b/smali_classes16/com/samsung/android/smartsuggestions/search/data/collector/contacts/o.smali
+@@ -53,6 +53,14 @@
+     move-result-object v4
+     :try_end_0
+     .catch Ljava/lang/IllegalArgumentException; {:try_start_0 .. :try_end_0} :catch_0
++    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :relation_denied
++
++    goto :goto_0
++
++    :relation_denied
++    move-exception v2
++
++    const/4 v4, 0x0
+ 
+     goto :goto_0
+ 
