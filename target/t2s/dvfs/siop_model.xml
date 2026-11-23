@@ -64,7 +64,6 @@
             <GDMLTB formula="SKIN*BAT" temp="435.445" />
             <GDM formula="SKIN*BAT"    temp="420.425" />
             <SS  formula="SKIN*BAT"   temp="520.470" />
-            <DEX formula="LRP2"       temp="470" />
         </complex>
     </overheatcontrol>
 
@@ -106,6 +105,10 @@
 
         <component name="CAM" tempType="SKIN" >
             <limiter name="CameraOverheatLevel" temp="350:370:390:410:430:450:460"             value="-1:1:2:3:4:5:6" />
+        </component>
+
+        <component name="DEX" tempType="LRP2">
+            <limiter name="CPUFreqMax" temp="470" value="-1:533000" />
         </component>
 
         <component name="AP+DISPLAY" tempType="SKIN" >
