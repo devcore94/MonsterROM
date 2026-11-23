@@ -1,0 +1,4 @@
+id=fbe
+name=Disable userdata encryption
+author=salvo_giangri, ExtremeXT, MonsterROM_NEXT
+description=Disables file-based and metadata encryption for userdata on the Galaxy S21+.
