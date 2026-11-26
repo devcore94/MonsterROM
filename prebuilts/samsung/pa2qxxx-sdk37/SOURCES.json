@@ -2,7 +2,7 @@
   "schema": 1,
   "model": "SM-S936B",
   "csc": "EUX",
-  "firmware": "S936BXXSDDZJ1/S936BOXMDDZJ1/S936BXXSDDZJ1",
+  "firmware": "S936BXXSEDZK4/S936BOXMEDZK4/S936BXXSEDZK4",
   "sdk": 37,
   "oneui": "90000",
   "package": {
@@ -12,7 +12,7 @@
     "min_sdk": 37,
     "target_sdk": 37
   },
-  "apk_sha256": "f73364c780069aac95568363496d1ad7a23bf3d6dddc950ca62d559d0d191227",
+  "apk_sha256": "69f4f5f04540d8bde6dfa5703a54064c241c554689690f7ffb74e76c92f67de2",
   "chunk_bytes": 52428800,
   "parts": [
     {
@@ -103,10 +103,10 @@
     {
       "path": "system/priv-app/wallpaper-res/wallpaper-res.apk.17",
       "bytes": 36338505,
-      "sha256": "0130caae17e11f404b50f31c901310e133badd439c236c5ca283b6d0d3b81815"
+      "sha256": "3bd6560e877f6e1d65239feaa80aeefa32c89a42de6bda214904dd254a234d85"
     }
   ],
-  "build_prop_sha256": "6120a9cefc684a7f6982e66e263d6131f0d351522d81afa1071458b57a1da331",
+  "build_prop_sha256": "f9a09234a0e3d9e4f1201ceecad1cfbe97aa0d5f4a6518bfc264a67f198f525f",
   "transformed": false,
   "re_signed": false
 }
