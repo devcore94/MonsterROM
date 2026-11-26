@@ -6,6 +6,9 @@ SIGNER_CLASSES="$2"
 EXPECTED="$3"
 PACKAGE_DIR="$WORK_DIR/system/system/apex"
 INPUT="$PACKAGE_DIR/$MODULE.capex"
+if [ ! -f "$INPUT" ]; then
+    INPUT="$PACKAGE_DIR/$MODULE.apex"
+fi
 KEYS="$(dirname "$(realpath "$SRC_DIR/security/local")")/apex"
 PLATFORM_CERT="$SRC_DIR/security/aosp_platform.x509.pem"
 PLATFORM_KEY="$SRC_DIR/security/aosp_platform.pk8"
@@ -20,7 +23,11 @@ cleanup()
 trap cleanup EXIT
 cd "$TMP"
 mkdir -p mount apps
-unzip -p "$INPUT" original_apex > inner.apex
+if [[ "$INPUT" == *.capex ]]; then
+    unzip -p "$INPUT" original_apex > inner.apex
+else
+    cp -f "$INPUT" inner.apex
+fi
 unzip -p inner.apex apex_payload.img > apex_payload.img
 unzip -p inner.apex apex_pubkey > original.avbpubkey
 avbtool verify_image --image apex_payload.img

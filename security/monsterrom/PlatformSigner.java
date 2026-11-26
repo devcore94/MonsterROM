@@ -19,6 +19,10 @@ import java.util.stream.Stream;
 public class PlatformSigner {
     // S947B ZZKN and G996B HZC2 use the same Samsung platform certificate.
     private static final String SAMSUNG = "34df0e7a9f1cf1892e45c056b4973cd81ccf148a4050d11aea4ac5a65f900a42";
+    // A previous MonsterROM build signed the APEX payload apps with this
+    // temporary platform certificate.  Keep it in the migration set so the
+    // shared-UID members are brought onto the current local certificate too.
+    private static final String LEGACY_MONSTERROM = "56f3570aadd0a1ee83b63969475d5d51341d47e0c9f77104c81917f964db81a2";
     private static final HexFormat HEX = HexFormat.of();
 
     private static List<X509Certificate> verify(Path apk) throws Exception {
@@ -32,7 +36,13 @@ public class PlatformSigner {
 
     private static boolean resign(Path apk, X509Certificate donor, X509Certificate local,
                                   ApkSigner.SignerConfig signer) throws Exception {
-        if (!verify(apk).equals(List.of(donor))) {
+        List<X509Certificate> current = verify(apk);
+        if (current.size() != 1) {
+            return false;
+        }
+        String digest = HEX.formatHex(MessageDigest.getInstance("SHA-256")
+                .digest(current.get(0).getEncoded()));
+        if (!digest.equals(SAMSUNG) && !digest.equals(LEGACY_MONSTERROM)) {
             return false;
         }
         Path output = Files.createTempFile(apk.getParent(), ".monsterrom-", ".tmp");

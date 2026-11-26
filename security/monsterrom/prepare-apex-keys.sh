@@ -10,7 +10,7 @@ flock 9
 if [ ! -d "$KEY_ROOT/apex" ]; then
     STAGE="$(mktemp -d "$KEY_ROOT/.apex.XXXXXX")"
     trap 'rm -rf -- "$STAGE"' EXIT
-    for MODULE in com.android.nfcservices com.android.uwb com.android.webapp com.android.wifi; do
+    for MODULE in com.android.bt com.android.nfcservices com.android.uwb com.android.webapp com.android.wifi; do
         openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out "$STAGE/$MODULE.pem" 2>/dev/null
     done
     openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out "$STAGE/container.pem" 2>/dev/null
@@ -21,4 +21,10 @@ if [ ! -d "$KEY_ROOT/apex" ]; then
     rm "$STAGE/container.pem"
     mv -T "$STAGE" "$KEY_ROOT/apex"
     trap - EXIT
+else
+    for MODULE in com.android.bt com.android.nfcservices com.android.uwb com.android.webapp com.android.wifi; do
+        if [ ! -f "$KEY_ROOT/apex/$MODULE.pem" ]; then
+            openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:4096 -out "$KEY_ROOT/apex/$MODULE.pem" 2>/dev/null
+        fi
+    done
 fi

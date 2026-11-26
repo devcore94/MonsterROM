@@ -6,12 +6,14 @@ STOCK_PLATFORM_APK="$FW_DIR/SM-S947B_EUX/system/system/framework/framework-res.a
 SIGNER_CLASSES="$(mktemp -d "$OUT_DIR/platform-signer.XXXXXX")"
 javac -classpath "$TOOLS_DIR/bin/signapk.jar" -d "$SIGNER_CLASSES" "$SRC_DIR/security/monsterrom/PlatformSigner.java"
 "$SRC_DIR/security/monsterrom/prepare-apex-keys.sh"
-for MODULE in com.android.nfcservices com.android.uwb com.android.webapp com.android.wifi; do
+for MODULE in com.android.bt com.android.nfcservices com.android.uwb com.android.webapp com.android.wifi; do
     COUNT=1
     [[ "$MODULE" == "com.android.wifi" ]] && COUNT=3
     "$SRC_DIR/security/monsterrom/resign-apex.sh" "$MODULE" "$SIGNER_CLASSES" "$COUNT"
     SET_METADATA "system" "system/apex/$MODULE.apex" 0 0 644 "u:object_r:system_file:s0"
-    DELETE_FROM_WORK_DIR "system" "system/apex/$MODULE.capex"
+    if [ -f "$WORK_DIR/system/system/apex/$MODULE.capex" ]; then
+        DELETE_FROM_WORK_DIR "system" "system/apex/$MODULE.capex"
+    fi
 done
 unset MODULE COUNT
 
