@@ -1,0 +1,41 @@
+From 56575b7fa5bc28fac6ef18cc0a02a1ef44a59df7 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 16:28:49 +0100
+Subject: [PATCH 10/16] arm64: select Mali r54p3 before probing the t2s GPU
+
+---
+ arch/arm64/configs/oneui95-t2s.config | 2 ++
+ init/main.c                           | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/configs/oneui95-t2s.config b/arch/arm64/configs/oneui95-t2s.config
+index 6cd13d1fa..7a78ea239 100644
+--- a/arch/arm64/configs/oneui95-t2s.config
++++ b/arch/arm64/configs/oneui95-t2s.config
+@@ -1,4 +1,6 @@
+ CONFIG_LOCALVERSION="-Floppy-v1.1.2-KN-t2s"
++CONFIG_CMDLINE="mali.version=r54p3"
++CONFIG_CMDLINE_EXTEND=y
+ CONFIG_KSU_NEXT=y
+ CONFIG_KSU=y
+ CONFIG_KSU_MANUAL_HOOK=y
+diff --git a/init/main.c b/init/main.c
+index 5ee3e04fa..00f1fd1aa 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1306,6 +1306,7 @@ asmlinkage __visible void __init start_kernel(void)
+ 	/* parameters may set static keys */
+ 	jump_label_init();
+ 	apply_uname_bpf_spoof_default();
++	apply_mali_version_default();
+ 	parse_early_param();
+ 	after_dashes = parse_args("Booting kernel",
+ 				  static_command_line, __start___param,
+@@ -1325,7 +1326,6 @@ asmlinkage __visible void __init start_kernel(void)
+ 	apply_init_debug_default();
+ 	apply_dma_buf_env_default();
+ 	apply_panel_legacy_mode_default();
+-	apply_mali_version_default();
+ 	apply_superfloppy_default();
+ #if !defined(CONFIG_DEFAULT_SUPPORT_AOSP)
+ 	apply_aosp_mode_default();

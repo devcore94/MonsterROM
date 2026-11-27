@@ -1,0 +1,24 @@
+From a9610047f1b146513799fd9c631bb3c7ce6cde84 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 15:44:02 +0100
+Subject: [PATCH 04/16] init: select full BPF uname mode for SDK-37 ROMs
+
+---
+ init/main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/init/main.c b/init/main.c
+index 3d6250252..5ee3e04fa 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -192,8 +192,8 @@ static int __init set_reset_devices(char *str)
+ 
+ __setup("reset_devices", set_reset_devices);
+ 
+-static int uname_bpf_spoof = 0;
+-static char uname_bpf_spoof_default_arg[] = "uname_bpf_spoof=0";
++static int uname_bpf_spoof = 2;
++static char uname_bpf_spoof_default_arg[] = "uname_bpf_spoof=2";
+ static bool mass_storage_hack;
+ static char mass_storage_hack_default_arg[] = "mass_storage_hack=0";
+ static int selinux_mode = FK_SELINUX_MODE_DEFAULT;

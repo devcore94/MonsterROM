@@ -1,0 +1,36 @@
+From ee95a5ea0757db9693cd39681958c57a11875f29 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 15:44:03 +0100
+Subject: [PATCH 07/16] bpf: preserve socket marks in UDP sendmsg hooks
+
+---
+ net/core/filter.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 570e2c547..41e5c5600 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4992,6 +4992,13 @@ static int _bpf_getsockopt(struct sock *sk, int level, int optname,
+ 
+ 	sock_owned_by_me(sk);
+ 
++	if (level == SOL_SOCKET && optname == SO_MARK) {
++		if (optlen != sizeof(int))
++			goto err_clear;
++		*((int *)optval) = sk->sk_mark;
++		return 0;
++	}
++
+ #ifdef CONFIG_INET
+ 	if (level == SOL_TCP && sk->sk_prot->getsockopt == tcp_getsockopt) {
+ 		struct inet_connection_sock *icsk;
+@@ -7105,6 +7112,8 @@ sock_addr_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
+ 		switch (prog->expected_attach_type) {
+ 		case BPF_CGROUP_INET4_CONNECT:
+ 		case BPF_CGROUP_INET6_CONNECT:
++		case BPF_CGROUP_UDP4_SENDMSG:
++		case BPF_CGROUP_UDP6_SENDMSG:
+ 			return &bpf_sock_addr_setsockopt_proto;
+ 		default:
+ 			return NULL;

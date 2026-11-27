@@ -1,0 +1,363 @@
+From f4c122abd6fcbe90ed71c99b1651cc8bd00b0be4 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 19:39:37 +0100
+Subject: [PATCH 13/16] kernelsu: port scoped su sessions to t2s
+
+---
+ drivers/kernelsu/kernel/feature/sucompat.c    | 108 +++++++++++++++---
+ drivers/kernelsu/kernel/supercall/dispatch.c  |   9 +-
+ drivers/kernelsu/kernel/supercall/supercall.c |  28 +++--
+ fs/exec.c                                     |  48 ++++++--
+ 4 files changed, 154 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/kernelsu/kernel/feature/sucompat.c b/drivers/kernelsu/kernel/feature/sucompat.c
+index f6bd4da92..de87346cc 100644
+--- a/drivers/kernelsu/kernel/feature/sucompat.c
++++ b/drivers/kernelsu/kernel/feature/sucompat.c
+@@ -5,6 +5,7 @@
+ #include <asm/current.h>
+ #include <linux/cred.h>
+ #include <linux/fs.h>
++#include <linux/file.h>
+ #include <linux/types.h>
+ #include <linux/version.h>
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+@@ -22,6 +23,8 @@
+ #endif
+ #include <linux/ptrace.h>
+ #include <linux/fcntl.h>
++#include <linux/sched/signal.h>
++#include <linux/security.h>
+ 
+ #include "objsec.h"
+ 
+@@ -29,6 +32,7 @@
+ #include "policy/allowlist.h"
+ #include "policy/feature.h"
+ #include "klog.h" // IWYU pragma: keep
++#include "ksu.h"
+ #include "runtime/ksud.h"
+ #include "runtime/ksud_boot.h"
+ #include "compat/kernel_compat.h"
+@@ -36,6 +40,7 @@
+ #include "policy/app_profile.h"
+ #include "selinux/selinux.h"
+ #include "sulog/event.h"
++#include "supercall/supercall.h"
+ #include "util.h"
+ 
+ #define SU_PATH "/system/bin/su"
+@@ -232,42 +237,113 @@ long ksu_handle_execveat_sucompat_user(const char __user **filename_user, int or
+ 			true, regs);
+ }
+ 
++static int ksu_lookup_su_daemon(struct path *path)
++{
++	const struct cred *daemon_cred = READ_ONCE(ksu_cred);
++	const struct cred *old_cred;
++	struct file *daemon;
++	struct inode *inode;
++	u32 expected_sid = READ_ONCE(ksu_file_sid);
++	u32 sid;
++	int ret = -EACCES;
++
++	if (!daemon_cred || !expected_sid)
++		return -EACCES;
++
++	/* Opening the file initializes its SELinux SID before looking it up. */
++	old_cred = override_creds(daemon_cred);
++	daemon = filp_open(KSUD_PATH, O_RDONLY | O_NOFOLLOW | O_NONBLOCK, 0);
++	revert_creds(old_cred);
++	if (IS_ERR(daemon))
++		return PTR_ERR(daemon);
++
++	inode = file_inode(daemon);
++	security_inode_getsecid(inode, &sid);
++	if (S_ISREG(inode->i_mode) && uid_eq(inode->i_uid, GLOBAL_ROOT_UID) &&
++	    !(inode->i_mode & 0022) && sid == expected_sid) {
++		*path = daemon->f_path;
++		path_get(path);
++		ret = 0;
++	}
++
++	fput(daemon);
++	return ret;
++}
++
+ int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
+ 				 void *__never_use_argv, void *__never_use_envp,
+ 				 int *__never_use_flags)
+ {
+-	struct filename *filename;
+-	const char su[] = SU_PATH;
+-	static const char ksud_path[] = KSUD_PATH;
+-	struct ksu_sulog_pending_event *pending_root = NULL;
+-	const char *const *sucompat_argv = (const char *const *)__never_use_argv;
++	struct ksu_sulog_pending_event *pending_root;
++	struct filename *filename, *daemon;
++	struct path path;
++	int ret;
+ 
+-	if (unlikely(!filename_ptr))
++	if (unlikely(!filename_ptr) || !ksu_su_compat_enabled)
+ 		return 0;
+ 
+-	if (!ksu_su_compat_enabled)
++	filename = *filename_ptr;
++	if (IS_ERR(filename) || strcmp(filename->name, SU_PATH))
+ 		return 0;
+ 
+ 	if (!ksu_is_allow_uid_for_current(current_uid().val))
+ 		return 0;
+ 
+-	filename = *filename_ptr;
+-	if (IS_ERR(filename))
++	ret = ksu_lookup_su_daemon(&path);
++	if (ret) {
++		pr_warn_ratelimited("su session: trusted ksud lookup failed: %d\n", ret);
+ 		return 0;
++	}
++	path_put(&path);
+ 
+-	if (likely(memcmp(filename->name, su, sizeof(su))))
++	daemon = getname_kernel(KSUD_PATH);
++	if (IS_ERR(daemon))
+ 		return 0;
+ 
+-	pr_info("do_execveat_common su found\n");
++	pending_root = ksu_sulog_capture_root_execve_kern(filename->name, NULL, GFP_KERNEL);
++	ret = escape_with_root_profile();
++	ksu_sulog_emit_pending(pending_root, ret, GFP_KERNEL);
++	if (ret) {
++		putname(daemon);
++		return 0;
++	}
+ 
+-	pending_root = ksu_sulog_capture_root_execve_kern(filename->name, sucompat_argv, GFP_KERNEL);
++	putname(filename);
++	*filename_ptr = daemon;
++	return 1;
++}
+ 
+-	memcpy((void *)filename->name, ksud_path, sizeof(ksud_path));
++void ksu_finish_su_session(int exec_result)
++{
++	struct path path;
++	struct file *exe;
++	bool trusted;
++	int fd;
++
++	/* A failed exec must not return to the old program with the su profile. */
++	if (exec_result || ksu_lookup_su_daemon(&path)) {
++		pr_warn_ratelimited("su session: failed to execute trusted ksud\n");
++		force_sig(SIGKILL);
++		return;
++	}
+ 
+-	escape_with_root_profile();
+-	ksu_sulog_emit_pending(pending_root, 0, GFP_KERNEL);
++	exe = get_task_exe_file(current);
++	trusted = exe && path_equal(&exe->f_path, &path);
++	if (exe)
++		fput(exe);
++	path_put(&path);
++	if (!trusted) {
++		pr_warn_ratelimited("su session: executed file differs from trusted ksud\n");
++		force_sig(SIGKILL);
++		return;
++	}
+ 
+-	return 0;
++	/* The exec close-on-exec pass has finished. Keep the descriptor scoped to ksud. */
++	fd = ksu_install_su_fd();
++	if (fd < 0)
++		pr_warn_ratelimited("Failed to install su session fd: %d\n", fd);
++	else
++		pr_info_ratelimited("Installed su session fd for pid %d\n", task_pid_nr(current));
+ }
+ 
+ // sucompat: permitted process can execute 'su' to gain root access.
+diff --git a/drivers/kernelsu/kernel/supercall/dispatch.c b/drivers/kernelsu/kernel/supercall/dispatch.c
+index 9c0d74688..82e8fc216 100644
+--- a/drivers/kernelsu/kernel/supercall/dispatch.c
++++ b/drivers/kernelsu/kernel/supercall/dispatch.c
+@@ -1082,6 +1082,7 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
+ 
+ long ksu_supercall_handle_ioctl(const struct file *filp, unsigned int cmd, void __user *argp)
+ {
++	bool su_session = ksu_is_su_session_fd(filp);
+ 	int i;
+ 
+ #ifdef CONFIG_KSU_DEBUG
+@@ -1090,11 +1091,9 @@ long ksu_supercall_handle_ioctl(const struct file *filp, unsigned int cmd, void
+ 
+ 	for (i = 0; ksu_ioctl_handlers[i].handler; i++) {
+ 		if (cmd == ksu_ioctl_handlers[i].cmd) {
+-			// Check permission first
+-			if (ksu_ioctl_handlers[i].perm_check &&
+-			    !ksu_ioctl_handlers[i].perm_check() &&
+-			    !(ksu_ioctl_handlers[i].allow_su_session &&
+-			      ksu_is_su_session_fd(filp))) {
++			if (su_session ? !ksu_ioctl_handlers[i].allow_su_session :
++			    (ksu_ioctl_handlers[i].perm_check &&
++			     !ksu_ioctl_handlers[i].perm_check())) {
+ 				pr_warn("ksu ioctl: permission denied for cmd=0x%x uid=%d\n",
+ 					cmd, current_uid().val);
+ 				return -EPERM;
+diff --git a/drivers/kernelsu/kernel/supercall/supercall.c b/drivers/kernelsu/kernel/supercall/supercall.c
+index ad6cd139f..34a681d54 100644
+--- a/drivers/kernelsu/kernel/supercall/supercall.c
++++ b/drivers/kernelsu/kernel/supercall/supercall.c
+@@ -30,7 +30,8 @@ uint32_t ksuver_override = 0;
+ #define KSU_DRIVER_PERMISSION_SU_SESSION (1UL << 0)
+ 
+ struct ksu_driver_context {
+-    unsigned long permissions;
++	unsigned long permissions;
++	struct pid *su_session_owner;
+ };
+ 
+ struct ksu_install_fd_tw {
+@@ -40,14 +41,22 @@ struct ksu_install_fd_tw {
+ 
+ static int anon_ksu_release(struct inode *inode, struct file *filp)
+ {
+-    kfree(filp->private_data);
+-    pr_info("ksu fd released\n");
+-    return 0;
++	struct ksu_driver_context *context = filp->private_data;
++
++	put_pid(context->su_session_owner);
++	kfree(context);
++	pr_info("ksu fd released\n");
++	return 0;
+ }
+ 
+ static long anon_ksu_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ {
+-    return ksu_supercall_handle_ioctl(filp, cmd, (void __user *)arg);
++	const struct ksu_driver_context *context = filp->private_data;
++
++	if (context->su_session_owner && context->su_session_owner != task_pid(current))
++		return -EPERM;
++
++	return ksu_supercall_handle_ioctl(filp, cmd, (void __user *)arg);
+ }
+ 
+ static const struct file_operations anon_ksu_fops = {
+@@ -86,9 +95,12 @@ static int ksu_install_fd_with_permissions(unsigned int fd_flags, unsigned long
+         return PTR_ERR(filp);
+     }
+ 
+-    fd_install(fd, filp);
+-    pr_info("ksu fd installed: %d for pid %d\n", fd, current->pid);
+-    return fd;
++	if (permissions & KSU_DRIVER_PERMISSION_SU_SESSION)
++		context->su_session_owner = get_task_pid(current, PIDTYPE_PID);
++
++	fd_install(fd, filp);
++	pr_info("ksu fd installed: %d for pid %d\n", fd, current->pid);
++	return fd;
+ }
+ 
+ int ksu_install_fd(void)
+diff --git a/fs/exec.c b/fs/exec.c
+index fec000e70..804e101cf 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1943,16 +1943,39 @@ extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *ar
+ 			void *envp, int *flags);
+ #endif
+ 
++#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
++extern void ksu_finish_su_session(int exec_result);
++#endif
++
++static int do_execve_plain(struct filename *filename, struct user_arg_ptr argv,
++			   struct user_arg_ptr envp)
++{
++#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
++	int ksu_fd = AT_FDCWD;
++	int su_session;
++	int ret;
++
++	su_session = ksu_handle_execveat(&ksu_fd, &filename, &argv, &envp, NULL);
++	ret = do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
++	if (su_session > 0)
++		ksu_finish_su_session(ret);
++	return ret;
++#else
++#ifdef CONFIG_KSU_MANUAL_HOOK
++	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
++#endif
++	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
++#endif
++}
++
+ int do_execve(struct filename *filename,
+ 	const char __user *const __user *__argv,
+ 	const char __user *const __user *__envp)
+ {
+ 	struct user_arg_ptr argv = { .ptr.native = __argv };
+ 	struct user_arg_ptr envp = { .ptr.native = __envp };
+-#ifdef CONFIG_KSU_MANUAL_HOOK
+-	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
+-#endif
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
++
++	return do_execve_plain(filename, argv, envp);
+ }
+ 
+ int do_execveat(int fd, struct filename *filename,
+@@ -1963,6 +1986,10 @@ int do_execveat(int fd, struct filename *filename,
+ 	struct user_arg_ptr argv = { .ptr.native = __argv };
+ 	struct user_arg_ptr envp = { .ptr.native = __envp };
+ 
++#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
++	if (fd == AT_FDCWD && !flags)
++		return do_execve_plain(filename, argv, envp);
++#endif
+ 	return do_execveat_common(fd, filename, argv, envp, flags);
+ }
+ 
+@@ -1979,10 +2006,7 @@ static int compat_do_execve(struct filename *filename,
+ 		.is_compat = true,
+ 		.ptr.compat = __envp,
+ 	};
+-#ifdef CONFIG_KSU_MANUAL_HOOK /* 32-bit ksud and 32-on-64 support */
+-	ksu_handle_execveat((int *)AT_FDCWD, &filename, &argv, &envp, 0);
+-#endif
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
++	return do_execve_plain(filename, argv, envp);
+ }
+ 
+ static int compat_do_execveat(int fd, struct filename *filename,
+@@ -1998,6 +2022,10 @@ static int compat_do_execveat(int fd, struct filename *filename,
+ 		.is_compat = true,
+ 		.ptr.compat = __envp,
+ 	};
++#if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
++	if (fd == AT_FDCWD && !flags)
++		return do_execve_plain(filename, argv, envp);
++#endif
+ 	return do_execveat_common(fd, filename, argv, envp, flags);
+ }
+ #endif
+@@ -2038,7 +2066,7 @@ SYSCALL_DEFINE3(execve,
+ {
+ 	struct filename *execve_filename = getname(filename);
+ 
+-#ifdef CONFIG_KSU_MANUAL_HOOK
++#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_NEXT)
+ 	int ksu_fd = AT_FDCWD;
+ 
+ 	ksu_handle_execveat(&ksu_fd, &execve_filename,
+@@ -2068,7 +2096,7 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+ {
+ 	struct filename *execve_filename = getname(filename);
+ 
+-#ifdef CONFIG_KSU_MANUAL_HOOK /* 32-bit ksud and 32-on-64 support */
++#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_NEXT)
+ 	int ksu_fd = AT_FDCWD;
+ 
+ 	ksu_handle_execveat(&ksu_fd, &execve_filename,

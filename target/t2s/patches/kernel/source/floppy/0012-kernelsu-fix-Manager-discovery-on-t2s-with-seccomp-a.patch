@@ -1,0 +1,289 @@
+From 2955d83ea997b9807fb5cb59f81f1822f4e177e4 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 18:42:10 +0100
+Subject: [PATCH 12/16] kernelsu: fix Manager discovery on t2s with seccomp
+ active
+
+---
+ drivers/kernelsu/kernel/hook/lsm_hooks.c      | 30 ++++---------------
+ drivers/kernelsu/kernel/hook/setuid_hook.c    |  6 ----
+ .../kernel/manager/manager_observer.h         |  5 ++++
+ .../kernelsu/kernel/manager/pkg_observer.c    |  3 +-
+ .../kernelsu/kernel/manager/throne_tracker.c  | 16 ++++++++--
+ drivers/kernelsu/kernel/policy/app_profile.c  |  6 +++-
+ drivers/kernelsu/kernel/policy/app_profile.h  |  3 --
+ drivers/kernelsu/kernel/selinux/selinux.c     |  5 ++++
+ drivers/kernelsu/kernel/selinux/selinux.h     |  1 +
+ kernel/sys.c                                  |  7 +++--
+ 10 files changed, 41 insertions(+), 41 deletions(-)
+
+diff --git a/drivers/kernelsu/kernel/hook/lsm_hooks.c b/drivers/kernelsu/kernel/hook/lsm_hooks.c
+index f7405a77d..082dc9690 100644
+--- a/drivers/kernelsu/kernel/hook/lsm_hooks.c
++++ b/drivers/kernelsu/kernel/hook/lsm_hooks.c
+@@ -3,13 +3,11 @@
+ #include <linux/version.h>
+ #include <linux/binfmts.h>
+ #include <linux/err.h>
+-#include <linux/atomic.h>
+ 
+ #include "klog.h" // IWYU pragma: keep
+-#include "runtime/ksud_boot.h"
+ #include "compat/kernel_compat.h"
+ #include "setuid_hook.h"
+-#include "manager/throne_tracker.h"
++#include "manager/manager_observer.h"
+ 
+ #ifndef KSU_KPROBES_HOOK
+ 
+@@ -71,30 +69,12 @@ static int ksu_inode_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		return 0;
+ 	}
+ 
+-	if (!strstr(buf, "/system/packages.list")) {
++	if (strcmp(buf, "/system/packages.list") &&
++	    strcmp(buf, "/data/system/packages.list"))
+ 		return 0;
+-	}
+-
+-	// Do not track anything until the system has fully booted.
+-	// Parsing files during early boot from an LSM hook can causes VFS deadlocks
+-	if (!ksu_boot_completed) {
+-		return 0;
+-	}
+ 
+-	pr_debug("renameat: %s -> %s, new path: %s\n", old_dentry->d_name.name,
+-		new_dentry->d_name.name, buf);
+-
+-	// Thread-safe execution using atomic operations to prevent race conditions
+-	// if system_server threads execute this hook concurrently.
+-	static atomic_t first_time = ATOMIC_INIT(1);
+-
+-	// atomic_xchg swaps the value to 0 and returns the old value.
+-	// If the old value was 1, we are the first thread to reach here.
+-	if (atomic_xchg(&first_time, 0) == 1) {
+-		track_throne(true);
+-	} else {
+-		track_throne(false);
+-	}
++	/* Scan after rename releases the directory locks. */
++	ksu_defer_track_throne();
+ 
+ 	return 0;
+ }
+diff --git a/drivers/kernelsu/kernel/hook/setuid_hook.c b/drivers/kernelsu/kernel/hook/setuid_hook.c
+index 70060e76b..5ea4daa64 100644
+--- a/drivers/kernelsu/kernel/hook/setuid_hook.c
++++ b/drivers/kernelsu/kernel/hook/setuid_hook.c
+@@ -14,9 +14,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/uidgid.h>
+ 
+-#include "policy/app_profile.h"
+ #include "policy/allowlist.h"
+-#include "policy/app_profile.h"
+ #include "hook/setuid_hook.h"
+ #include "klog.h" // IWYU pragma: keep
+ #include "manager/manager_identity.h"
+@@ -116,8 +114,6 @@ int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
+         if (current->seccomp.mode == SECCOMP_MODE_FILTER && current->seccomp.filter) {
+             ksu_seccomp_allow_cache(current->seccomp.filter, __NR_reboot);
+         }
+-#else
+-		disable_seccomp();
+ #endif
+ 
+ #ifdef KSU_KPROBES_HOOK
+@@ -134,8 +130,6 @@ int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
+         if (current->seccomp.mode == SECCOMP_MODE_FILTER && current->seccomp.filter) {
+             ksu_seccomp_allow_cache(current->seccomp.filter, __NR_reboot);
+         }
+-#else
+-		disable_seccomp();
+ #endif
+ 
+ #ifdef KSU_KPROBES_HOOK
+diff --git a/drivers/kernelsu/kernel/manager/manager_observer.h b/drivers/kernelsu/kernel/manager/manager_observer.h
+index 03f3b1278..6c795a7ee 100644
+--- a/drivers/kernelsu/kernel/manager/manager_observer.h
++++ b/drivers/kernelsu/kernel/manager/manager_observer.h
+@@ -10,7 +10,12 @@ static inline int ksu_observer_init(void)
+ static inline void ksu_observer_exit(void)
+ {
+ }
++
++static inline void ksu_defer_track_throne(void)
++{
++}
+ #else
++void ksu_defer_track_throne(void);
+ int ksu_observer_init(void);
+ void ksu_observer_exit(void);
+ #endif
+diff --git a/drivers/kernelsu/kernel/manager/pkg_observer.c b/drivers/kernelsu/kernel/manager/pkg_observer.c
+index ac385a49f..c2bd1167f 100644
+--- a/drivers/kernelsu/kernel/manager/pkg_observer.c
++++ b/drivers/kernelsu/kernel/manager/pkg_observer.c
+@@ -9,6 +9,7 @@
+ #include <linux/task_work.h>
+ #include <linux/version.h>
+ #include "klog.h" // IWYU pragma: keep
++#include "manager/manager_observer.h"
+ #include "throne_tracker.h"
+ #include "runtime/ksud_boot.h"
+ #include "compat/kernel_compat.h" // TWA_RESUME on < 5.7
+@@ -44,7 +45,7 @@ static void ksu_track_throne_tw_func(struct callback_head *cb)
+ 	track_throne(false);
+ }
+ 
+-static void ksu_defer_track_throne(void)
++void ksu_defer_track_throne(void)
+ {
+ 	struct callback_head *cb;
+ 
+diff --git a/drivers/kernelsu/kernel/manager/throne_tracker.c b/drivers/kernelsu/kernel/manager/throne_tracker.c
+index a58ef9608..7aefd43fb 100644
+--- a/drivers/kernelsu/kernel/manager/throne_tracker.c
++++ b/drivers/kernelsu/kernel/manager/throne_tracker.c
+@@ -8,6 +8,7 @@
+ #include <linux/slab.h>
+ #include <linux/string.h>
+ #include <linux/types.h>
++#include <linux/uidgid.h>
+ #include <linux/version.h>
+ 
+ #include "policy/allowlist.h"
+@@ -15,6 +16,7 @@
+ #include "klog.h" // IWYU pragma: keep
+ #include "manager/manager_identity.h"
+ #include "manager/throne_tracker.h"
++#include "selinux/selinux.h"
+ 
+ static DEFINE_MUTEX(throne_tracker_mutex);
+ 
+@@ -279,9 +281,16 @@ static bool is_uid_exist(uid_t uid, char *package, void *data)
+ 
+ void track_throne(bool prune_only)
+ {
++	const struct cred *old_cred = NULL;
++	struct file *fp;
++
+ 	mutex_lock(&throne_tracker_mutex);
+-	const struct cred *old_cred = override_creds(ksu_cred);
+-	struct file *fp = filp_open(SYSTEM_PACKAGES_LIST_PATH, O_RDONLY, 0);
++	/* PackageManager already has access to the registry and APK files. */
++	if (!uid_eq(current_uid(), KUIDT_INIT(1000)) ||
++	    !ksu_is_system_server(current_cred()))
++		old_cred = override_creds(ksu_cred);
++
++	fp = filp_open(SYSTEM_PACKAGES_LIST_PATH, O_RDONLY, 0);
+ 	if (IS_ERR(fp)) {
+ 		pr_err("%s: open " SYSTEM_PACKAGES_LIST_PATH " failed: %ld\n", __func__,
+ 			PTR_ERR(fp));
+@@ -421,7 +430,8 @@ void track_throne(bool prune_only)
+ 		kfree(np);
+ 	}
+ out_revert_cred:
+-	revert_creds(old_cred);
++	if (old_cred)
++		revert_creds(old_cred);
+ 	mutex_unlock(&throne_tracker_mutex);
+ }
+ 
+diff --git a/drivers/kernelsu/kernel/policy/app_profile.c b/drivers/kernelsu/kernel/policy/app_profile.c
+index 6a70d526f..7e55a19fe 100644
+--- a/drivers/kernelsu/kernel/policy/app_profile.c
++++ b/drivers/kernelsu/kernel/policy/app_profile.c
+@@ -83,7 +83,8 @@ void seccomp_filter_release(struct task_struct *tsk);
+ static bool has_call_to_spin_lock = false;
+ #endif
+ 
+-void disable_seccomp(void)
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
++static void disable_seccomp(void)
+ {
+ #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0) ||                          \
+      defined(KSU_OPTIONAL_SECCOMP_FILTER_RELEASE))
+@@ -141,6 +142,7 @@ void disable_seccomp(void)
+     kfree(fake);
+ #endif
+ }
++#endif
+ 
+ int escape_with_root_profile(void)
+ {
+@@ -227,7 +229,9 @@ int escape_with_root_profile(void)
+ 
+     commit_creds(cred);
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+     disable_seccomp();
++#endif
+ 
+     if (profile->flags & FLAG_KSU_NO_NEW_PRIVS) {
+         set_thread_flag(TIF_KSU_DISABLE_ESCAPE_WITH_ROOT);
+diff --git a/drivers/kernelsu/kernel/policy/app_profile.h b/drivers/kernelsu/kernel/policy/app_profile.h
+index d3e919647..82e008f28 100644
+--- a/drivers/kernelsu/kernel/policy/app_profile.h
++++ b/drivers/kernelsu/kernel/policy/app_profile.h
+@@ -9,9 +9,6 @@
+ // Escalate current process to root with the appropriate profile
+ int escape_with_root_profile(void);
+ 
+-// Drop the current task's seccomp filter (no kernel equivalent on < 5.10)
+-void disable_seccomp(void);
+-
+ void escape_to_root_for_init(void);
+ 
+ void __init ksu_app_profile_init(void);
+diff --git a/drivers/kernelsu/kernel/selinux/selinux.c b/drivers/kernelsu/kernel/selinux/selinux.c
+index e95431e37..cb6ac2064 100644
+--- a/drivers/kernelsu/kernel/selinux/selinux.c
++++ b/drivers/kernelsu/kernel/selinux/selinux.c
+@@ -270,6 +270,11 @@ bool is_init(const struct cred *cred)
+     return is_sid_match(cred, cached_init_sid, INIT_CONTEXT);
+ }
+ 
++bool ksu_is_system_server(const struct cred *cred)
++{
++    return is_sid_match(cred, 0, "u:r:system_server:s0");
++}
++
+ void escape_to_root_for_adb_root(void)
+ {
+     struct cred *cred = prepare_creds();
+diff --git a/drivers/kernelsu/kernel/selinux/selinux.h b/drivers/kernelsu/kernel/selinux/selinux.h
+index 37caa8577..943b2fc20 100644
+--- a/drivers/kernelsu/kernel/selinux/selinux.h
++++ b/drivers/kernelsu/kernel/selinux/selinux.h
+@@ -56,6 +56,7 @@ bool is_ksu_domain();
+ bool is_zygote(const struct cred* cred);
+ 
+ bool is_init(const struct cred* cred);
++bool ksu_is_system_server(const struct cred *cred);
+ 
+ void apply_kernelsu_rules();
+ 
+diff --git a/kernel/sys.c b/kernel/sys.c
+index b6ad1353e..2071f667a 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -689,13 +689,16 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	return retval;
+ }
+ 
+-#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_RKSU)
++/* KernelSU Next handles UID changes through its LSM hook. */
++#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_RKSU) && \
++    !defined(CONFIG_KSU_NEXT)
+ extern int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid);
+ #endif
+ 
+ SYSCALL_DEFINE3(setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)
+ {
+-#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_RKSU)
++#if defined(CONFIG_KSU_MANUAL_HOOK) && !defined(CONFIG_KSU_RKSU) && \
++    !defined(CONFIG_KSU_NEXT)
+ 	if (ksu_handle_setresuid(ruid, euid, suid)) {
+ 		pr_info("Something wrong with ksu_handle_setresuid()\\n");
+ 	}

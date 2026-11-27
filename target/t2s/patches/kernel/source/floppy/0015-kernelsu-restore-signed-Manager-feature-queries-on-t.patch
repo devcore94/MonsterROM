@@ -1,0 +1,379 @@
+From 3e09be29016b653f4448a4e3ca06a0891cadc08e Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 21:06:45 +0100
+Subject: [PATCH 15/16] kernelsu: restore signed Manager feature queries on t2s
+
+---
+ arch/arm64/configs/oneui95-t2s.config         |  2 +-
+ drivers/kernelsu/kernel/Kconfig               | 16 ++--
+ drivers/kernelsu/kernel/feature/sucompat.c    | 69 +++++++++-----
+ drivers/kernelsu/kernel/supercall/supercall.c | 89 ++++++++++---------
+ drivers/kernelsu/kernel/supercall/supercall.h | 11 ++-
+ fs/exec.c                                     |  8 +-
+ 6 files changed, 117 insertions(+), 78 deletions(-)
+
+diff --git a/arch/arm64/configs/oneui95-t2s.config b/arch/arm64/configs/oneui95-t2s.config
+index 0c7a21856..b3feda8f6 100644
+--- a/arch/arm64/configs/oneui95-t2s.config
++++ b/arch/arm64/configs/oneui95-t2s.config
+@@ -6,6 +6,6 @@ CONFIG_FAKE_UNAME_5_15=y
+ CONFIG_KSU_NEXT=y
+ CONFIG_KSU=y
+ CONFIG_KSU_MANUAL_HOOK=y
+-CONFIG_KSU_MODULE_INSTALL_INFO=y
++CONFIG_KSU_MANAGER_HELPER_QUERIES=y
+ # CONFIG_KSU_SUSFS is not set
+ CONFIG_MALI_MIDGARD_R54P3=m
+diff --git a/drivers/kernelsu/kernel/Kconfig b/drivers/kernelsu/kernel/Kconfig
+index cfdd6e3b3..c77ef7895 100644
+--- a/drivers/kernelsu/kernel/Kconfig
++++ b/drivers/kernelsu/kernel/Kconfig
+@@ -23,17 +23,19 @@ config KSU_DISABLE_MANAGER
+ 	  Disable manager APK detection and manager-specific handling.
+ 	  Root will be used in place of manager-only functionality.
+ 
+-config KSU_MODULE_INSTALL_INFO
+-	bool "Read-only driver information for the Manager module installer"
++config KSU_MANAGER_HELPER_QUERIES
++	bool "Read-only driver queries for the Manager helper"
+ 	depends on KSU=y && KSU_MANUAL_HOOK && SECCOMP_FILTER
+ 	depends on !KSU_DISABLE_MANAGER
+ 	select CRYPTO_LIB_SHA256
+ 	help
+-	  Give the verified Manager installer in a filtered root shell a
+-	  process-bound descriptor for KSU_IOCTL_GET_INFO. This exposes the
+-	  driver's version and capability information to the installer.
+-	  The executable must match the official ARM64 Manager helper.
+-	  Enable this on t2s with the matching Manager release.
++	  Give verified Manager helpers running in a filtered root session a
++	  process-bound descriptor for module information or feature status.
++	  This lets the Manager detect available features and save the values
++	  it changed through the Manager API.
++	  The descriptor does not allow changing kernel feature values.
++	  It closes on exec and cannot be used by a different process.
++	  Enable this on t2s with the matching official ARM64 Manager release.
+ 
+ config KSU_DISABLE_POLICY
+ 	bool "Disable KernelSU policy profiles"
+diff --git a/drivers/kernelsu/kernel/feature/sucompat.c b/drivers/kernelsu/kernel/feature/sucompat.c
+index 575fcc14c..dd7821532 100644
+--- a/drivers/kernelsu/kernel/feature/sucompat.c
++++ b/drivers/kernelsu/kernel/feature/sucompat.c
+@@ -43,7 +43,7 @@
+ #include "supercall/supercall.h"
+ #include "util.h"
+ 
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
+ #include <crypto/sha.h>
+ #include <linux/rcupdate.h>
+ #include <linux/seccomp.h>
+@@ -354,7 +354,7 @@ void ksu_finish_su_session(int exec_result)
+ 		pr_info_ratelimited("Installed su session fd for pid %d\n", task_pid_nr(current));
+ }
+ 
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
+ static bool ksu_has_manager_ancestor(void)
+ {
+ 	struct task_struct *parent;
+@@ -377,27 +377,48 @@ static bool ksu_has_manager_ancestor(void)
+ 	return found;
+ }
+ 
+-static bool ksu_is_module_install_command(void)
++static enum ksu_driver_access ksu_manager_query_access(void)
+ {
+-	static const char command[] = "module\0install";
++	static const char module[] = "module";
++	static const char feature[] = "feature";
+ 	char cmdline[512];
+-	const char *args;
++	const char *subcommand;
++	const char *command;
++	const char *end;
+ 	int len;
+ 
+ 	len = get_cmdline(current, cmdline, sizeof(cmdline));
+ 	if (len <= 0)
+-		return false;
+-
+-	args = memchr(cmdline, '\0', len);
+-	if (!args)
+-		return false;
+-	args++;
+-
+-	return len - (args - cmdline) >= sizeof(command) &&
+-	       !memcmp(args, command, sizeof(command));
++		return KSU_DRIVER_STANDARD;
++
++	end = cmdline + len;
++	command = memchr(cmdline, '\0', len);
++	if (!command)
++		return KSU_DRIVER_STANDARD;
++	command++;
++
++	subcommand = memchr(command, '\0', end - command);
++	if (!subcommand)
++		return KSU_DRIVER_STANDARD;
++	subcommand++;
++	if (!memchr(subcommand, '\0', end - subcommand))
++		return KSU_DRIVER_STANDARD;
++
++	if (!strcmp(command, module) &&
++	    (!strcmp(subcommand, "install") || !strcmp(subcommand, "list") ||
++	     !strcmp(subcommand, "enable") || !strcmp(subcommand, "disable") ||
++	     !strcmp(subcommand, "restore") || !strcmp(subcommand, "uninstall")))
++		return KSU_DRIVER_MODULE_INFO;
++
++	if (!strcmp(command, feature) &&
++	    (!strcmp(subcommand, "check") || !strcmp(subcommand, "get") ||
++	     !strcmp(subcommand, "list") || !strcmp(subcommand, "save")))
++		return KSU_DRIVER_FEATURE_QUERY;
++
++	return KSU_DRIVER_STANDARD;
+ }
+ 
+-static bool ksu_is_official_installer(struct file *exe)
++static bool ksu_is_official_manager_helper(struct file *exe)
+ {
+ 	/* ARM64 libksud.so from the official Manager at 8c5fcb3a. */
+ 	static const u8 expected[SHA256_DIGEST_SIZE] = {
+@@ -436,8 +457,9 @@ static bool ksu_is_official_installer(struct file *exe)
+ 	return matches;
+ }
+ 
+-void ksu_finish_module_install_exec(void)
++void ksu_finish_manager_helper_exec(void)
+ {
++	enum ksu_driver_access access;
+ 	struct file *exe;
+ 	bool official;
+ 	int fd;
+@@ -445,23 +467,26 @@ void ksu_finish_module_install_exec(void)
+ 	if (!uid_eq(current_uid(), GLOBAL_ROOT_UID) ||
+ 	    !uid_eq(current_euid(), GLOBAL_ROOT_UID) ||
+ 	    READ_ONCE(current->seccomp.mode) != SECCOMP_MODE_FILTER ||
+-	    !is_ksu_domain() || !ksu_has_manager_ancestor() ||
+-	    !ksu_is_module_install_command())
++	    !is_ksu_domain() || !ksu_has_manager_ancestor())
++		return;
++
++	access = ksu_manager_query_access();
++	if (access == KSU_DRIVER_STANDARD)
+ 		return;
+ 
+ 	exe = get_task_exe_file(current);
+ 	if (!exe)
+ 		return;
+-	official = ksu_is_official_installer(exe);
++	official = ksu_is_official_manager_helper(exe);
+ 	fput(exe);
+ 	if (!official)
+ 		return;
+ 
+-	fd = ksu_install_module_info_fd();
++	fd = ksu_install_manager_query_fd(access);
+ 	if (fd < 0)
+-		pr_warn_ratelimited("Failed to install module information fd: %d\n", fd);
++		pr_warn_ratelimited("Failed to install Manager query fd: %d\n", fd);
+ 	else
+-		pr_info_ratelimited("Installed module information fd for pid %d\n",
++		pr_info_ratelimited("Installed Manager query fd for pid %d\n",
+ 				    task_pid_nr(current));
+ }
+ #endif
+diff --git a/drivers/kernelsu/kernel/supercall/supercall.c b/drivers/kernelsu/kernel/supercall/supercall.c
+index 4d4d80b86..ff43f8f41 100644
+--- a/drivers/kernelsu/kernel/supercall/supercall.c
++++ b/drivers/kernelsu/kernel/supercall/supercall.c
+@@ -17,6 +17,7 @@
+ 
+ #include "uapi/supercall.h"
+ #include "supercall/internal.h"
++#include "supercall/supercall.h"
+ #include "arch.h"
+ #include "util.h"
+ #include "klog.h" // IWYU pragma: keep
+@@ -27,11 +28,8 @@
+ 
+ uint32_t ksuver_override = 0;
+ 
+-#define KSU_DRIVER_PERMISSION_SU_SESSION (1UL << 0)
+-#define KSU_DRIVER_PERMISSION_INFO_ONLY (1UL << 1)
+-
+ struct ksu_driver_context {
+-	unsigned long permissions;
++	enum ksu_driver_access access;
+ 	struct pid *owner;
+ };
+ 
+@@ -57,8 +55,10 @@ static long anon_ksu_ioctl(struct file *filp, unsigned int cmd, unsigned long ar
+ 	if (context->owner && context->owner != task_pid(current))
+ 		return -EPERM;
+ 
+-	if ((context->permissions & KSU_DRIVER_PERMISSION_INFO_ONLY) &&
+-	    cmd != KSU_IOCTL_GET_INFO)
++	if (context->access == KSU_DRIVER_MODULE_INFO && cmd != KSU_IOCTL_GET_INFO)
++		return -EPERM;
++
++	if (context->access == KSU_DRIVER_FEATURE_QUERY && cmd != KSU_IOCTL_GET_FEATURE)
+ 		return -EPERM;
+ 
+ 	return ksu_supercall_handle_ioctl(filp, cmd, (void __user *)arg);
+@@ -71,37 +71,39 @@ static const struct file_operations anon_ksu_fops = {
+     .release = anon_ksu_release,
+ };
+ 
+-static int ksu_install_fd_with_permissions(unsigned int fd_flags, unsigned long permissions)
++static int ksu_install_fd_with_access(enum ksu_driver_access access)
+ {
+-    struct ksu_driver_context *context;
+-    struct file *filp;
+-    const char *name;
+-    int fd;
+-
+-    context = kzalloc(sizeof(*context), GFP_KERNEL);
+-    if (!context)
+-        return -ENOMEM;
+-
+-    context->permissions = permissions;
+-	name = permissions ? "[ksu_driver_su]" : "[ksu_driver]";
+-
+-    fd = get_unused_fd_flags(fd_flags);
+-    if (fd < 0) {
+-        pr_err("ksu_install_fd: failed to get unused fd\n");
+-        kfree(context);
+-        return fd;
+-    }
++	struct ksu_driver_context *context;
++	struct file *filp;
++	const char *name;
++	int mode = O_RDWR;
++	int fd;
++
++	context = kzalloc(sizeof(*context), GFP_KERNEL);
++	if (!context)
++		return -ENOMEM;
++
++	context->access = access;
++	name = access == KSU_DRIVER_STANDARD ? "[ksu_driver]" : "[ksu_driver_su]";
++	if (access == KSU_DRIVER_MODULE_INFO || access == KSU_DRIVER_FEATURE_QUERY)
++		mode = O_RDONLY;
++
++	fd = get_unused_fd_flags(O_CLOEXEC);
++	if (fd < 0) {
++		pr_err("ksu_install_fd: failed to get unused fd\n");
++		kfree(context);
++		return fd;
++	}
+ 
+-	filp = anon_inode_getfile(name, &anon_ksu_fops, context,
+-				 permissions & KSU_DRIVER_PERMISSION_INFO_ONLY ? O_RDONLY : O_RDWR);
+-    if (IS_ERR(filp)) {
+-        pr_err("ksu_install_fd: failed to create anon inode file\n");
+-        put_unused_fd(fd);
+-        kfree(context);
+-        return PTR_ERR(filp);
+-    }
++	filp = anon_inode_getfile(name, &anon_ksu_fops, context, mode);
++	if (IS_ERR(filp)) {
++		pr_err("ksu_install_fd: failed to create anon inode file\n");
++		put_unused_fd(fd);
++		kfree(context);
++		return PTR_ERR(filp);
++	}
+ 
+-	if (permissions)
++	if (access != KSU_DRIVER_STANDARD)
+ 		context->owner = get_task_pid(current, PIDTYPE_PID);
+ 
+ 	fd_install(fd, filp);
+@@ -111,27 +113,30 @@ static int ksu_install_fd_with_permissions(unsigned int fd_flags, unsigned long
+ 
+ int ksu_install_fd(void)
+ {
+-    return ksu_install_fd_with_permissions(O_CLOEXEC, 0);
++	return ksu_install_fd_with_access(KSU_DRIVER_STANDARD);
+ }
+ 
+ int ksu_install_su_fd(void)
+ {
+-    // This descriptor must be installed after the exec into ksud.
+-    return ksu_install_fd_with_permissions(O_CLOEXEC, KSU_DRIVER_PERMISSION_SU_SESSION);
++	// This descriptor must be installed after the exec into ksud.
++	return ksu_install_fd_with_access(KSU_DRIVER_SU_SESSION);
+ }
+ 
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
+-int ksu_install_module_info_fd(void)
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++int ksu_install_manager_query_fd(enum ksu_driver_access access)
+ {
+-	return ksu_install_fd_with_permissions(O_CLOEXEC, KSU_DRIVER_PERMISSION_INFO_ONLY);
++	if (access != KSU_DRIVER_MODULE_INFO && access != KSU_DRIVER_FEATURE_QUERY)
++		return -EINVAL;
++
++	return ksu_install_fd_with_access(access);
+ }
+ #endif
+ 
+ bool ksu_is_su_session_fd(const struct file *filp)
+ {
+-    const struct ksu_driver_context *context = filp->private_data;
++	const struct ksu_driver_context *context = filp->private_data;
+ 
+-    return context && (context->permissions & KSU_DRIVER_PERMISSION_SU_SESSION);
++	return context && context->access == KSU_DRIVER_SU_SESSION;
+ }
+ 
+ static void ksu_install_fd_tw_func(struct callback_head *cb)
+diff --git a/drivers/kernelsu/kernel/supercall/supercall.h b/drivers/kernelsu/kernel/supercall/supercall.h
+index e2edcbd89..32bafe8c9 100644
+--- a/drivers/kernelsu/kernel/supercall/supercall.h
++++ b/drivers/kernelsu/kernel/supercall/supercall.h
+@@ -22,8 +22,15 @@ struct ksu_ioctl_cmd_map {
+ int ksu_install_fd(void);
+ // Install a KSU fd that authorizes operations required while starting su.
+ int ksu_install_su_fd(void);
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
+-int ksu_install_module_info_fd(void);
++enum ksu_driver_access {
++	KSU_DRIVER_STANDARD,
++	KSU_DRIVER_SU_SESSION,
++	KSU_DRIVER_MODULE_INFO,
++	KSU_DRIVER_FEATURE_QUERY,
++};
++
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++int ksu_install_manager_query_fd(enum ksu_driver_access access);
+ #endif
+ bool ksu_is_su_session_fd(const struct file *filp);
+ 
+diff --git a/fs/exec.c b/fs/exec.c
+index a4f57d6a5..0979d3257 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1945,8 +1945,8 @@ extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *ar
+ 
+ #if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
+ extern void ksu_finish_su_session(int exec_result);
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
+-extern void ksu_finish_module_install_exec(void);
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++extern void ksu_finish_manager_helper_exec(void);
+ #endif
+ #endif
+ 
+@@ -1962,9 +1962,9 @@ static int do_execve_plain(struct filename *filename, struct user_arg_ptr argv,
+ 	ret = do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+ 	if (su_session > 0)
+ 		ksu_finish_su_session(ret);
+-#ifdef CONFIG_KSU_MODULE_INSTALL_INFO
++#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
+ 	else if (!ret)
+-		ksu_finish_module_install_exec();
++		ksu_finish_manager_helper_exec();
+ #endif
+ 	return ret;
+ #else

@@ -1,0 +1,22 @@
+From 6cfe31bb7ca7bebc5d67cf0f6ec2ba141d0d6960 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 16:15:25 +0100
+Subject: [PATCH 09/16] arm64: use Floppy build defaults for the t2s boot
+ profile
+
+---
+ arch/arm64/configs/oneui95-t2s.config | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/arch/arm64/configs/oneui95-t2s.config b/arch/arm64/configs/oneui95-t2s.config
+index a5feea32f..6cd13d1fa 100644
+--- a/arch/arm64/configs/oneui95-t2s.config
++++ b/arch/arm64/configs/oneui95-t2s.config
+@@ -4,7 +4,3 @@ CONFIG_KSU=y
+ CONFIG_KSU_MANUAL_HOOK=y
+ # CONFIG_KSU_SUSFS is not set
+ CONFIG_MALI_MIDGARD_R54P3=m
+-CONFIG_THINLTO=y
+-CONFIG_CFI_CLANG=y
+-CONFIG_CFI_CLANG_SHADOW=y
+-# CONFIG_CFI_PERMISSIVE is not set

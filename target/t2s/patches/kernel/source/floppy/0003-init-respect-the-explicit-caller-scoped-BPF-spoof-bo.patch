@@ -1,0 +1,30 @@
+From 64558f477fb2cdb15dacc9910a4d5c96aa5c1a95 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 15:44:02 +0100
+Subject: [PATCH 03/16] init: respect the explicit caller-scoped BPF spoof boot
+ option
+
+---
+ init/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/init/main.c b/init/main.c
+index 876267b37..3d6250252 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1305,6 +1305,7 @@ asmlinkage __visible void __init start_kernel(void)
+ #endif
+ 	/* parameters may set static keys */
+ 	jump_label_init();
++	apply_uname_bpf_spoof_default();
+ 	parse_early_param();
+ 	after_dashes = parse_args("Booting kernel",
+ 				  static_command_line, __start___param,
+@@ -1317,7 +1318,6 @@ asmlinkage __visible void __init start_kernel(void)
+ 		parse_args("Setting extra init args", extra_init_args,
+ 			   NULL, 0, -1, -1, NULL, set_init_arg);
+ 
+-	apply_uname_bpf_spoof_default();
+ 	apply_mass_storage_hack_default();
+ 	apply_selinux_mode_default();
+ 	apply_default_sbwc_mode_default();

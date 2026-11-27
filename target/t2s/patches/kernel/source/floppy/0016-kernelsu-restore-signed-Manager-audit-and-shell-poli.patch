@@ -1,0 +1,345 @@
+From b30b4d5a86bd98911d67f3d142955f18f2452354 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 21:13:06 +0100
+Subject: [PATCH 16/16] kernelsu: restore signed Manager audit and shell policy
+ controls
+
+---
+ arch/arm64/configs/oneui95-t2s.config         |  2 +-
+ drivers/kernelsu/kernel/Kconfig               | 10 +--
+ drivers/kernelsu/kernel/feature/sucompat.c    | 68 ++++++++++++++-----
+ drivers/kernelsu/kernel/supercall/dispatch.c  | 21 +++++-
+ drivers/kernelsu/kernel/supercall/internal.h  |  3 +
+ drivers/kernelsu/kernel/supercall/supercall.c | 22 ++++--
+ drivers/kernelsu/kernel/supercall/supercall.h |  6 +-
+ fs/exec.c                                     |  4 +-
+ 8 files changed, 104 insertions(+), 32 deletions(-)
+
+diff --git a/arch/arm64/configs/oneui95-t2s.config b/arch/arm64/configs/oneui95-t2s.config
+index b3feda8f6..34689021e 100644
+--- a/arch/arm64/configs/oneui95-t2s.config
++++ b/arch/arm64/configs/oneui95-t2s.config
+@@ -6,6 +6,6 @@ CONFIG_FAKE_UNAME_5_15=y
+ CONFIG_KSU_NEXT=y
+ CONFIG_KSU=y
+ CONFIG_KSU_MANUAL_HOOK=y
+-CONFIG_KSU_MANAGER_HELPER_QUERIES=y
++CONFIG_KSU_MANAGER_HELPERS=y
+ # CONFIG_KSU_SUSFS is not set
+ CONFIG_MALI_MIDGARD_R54P3=m
+diff --git a/drivers/kernelsu/kernel/Kconfig b/drivers/kernelsu/kernel/Kconfig
+index c77ef7895..b4e91f3fd 100644
+--- a/drivers/kernelsu/kernel/Kconfig
++++ b/drivers/kernelsu/kernel/Kconfig
+@@ -23,8 +23,8 @@ config KSU_DISABLE_MANAGER
+ 	  Disable manager APK detection and manager-specific handling.
+ 	  Root will be used in place of manager-only functionality.
+ 
+-config KSU_MANAGER_HELPER_QUERIES
+-	bool "Read-only driver queries for the Manager helper"
++config KSU_MANAGER_HELPERS
++	bool "Scoped driver access for the Manager helpers"
+ 	depends on KSU=y && KSU_MANUAL_HOOK && SECCOMP_FILTER
+ 	depends on !KSU_DISABLE_MANAGER
+ 	select CRYPTO_LIB_SHA256
+@@ -33,8 +33,10 @@ config KSU_MANAGER_HELPER_QUERIES
+ 	  process-bound descriptor for module information or feature status.
+ 	  This lets the Manager detect available features and save the values
+ 	  it changed through the Manager API.
+-	  The descriptor does not allow changing kernel feature values.
+-	  It closes on exec and cannot be used by a different process.
++	  The verified Manager can also change root request logging and the
++	  restriction on shell SU. The signed log daemon can collect events
++	  while logging is enabled. Each descriptor closes on exec and can
++	  only be used by its own process.
+ 	  Enable this on t2s with the matching official ARM64 Manager release.
+ 
+ config KSU_DISABLE_POLICY
+diff --git a/drivers/kernelsu/kernel/feature/sucompat.c b/drivers/kernelsu/kernel/feature/sucompat.c
+index dd7821532..3389c1685 100644
+--- a/drivers/kernelsu/kernel/feature/sucompat.c
++++ b/drivers/kernelsu/kernel/feature/sucompat.c
+@@ -43,11 +43,12 @@
+ #include "supercall/supercall.h"
+ #include "util.h"
+ 
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++#ifdef CONFIG_KSU_MANAGER_HELPERS
+ #include <crypto/sha.h>
+ #include <linux/rcupdate.h>
+ #include <linux/seccomp.h>
+ #include <linux/slab.h>
++#include "feature/sulog.h"
+ #include "manager/manager_identity.h"
+ #endif
+ 
+@@ -354,7 +355,7 @@ void ksu_finish_su_session(int exec_result)
+ 		pr_info_ratelimited("Installed su session fd for pid %d\n", task_pid_nr(current));
+ }
+ 
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++#ifdef CONFIG_KSU_MANAGER_HELPERS
+ static bool ksu_has_manager_ancestor(void)
+ {
+ 	struct task_struct *parent;
+@@ -377,13 +378,15 @@ static bool ksu_has_manager_ancestor(void)
+ 	return found;
+ }
+ 
+-static enum ksu_driver_access ksu_manager_query_access(void)
++static enum ksu_driver_access ksu_manager_helper_access(void)
+ {
+-	static const char module[] = "module";
+-	static const char feature[] = "feature";
+ 	char cmdline[512];
+ 	const char *subcommand;
+ 	const char *command;
++	const char *command_end;
++	const char *subcommand_end;
++	const char *setting;
++	const char *value;
+ 	const char *end;
+ 	int len;
+ 
+@@ -397,24 +400,45 @@ static enum ksu_driver_access ksu_manager_query_access(void)
+ 		return KSU_DRIVER_STANDARD;
+ 	command++;
+ 
+-	subcommand = memchr(command, '\0', end - command);
+-	if (!subcommand)
++	command_end = memchr(command, '\0', end - command);
++	if (!command_end)
+ 		return KSU_DRIVER_STANDARD;
+-	subcommand++;
+-	if (!memchr(subcommand, '\0', end - subcommand))
++
++	if (!strcmp(command, "sulogd") && command_end + 1 == end)
++		return KSU_DRIVER_SULOG_READER;
++
++	subcommand = command_end + 1;
++	subcommand_end = memchr(subcommand, '\0', end - subcommand);
++	if (!subcommand_end)
+ 		return KSU_DRIVER_STANDARD;
+ 
+-	if (!strcmp(command, module) &&
++	if (!strcmp(command, "module") &&
+ 	    (!strcmp(subcommand, "install") || !strcmp(subcommand, "list") ||
+ 	     !strcmp(subcommand, "enable") || !strcmp(subcommand, "disable") ||
+ 	     !strcmp(subcommand, "restore") || !strcmp(subcommand, "uninstall")))
+ 		return KSU_DRIVER_MODULE_INFO;
+ 
+-	if (!strcmp(command, feature) &&
+-	    (!strcmp(subcommand, "check") || !strcmp(subcommand, "get") ||
+-	     !strcmp(subcommand, "list") || !strcmp(subcommand, "save")))
++	if (strcmp(command, "feature"))
++		return KSU_DRIVER_STANDARD;
++
++	if (!strcmp(subcommand, "check") || !strcmp(subcommand, "get") ||
++	    !strcmp(subcommand, "list") || !strcmp(subcommand, "save"))
+ 		return KSU_DRIVER_FEATURE_QUERY;
+ 
++	if (strcmp(subcommand, "set"))
++		return KSU_DRIVER_STANDARD;
++
++	setting = subcommand_end + 1;
++	value = memchr(setting, '\0', end - setting);
++	if (!value)
++		return KSU_DRIVER_STANDARD;
++	value++;
++	if (end - value != 2 || value[1] || (value[0] != '0' && value[0] != '1'))
++		return KSU_DRIVER_STANDARD;
++
++	if (!strcmp(setting, "sulog") || !strcmp(setting, "shell_su_adb_only"))
++		return KSU_DRIVER_MANAGER_SETTING;
++
+ 	return KSU_DRIVER_STANDARD;
+ }
+ 
+@@ -467,13 +491,21 @@ void ksu_finish_manager_helper_exec(void)
+ 	if (!uid_eq(current_uid(), GLOBAL_ROOT_UID) ||
+ 	    !uid_eq(current_euid(), GLOBAL_ROOT_UID) ||
+ 	    READ_ONCE(current->seccomp.mode) != SECCOMP_MODE_FILTER ||
+-	    !is_ksu_domain() || !ksu_has_manager_ancestor())
++	    !is_ksu_domain())
+ 		return;
+ 
+-	access = ksu_manager_query_access();
++	access = ksu_manager_helper_access();
+ 	if (access == KSU_DRIVER_STANDARD)
+ 		return;
+ 
++	/* The official daemon detaches from the Manager before exec. */
++	if (access == KSU_DRIVER_SULOG_READER) {
++		if (!ksu_sulog_is_enabled())
++			return;
++	} else if (!ksu_has_manager_ancestor()) {
++		return;
++	}
++
+ 	exe = get_task_exe_file(current);
+ 	if (!exe)
+ 		return;
+@@ -482,11 +514,11 @@ void ksu_finish_manager_helper_exec(void)
+ 	if (!official)
+ 		return;
+ 
+-	fd = ksu_install_manager_query_fd(access);
++	fd = ksu_install_manager_helper_fd(access);
+ 	if (fd < 0)
+-		pr_warn_ratelimited("Failed to install Manager query fd: %d\n", fd);
++		pr_warn_ratelimited("Failed to install Manager helper fd: %d\n", fd);
+ 	else
+-		pr_info_ratelimited("Installed Manager query fd for pid %d\n",
++		pr_info_ratelimited("Installed Manager helper fd for pid %d\n",
+ 				    task_pid_nr(current));
+ }
+ #endif
+diff --git a/drivers/kernelsu/kernel/supercall/dispatch.c b/drivers/kernelsu/kernel/supercall/dispatch.c
+index 82e8fc216..22bc30e17 100644
+--- a/drivers/kernelsu/kernel/supercall/dispatch.c
++++ b/drivers/kernelsu/kernel/supercall/dispatch.c
+@@ -443,7 +443,7 @@ static int do_get_feature(void __user *arg)
+ 	return 0;
+ }
+ 
+-static int do_set_feature(void __user *arg)
++static int set_feature_from_user(void __user *arg, bool manager_setting)
+ {
+ 	struct ksu_set_feature_cmd cmd;
+ 	int ret;
+@@ -453,6 +453,10 @@ static int do_set_feature(void __user *arg)
+ 		return -EFAULT;
+ 	}
+ 
++	if (manager_setting &&
++	    (cmd.value > 1 || (cmd.feature_id != KSU_FEATURE_SULOG &&
++			       cmd.feature_id != KSU_FEATURE_SHELL_SU_ADB_ONLY)))
++		return -EPERM;
+ 
+ 	ret = ksu_set_feature(cmd.feature_id, cmd.value);
+ 	if (ret) {
+@@ -463,6 +467,21 @@ static int do_set_feature(void __user *arg)
+ 	return 0;
+ }
+ 
++static int do_set_feature(void __user *arg)
++{
++	return set_feature_from_user(arg, false);
++}
++
++#ifdef CONFIG_KSU_MANAGER_HELPERS
++int ksu_supercall_set_manager_feature(void __user *arg)
++{
++	if (!only_root())
++		return -EPERM;
++
++	return set_feature_from_user(arg, true);
++}
++#endif
++
+ static int do_get_wrapper_fd(void __user *arg) {
+ 	if (!ksu_file_sid) {
+ 		return -EINVAL;
+diff --git a/drivers/kernelsu/kernel/supercall/internal.h b/drivers/kernelsu/kernel/supercall/internal.h
+index e0cb20c4c..a63efa79d 100644
+--- a/drivers/kernelsu/kernel/supercall/internal.h
++++ b/drivers/kernelsu/kernel/supercall/internal.h
+@@ -13,6 +13,9 @@ bool allowed_for_su(void);
+ 
+ long ksu_supercall_handle_ioctl(const struct file *filp, unsigned int cmd,
+                                 void __user *argp);
++#ifdef CONFIG_KSU_MANAGER_HELPERS
++int ksu_supercall_set_manager_feature(void __user *arg);
++#endif
+ void ksu_supercall_dump_commands(void);
+ void ksu_supercall_cleanup_state(void);
+ 
+diff --git a/drivers/kernelsu/kernel/supercall/supercall.c b/drivers/kernelsu/kernel/supercall/supercall.c
+index ff43f8f41..2cc37471f 100644
+--- a/drivers/kernelsu/kernel/supercall/supercall.c
++++ b/drivers/kernelsu/kernel/supercall/supercall.c
+@@ -61,6 +61,18 @@ static long anon_ksu_ioctl(struct file *filp, unsigned int cmd, unsigned long ar
+ 	if (context->access == KSU_DRIVER_FEATURE_QUERY && cmd != KSU_IOCTL_GET_FEATURE)
+ 		return -EPERM;
+ 
++#ifdef CONFIG_KSU_MANAGER_HELPERS
++	if (context->access == KSU_DRIVER_MANAGER_SETTING) {
++		if (cmd != KSU_IOCTL_SET_FEATURE)
++			return -EPERM;
++
++		return ksu_supercall_set_manager_feature((void __user *)arg);
++	}
++
++	if (context->access == KSU_DRIVER_SULOG_READER && cmd != KSU_IOCTL_GET_SULOG_FD)
++		return -EPERM;
++#endif
++
+ 	return ksu_supercall_handle_ioctl(filp, cmd, (void __user *)arg);
+ }
+ 
+@@ -85,7 +97,8 @@ static int ksu_install_fd_with_access(enum ksu_driver_access access)
+ 
+ 	context->access = access;
+ 	name = access == KSU_DRIVER_STANDARD ? "[ksu_driver]" : "[ksu_driver_su]";
+-	if (access == KSU_DRIVER_MODULE_INFO || access == KSU_DRIVER_FEATURE_QUERY)
++	if (access == KSU_DRIVER_MODULE_INFO || access == KSU_DRIVER_FEATURE_QUERY ||
++	    access == KSU_DRIVER_SULOG_READER)
+ 		mode = O_RDONLY;
+ 
+ 	fd = get_unused_fd_flags(O_CLOEXEC);
+@@ -122,10 +135,11 @@ int ksu_install_su_fd(void)
+ 	return ksu_install_fd_with_access(KSU_DRIVER_SU_SESSION);
+ }
+ 
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
+-int ksu_install_manager_query_fd(enum ksu_driver_access access)
++#ifdef CONFIG_KSU_MANAGER_HELPERS
++int ksu_install_manager_helper_fd(enum ksu_driver_access access)
+ {
+-	if (access != KSU_DRIVER_MODULE_INFO && access != KSU_DRIVER_FEATURE_QUERY)
++	if (access != KSU_DRIVER_MODULE_INFO && access != KSU_DRIVER_FEATURE_QUERY &&
++	    access != KSU_DRIVER_MANAGER_SETTING && access != KSU_DRIVER_SULOG_READER)
+ 		return -EINVAL;
+ 
+ 	return ksu_install_fd_with_access(access);
+diff --git a/drivers/kernelsu/kernel/supercall/supercall.h b/drivers/kernelsu/kernel/supercall/supercall.h
+index 32bafe8c9..f0990b4b7 100644
+--- a/drivers/kernelsu/kernel/supercall/supercall.h
++++ b/drivers/kernelsu/kernel/supercall/supercall.h
+@@ -27,10 +27,12 @@ enum ksu_driver_access {
+ 	KSU_DRIVER_SU_SESSION,
+ 	KSU_DRIVER_MODULE_INFO,
+ 	KSU_DRIVER_FEATURE_QUERY,
++	KSU_DRIVER_MANAGER_SETTING,
++	KSU_DRIVER_SULOG_READER,
+ };
+ 
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
+-int ksu_install_manager_query_fd(enum ksu_driver_access access);
++#ifdef CONFIG_KSU_MANAGER_HELPERS
++int ksu_install_manager_helper_fd(enum ksu_driver_access access);
+ #endif
+ bool ksu_is_su_session_fd(const struct file *filp);
+ 
+diff --git a/fs/exec.c b/fs/exec.c
+index 0979d3257..833b6ac0e 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1945,7 +1945,7 @@ extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *ar
+ 
+ #if defined(CONFIG_KSU_MANUAL_HOOK) && defined(CONFIG_KSU_NEXT)
+ extern void ksu_finish_su_session(int exec_result);
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++#ifdef CONFIG_KSU_MANAGER_HELPERS
+ extern void ksu_finish_manager_helper_exec(void);
+ #endif
+ #endif
+@@ -1962,7 +1962,7 @@ static int do_execve_plain(struct filename *filename, struct user_arg_ptr argv,
+ 	ret = do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+ 	if (su_session > 0)
+ 		ksu_finish_su_session(ret);
+-#ifdef CONFIG_KSU_MANAGER_HELPER_QUERIES
++#ifdef CONFIG_KSU_MANAGER_HELPERS
+ 	else if (!ret)
+ 		ksu_finish_manager_helper_exec();
+ #endif

@@ -1,0 +1,22 @@
+From 4b285db96cd3722ce86b2de03a74fd383201414d Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 16:38:45 +0100
+Subject: [PATCH 11/16] arm64: select the SDK 37 BPF profile for t2s
+
+---
+ arch/arm64/configs/oneui95-t2s.config | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm64/configs/oneui95-t2s.config b/arch/arm64/configs/oneui95-t2s.config
+index 7a78ea239..1327cc6c1 100644
+--- a/arch/arm64/configs/oneui95-t2s.config
++++ b/arch/arm64/configs/oneui95-t2s.config
+@@ -1,6 +1,8 @@
+ CONFIG_LOCALVERSION="-Floppy-v1.1.2-KN-t2s"
+ CONFIG_CMDLINE="mali.version=r54p3"
+ CONFIG_CMDLINE_EXTEND=y
++# CONFIG_FAKE_UNAME_5_10 is not set
++CONFIG_FAKE_UNAME_5_15=y
+ CONFIG_KSU_NEXT=y
+ CONFIG_KSU=y
+ CONFIG_KSU_MANUAL_HOOK=y

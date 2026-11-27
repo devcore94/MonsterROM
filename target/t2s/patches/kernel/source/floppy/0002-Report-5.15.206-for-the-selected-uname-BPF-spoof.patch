@@ -1,0 +1,31 @@
+From 78e501b672017ac8fdd4fed45df6dbc7afae3e41 Mon Sep 17 00:00:00 2001
+From: MonsterROM Builder <monsterrom-builder@localhost>
+Date: Fri, 27 Nov 2026 15:44:02 +0100
+Subject: [PATCH 02/16] Report 5.15.206 for the selected uname/BPF spoof
+
+---
+ kernel/sys.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index d08d9750d..b6ad1353e 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1261,7 +1261,7 @@ const char *get_bpf_spoof_version(void)
+ #elif defined(CONFIG_FAKE_UNAME_5_10)
+ 	return "5.10.200";
+ #elif defined(CONFIG_FAKE_UNAME_5_15)
+-	return "5.15.200";
++	return "5.15.206";
+ #elif defined(CONFIG_FAKE_UNAME_6_1)
+ 	return "6.1.200";
+ #elif defined(CONFIG_FAKE_UNAME_6_6)
+@@ -1604,7 +1604,7 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
+ #elif defined(CONFIG_FAKE_UNAME_5_10)
+ 			strcpy(tmp.release, "5.10.200");
+ #elif defined(CONFIG_FAKE_UNAME_5_15)
+-			strcpy(tmp.release, "5.15.200");
++			strcpy(tmp.release, "5.15.206");
+ #elif defined(CONFIG_FAKE_UNAME_6_1)
+ 			strcpy(tmp.release, "6.1.200");
+ #elif defined(CONFIG_FAKE_UNAME_6_6)
