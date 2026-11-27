@@ -102,6 +102,10 @@ public class PlatformSigner {
         try (InputStream in = Files.newInputStream(Path.of(args[1]))) {
             local = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
         }
+        String localDigest = HEX.formatHex(MessageDigest.getInstance("SHA-256").digest(local.getEncoded()));
+        if (localDigest.equals(AOSP_PLATFORM)) {
+            throw new IllegalArgumentException("The public AOSP platform test key cannot be used as the MonsterROM platform key");
+        }
         PrivateKey key = KeyFactory.getInstance("RSA").generatePrivate(
                 new PKCS8EncodedKeySpec(Files.readAllBytes(Path.of(args[2]))));
         ApkSigner.SignerConfig signer = new ApkSigner.SignerConfig.Builder("MONSTERROM", key, List.of(local)).build();
