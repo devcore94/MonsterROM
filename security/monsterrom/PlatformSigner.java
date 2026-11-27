@@ -63,7 +63,17 @@ public class PlatformSigner {
             if (!verify(output).equals(List.of(local))) {
                 throw new IllegalStateException("Unexpected output signer for " + apk);
             }
-            Files.setPosixFilePermissions(output, Files.getPosixFilePermissions(apk));
+            // The normal build runs on Linux, where APK mode bits are
+            // preserved explicitly. Windows-hosted recovery builds can
+            // reach a WSL tree through the UNC provider, which does not
+            // expose POSIX permissions; the APK replacement itself remains
+            // safe because it stays in the same tree and inherits its file
+            // metadata from that provider.
+            try {
+                Files.setPosixFilePermissions(output, Files.getPosixFilePermissions(apk));
+            } catch (UnsupportedOperationException ignored) {
+                // No POSIX view is available on this host filesystem.
+            }
             Files.move(output, apk, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             return true;
         } finally {
