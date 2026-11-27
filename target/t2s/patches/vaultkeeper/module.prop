@@ -1,0 +1,4 @@
+id=vaultkeeper
+name=Galaxy S21+ VaultKeeper client
+author=Samsung, MonsterROM_NEXT
+description=Uses the stock G996B HIDL 2.0 client for carrier provisioning.
