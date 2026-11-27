@@ -1,0 +1,4 @@
+id=ksu_resources
+name=KernelSU Manager root service resources
+author=MonsterROM_NEXT
+description=Uses the existing non-zygote resource fallback in the KernelSU Manager root service.

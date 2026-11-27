@@ -1,0 +1,47 @@
+Subject: [PATCH] Skip zygote idmap creation in the KernelSU root service
+
+The standalone Java root service inherits Android's syscall filter. Use
+the existing empty-overlay fallback for this process when loading base
+framework assets. Regular zygote idmap creation retains its original path.
+
+diff --git a/smali_classes4/com/android/internal/content/om/OverlayConfig.smali b/smali_classes4/com/android/internal/content/om/OverlayConfig.smali
+--- a/smali_classes4/com/android/internal/content/om/OverlayConfig.smali
++++ b/smali_classes4/com/android/internal/content/om/OverlayConfig.smali
+@@ -1407,8 +1407,37 @@
+ 
+     const/4 v2, 0x0
+ 
++    if-nez v0, :skip_idmap_creation
++
++    const-string/jumbo v3, "/proc/self/cmdline"
++
++    const/4 v4, 0x1
++
++    new-array v5, v4, [I
++
++    const/16 v6, 0x1000
++
++    aput v6, v5, v2
++
++    new-array v4, v4, [Ljava/lang/String;
++
++    invoke-static {v3, v5, v4, v2, v2}, Landroid/os/Process;->readProcFile(Ljava/lang/String;[I[Ljava/lang/String;[J[F)Z
++
++    move-result v0
++
+     if-eqz v0, :cond_0
+ 
++    aget-object v3, v4, v2
++
++    const-string/jumbo v4, "com.rifsxd.ksunext:root:0"
++
++    invoke-virtual {v4, v3}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
++
++    move-result v0
++
++    if-eqz v0, :cond_0
++
++    :skip_idmap_creation
+     const-string/jumbo p0, "Skipping idmap2 execution for non-zygote process."
+ 
+     invoke-static {v1, p0}, Landroid/util/Log;->w(Ljava/lang/String;Ljava/lang/String;)I
