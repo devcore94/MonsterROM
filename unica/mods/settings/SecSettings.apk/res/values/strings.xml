@@ -5,6 +5,8 @@
     <string name="unica_dialog_reboot_positive">Restart</string>
     <string name="unica_dialog_reboot_title">Restart required</string>
     <string name="unica_native_blur_title">Enable live blur effect</string>
+    <string name="unica_vulkan_title">Enable Vulkan renderer</string>
+    <string name="unica_vulkan_summary">Use Vulkan to render the interface after restarting.</string>
     <string name="monsterrom_name" translatable="false">MonsterROM_NEXT</string>
     <string name="unica_games_spoof_title">Unlock higher FPS in games</string>
     <string name="unica_hma_title">Hide installed apps</string>

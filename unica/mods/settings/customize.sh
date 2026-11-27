@@ -30,6 +30,11 @@ while IFS= read -r f; do
     fi
 done < <(find "$MODPATH/SecSettings.apk" -type f)
 
+# Expose the renderer toggle on devices that do not default to Vulkan.
+if [[ "$(GET_PROP "ro.hwui.use_vulkan")" != "true" ]]; then
+    SET_PROP "system" "persist.sys.unica.vulkan" "false"
+fi
+
 unset PATCH_INST CONTENT
 
 LOG_STEP_OUT
