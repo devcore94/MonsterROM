@@ -23,7 +23,15 @@ public class PlatformSigner {
     // temporary platform certificate.  Keep it in the migration set so the
     // shared-UID members are brought onto the current local certificate too.
     private static final String LEGACY_MONSTERROM = "56f3570aadd0a1ee83b63969475d5d51341d47e0c9f77104c81917f964db81a2";
+    // An earlier t2s test image used the public AOSP platform certificate for
+    // APKs inside the Bluetooth and NFC APEXes. They must migrate with their
+    // shared-UID peers when the private local platform key is available.
+    private static final String AOSP_PLATFORM = "c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8";
     private static final HexFormat HEX = HexFormat.of();
+
+    static boolean isPlatformSource(String digest) {
+        return digest.equals(SAMSUNG) || digest.equals(LEGACY_MONSTERROM) || digest.equals(AOSP_PLATFORM);
+    }
 
     private static List<X509Certificate> verify(Path apk) throws Exception {
         ApkVerifier.Result result = new ApkVerifier.Builder(apk.toFile())
@@ -42,7 +50,7 @@ public class PlatformSigner {
         }
         String digest = HEX.formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(current.get(0).getEncoded()));
-        if (!digest.equals(SAMSUNG) && !digest.equals(LEGACY_MONSTERROM)) {
+        if (!isPlatformSource(digest)) {
             return false;
         }
         Path output = Files.createTempFile(apk.getParent(), ".monsterrom-", ".tmp");
