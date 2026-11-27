@@ -11,10 +11,21 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
-import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Stream;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class PlatformSigner {
     // S947B ZZKN and G996B HZC2 use the same Samsung platform certificate.
@@ -47,7 +58,7 @@ public class PlatformSigner {
         return result.getSignerCertificates();
     }
 
-    private static boolean resign(Path apk, X509Certificate donor, X509Certificate local,
+    private static boolean resign(Path apk, X509Certificate local,
                                   ApkSigner.SignerConfig signer) throws Exception {
         List<X509Certificate> current = verify(apk);
         if (current.size() != 1) {
@@ -86,14 +97,73 @@ public class PlatformSigner {
         }
     }
 
-    private static void updateMacPolicy(Path file, String oldCert, String newCert) throws Exception {
-        String xml = Files.readString(file);
-        String updated = xml.replace("signature=\"" + oldCert + "\"", "signature=\"" + newCert + "\"")
-                .replace("signature=\"" + oldCert.toUpperCase(Locale.ROOT) + "\"", "signature=\"" + newCert + "\"");
-        if (!updated.equals(xml)) {
+    private static void updateMacPolicy(Path file, String newCert) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        Document policy;
+        try (InputStream input = Files.newInputStream(file)) {
+            policy = factory.newDocumentBuilder().parse(input);
+        }
+
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        Set<String> localPackages = new HashSet<>();
+        String localGlobalSeinfo = null;
+        boolean changed = false;
+        for (Node entry = policy.getDocumentElement().getFirstChild(); entry != null; entry = entry.getNextSibling()) {
+            if (!(entry instanceof Element signer) || !signer.getTagName().equals("signer")) {
+                continue;
+            }
+            NodeList certs = signer.getElementsByTagName("cert");
+            if (certs.getLength() + (signer.hasAttribute("signature") ? 1 : 0) != 1) {
+                // APK migration only handles single-signer packages. Preserve multi-signer rules.
+                continue;
+            }
+            Element certificate = certs.getLength() == 1 ? (Element) certs.item(0) : signer;
+            String oldCert = certificate.getAttribute("signature");
+            if (!oldCert.equalsIgnoreCase(newCert)) {
+                // Policy values are full DER certificates. Match the same sources as APK signing.
+                if (!isPlatformSource(HEX.formatHex(sha256.digest(HEX.parseHex(oldCert))))) {
+                    continue;
+                }
+                certificate.setAttribute("signature", newCert);
+                changed = true;
+            }
+
+            for (Node child = signer.getFirstChild(); child != null; child = child.getNextSibling()) {
+                if (!(child instanceof Element rule)) {
+                    continue;
+                }
+                if (rule.getTagName().equals("seinfo")) {
+                    if (localGlobalSeinfo != null) {
+                        throw new IllegalStateException("Duplicate global rule for the selected platform signer in " + file);
+                    }
+                    localGlobalSeinfo = rule.getAttribute("value");
+                } else if (rule.getTagName().equals("package") && !localPackages.add(rule.getAttribute("name"))) {
+                    throw new IllegalStateException("Duplicate package rule for the selected platform signer in " + file);
+                }
+            }
+        }
+        if (file.getFileName().toString().equals("plat_mac_permissions.xml") && !"platform".equals(localGlobalSeinfo)) {
+            throw new IllegalStateException("Missing platform role for the selected platform signer in " + file);
+        }
+
+        if (changed) {
             Path tmp = Files.createTempFile(file.getParent(), ".monsterrom-", ".tmp");
             try {
-                Files.writeString(tmp, updated);
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+                transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+                var transformer = transformerFactory.newTransformer();
+                if (policy.getXmlEncoding() != null) {
+                    transformer.setOutputProperty(OutputKeys.ENCODING, policy.getXmlEncoding());
+                }
+                try (var output = Files.newOutputStream(tmp)) {
+                    transformer.transform(new DOMSource(policy), new StreamResult(output));
+                }
                 try {
                     Files.setPosixFilePermissions(tmp, Files.getPosixFilePermissions(file));
                 } catch (UnsupportedOperationException ignored) {
@@ -117,12 +187,11 @@ public class PlatformSigner {
                 .digest(original.get(0).getEncoded())).equals(SAMSUNG)) {
             throw new IllegalArgumentException("Unexpected stock platform signer");
         }
-        X509Certificate donor = original.get(0);
         X509Certificate local;
         try (InputStream in = Files.newInputStream(Path.of(args[1]))) {
             local = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
         }
-        String localDigest = HEX.formatHex(MessageDigest.getInstance("SHA-256").digest(local.getEncoded()));
+        String localCert = HEX.formatHex(local.getEncoded());
         PrivateKey key = KeyFactory.getInstance("RSA").generatePrivate(
                 new PKCS8EncodedKeySpec(Files.readAllBytes(Path.of(args[2]))));
         ApkSigner.SignerConfig signer = new ApkSigner.SignerConfig.Builder("MONSTERROM", key, List.of(local)).build();
@@ -136,8 +205,8 @@ public class PlatformSigner {
         int signed = 0;
         for (Path file : files) {
             if (file.toString().endsWith("_mac_permissions.xml")) {
-                updateMacPolicy(file, HEX.formatHex(donor.getEncoded()), HEX.formatHex(local.getEncoded()));
-            } else if (resign(file, donor, local, signer)) {
+                updateMacPolicy(file, localCert);
+            } else if (resign(file, local, signer)) {
                 System.out.println("Signed " + root.relativize(file));
                 signed++;
             }
