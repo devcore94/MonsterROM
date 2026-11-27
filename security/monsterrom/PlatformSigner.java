@@ -27,10 +27,15 @@ public class PlatformSigner {
     // APKs inside the Bluetooth and NFC APEXes. Keep it in the migration set
     // so those APKs can be brought onto whichever target certificate is used.
     private static final String AOSP_PLATFORM = "c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8";
+    // The interrupted local test build used the repository's alternate test
+    // certificate before the real AOSP platform pair was restored. Migrate
+    // those APKs as well instead of leaving a second platform signer behind.
+    private static final String ALTERNATE_TEST = "a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc";
     private static final HexFormat HEX = HexFormat.of();
 
     static boolean isPlatformSource(String digest) {
-        return digest.equals(SAMSUNG) || digest.equals(LEGACY_MONSTERROM) || digest.equals(AOSP_PLATFORM);
+        return digest.equals(SAMSUNG) || digest.equals(LEGACY_MONSTERROM) ||
+                digest.equals(AOSP_PLATFORM) || digest.equals(ALTERNATE_TEST);
     }
 
     private static List<X509Certificate> verify(Path apk) throws Exception {
