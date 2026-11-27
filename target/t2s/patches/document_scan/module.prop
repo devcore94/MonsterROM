@@ -1,4 +1,4 @@
 id=document_scan
 name=Galaxy S21+ document scan libraries
 author=Samsung, MonsterROM_NEXT
-description=Uses a matched Exynos 2100 SmartScan and document rectification library set.
+description=Keeps the One UI 9.5 document scanner ABI and translates the Exynos 2100-incompatible ARM release stores.
