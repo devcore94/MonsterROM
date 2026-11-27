@@ -89,7 +89,12 @@ public class PlatformSigner {
             Path tmp = Files.createTempFile(file.getParent(), ".monsterrom-", ".tmp");
             try {
                 Files.writeString(tmp, updated);
-                Files.setPosixFilePermissions(tmp, Files.getPosixFilePermissions(file));
+                try {
+                    Files.setPosixFilePermissions(tmp, Files.getPosixFilePermissions(file));
+                } catch (UnsupportedOperationException ignored) {
+                    // See the corresponding APK replacement above: a
+                    // Windows-hosted UNC build has no POSIX permission view.
+                }
                 Files.move(tmp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             } finally {
                 Files.deleteIfExists(tmp);
