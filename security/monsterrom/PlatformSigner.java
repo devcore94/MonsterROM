@@ -19,13 +19,13 @@ import java.util.stream.Stream;
 public class PlatformSigner {
     // S947B ZZKN and G996B HZC2 use the same Samsung platform certificate.
     private static final String SAMSUNG = "34df0e7a9f1cf1892e45c056b4973cd81ccf148a4050d11aea4ac5a65f900a42";
-    // A previous MonsterROM build signed the APEX payload apps with this
-    // temporary platform certificate.  Keep it in the migration set so the
-    // shared-UID members are brought onto the current local certificate too.
+    // A previous MonsterROM build signed some APEX payload apps with this
+    // temporary platform certificate. Keep it in the migration set so the
+    // shared-UID members are brought onto the selected target certificate.
     private static final String LEGACY_MONSTERROM = "56f3570aadd0a1ee83b63969475d5d51341d47e0c9f77104c81917f964db81a2";
     // An earlier t2s test image used the public AOSP platform certificate for
-    // APKs inside the Bluetooth and NFC APEXes. They must migrate with their
-    // shared-UID peers when the private local platform key is available.
+    // APKs inside the Bluetooth and NFC APEXes. Keep it in the migration set
+    // so those APKs can be brought onto whichever target certificate is used.
     private static final String AOSP_PLATFORM = "c8a2e9bccf597c2fb6dc66bee293fc13f2fc47ec77bc6b2b0d52c11f51192ab8";
     private static final HexFormat HEX = HexFormat.of();
 
@@ -103,9 +103,6 @@ public class PlatformSigner {
             local = (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(in);
         }
         String localDigest = HEX.formatHex(MessageDigest.getInstance("SHA-256").digest(local.getEncoded()));
-        if (localDigest.equals(AOSP_PLATFORM)) {
-            throw new IllegalArgumentException("The public AOSP platform test key cannot be used as the MonsterROM platform key");
-        }
         PrivateKey key = KeyFactory.getInstance("RSA").generatePrivate(
                 new PKCS8EncodedKeySpec(Files.readAllBytes(Path.of(args[2]))));
         ApkSigner.SignerConfig signer = new ApkSigner.SignerConfig.Builder("MONSTERROM", key, List.of(local)).build();
