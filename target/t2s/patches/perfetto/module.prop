@@ -1,0 +1,4 @@
+id=perfetto
+name=Galaxy S21+ Perfetto transport
+author=MonsterROM_NEXT
+description=Starts traced with its local IPC sockets on t2s.
