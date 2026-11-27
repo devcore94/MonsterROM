@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+    <privapp-permissions package="com.samsung.android.soundassistant">
+        <permission name="android.permission.MODIFY_AUDIO_ROUTING" />
+        <permission name="com.samsung.android.permission.SEM_UPDATE_NOTIFICATION_CHANNELS" />
+        <deny-permission name="android.permission.MEDIA_CONTENT_CONTROL" />
+        <deny-permission name="android.permission.MODIFY_PHONE_STATE" />
+        <deny-permission name="com.samsung.android.app.cocktailbarservice.permission.ACCESS_PANEL" />
+        <deny-permission name="com.samsung.android.app.routines.permission.READ_ROUTINE_INFO" />
+        <deny-permission name="com.samsung.android.app.screenrecorder.permission.ACCESS_SCREEN_RECORDER_SVC" />
+        <deny-permission name="com.samsung.android.permission.MODIFY_THEME" />
+        <deny-permission name="com.samsung.android.settings.personalvibration.WRITE_PERSONAL_VIBRATION_PROVIDER" />
+        <deny-permission name="com.samsung.systemui.permission.REQUEST_BLUETOOTH_ICON" />
+        <deny-permission name="com.wssnps.permission.COM_WSSNPS" />
+    </privapp-permissions>
+</permissions>

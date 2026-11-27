@@ -42,6 +42,8 @@ public class PlatformSigner {
     // certificate before the real AOSP platform pair was restored. Migrate
     // those APKs as well instead of leaving a second platform signer behind.
     private static final String ALTERNATE_TEST = "a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc";
+    private static final Path SOUND_ASSISTANT_APK =
+            Path.of("system", "system", "priv-app", "SoundAssistant", "SoundAssistant.apk");
     private static final HexFormat HEX = HexFormat.of();
 
     static boolean isPlatformSource(String digest) {
@@ -206,6 +208,11 @@ public class PlatformSigner {
         for (Path file : files) {
             if (file.toString().endsWith("_mac_permissions.xml")) {
                 updateMacPolicy(file, localCert);
+            } else if (root.relativize(file).equals(SOUND_ASSISTANT_APK)) {
+                // Galaxy Store updates require the original Samsung signature.
+                if (!verify(file).equals(original)) {
+                    throw new IllegalArgumentException("Unexpected Sound Assistant signer for " + file);
+                }
             } else if (resign(file, local, signer)) {
                 System.out.println("Signed " + root.relativize(file));
                 signed++;
