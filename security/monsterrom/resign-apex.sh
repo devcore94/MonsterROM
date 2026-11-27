@@ -9,6 +9,7 @@ INPUT="$PACKAGE_DIR/$MODULE.capex"
 if [ ! -f "$INPUT" ]; then
     INPUT="$PACKAGE_DIR/$MODULE.apex"
 fi
+OUTPUT="$PACKAGE_DIR/$MODULE.apex"
 KEYS="$(dirname "$(realpath "$SRC_DIR/security/local")")/apex"
 PLATFORM_CERT="$SRC_DIR/security/aosp_platform.x509.pem"
 PLATFORM_KEY="$SRC_DIR/security/aosp_platform.pk8"
@@ -22,14 +23,21 @@ cleanup()
 }
 trap cleanup EXIT
 cd "$TMP"
-mkdir -p mount apps
+mkdir -p mount apps inner
 if [[ "$INPUT" == *.capex ]]; then
     unzip -p "$INPUT" original_apex > inner.apex
 else
     cp -f "$INPUT" inner.apex
 fi
+unzip -t inner.apex > /dev/null
 unzip -p inner.apex apex_payload.img > apex_payload.img
 unzip -p inner.apex apex_pubkey > original.avbpubkey
+for ENTRY in AndroidManifest.xml apex_manifest.pb apex_build_info.pb; do
+    unzip -p inner.apex "$ENTRY" > /dev/null || {
+        echo "Missing required APEX entry $ENTRY in $INPUT" >&2
+        exit 1
+    }
+done
 avbtool verify_image --image apex_payload.img
 INFO="$(LC_ALL=C avbtool info_image --image apex_payload.img)"
 grep -Fq "Prop: apex.key -> '$MODULE'" <<< "$INFO"
@@ -74,9 +82,28 @@ avbtool add_hashtree_footer --image apex_payload.img --do_not_generate_fec --alg
 avbtool verify_image --image apex_payload.img --key "$KEYS/$MODULE.pem"
 avbtool extract_public_key --key "$KEYS/$MODULE.pem" --output apex_pubkey
 
-zip -q -0 inner.apex apex_payload.img apex_pubkey
-signapk -a 4096 --align-file-size "$KEYS/container.x509.pem" "$KEYS/container.pk8" inner.apex "$MODULE.apex"
+# Keep the complete APEX package. Only the AVB-protected payload and its
+# public key change; AndroidManifest.xml, apex_manifest.pb, build metadata,
+# resources, notices and any other stock entries must remain present.
+unzip -q inner.apex -d inner
+rm -rf inner/META-INF
+cp -f apex_payload.img inner/apex_payload.img
+cp -f apex_pubkey inner/apex_pubkey
+(cd inner && zip -q -0 -r ../unsigned.apex .)
+signapk -a 4096 --align-file-size "$KEYS/container.x509.pem" "$KEYS/container.pk8" unsigned.apex "$MODULE.apex"
 jarsigner -verify "$MODULE.apex" > /dev/null
+for ENTRY in AndroidManifest.xml apex_manifest.pb apex_build_info.pb apex_payload.img apex_pubkey; do
+    unzip -p "$MODULE.apex" "$ENTRY" > /dev/null || {
+        echo "Missing required output APEX entry $ENTRY for $MODULE" >&2
+        exit 1
+    }
+done
+unzip -l "$MODULE.apex" > package.list
+if grep -Fq "original_apex" package.list; then
+    echo "Output APEX unexpectedly contains original_apex: $MODULE" >&2
+    exit 1
+fi
 unzip -p "$MODULE.apex" apex_pubkey | cmp - apex_pubkey
-unzip -p "$MODULE.apex" apex_payload.img | cmp - apex_payload.img
-mv "$MODULE.apex" "$PACKAGE_DIR/$MODULE.apex"
+unzip -p "$MODULE.apex" apex_payload.img > verified-payload.img
+avbtool verify_image --image verified-payload.img --key "$KEYS/$MODULE.pem"
+mv -f "$MODULE.apex" "$OUTPUT"
